@@ -1,0 +1,55 @@
+# bioen.optimize parameter file  (TEMPLATE)
+
+general:
+    #method: forces      # forces, log_weights   ### this is confusing. Should be removed
+    minimizer: scipy    # scipy, gsl, lbfgs
+    debug: true        # provides full output
+    verbose: true
+
+scipy:
+    # Native parameters of the SciPy minimizer module.
+    # For algorithm, use names as used by SciPy internally, e.g.: fmin_bfgs, fmin_l_bfgs_b
+    algorithm: fmin_bfgs    # fmin_bfgs (default), fmin_l_bfgs_b
+    gtol: 0.001             # used by fmin_bfgs and cg
+    pgtol: 0.001            # used only by fmin_l_bfgs_b
+    epsilon: 0.1            # used by all
+    use_c_functions: true   # true (default), if false call Python functions
+    max_iterations: 5000
+    ### all other algorithm modifiers can be forwared to the specific algorithm.
+
+gsl:
+    # Native parameters of the multimin module of the GNU Scientific Library.
+    # For algorithm, use the same names as used by GSL internally:
+    #    gsl_multimin_fdfminimizer_conjugate_fr gsl_multimin_fdfminimizer_conjugate_pr
+    #    gsl_multimin_fdfminimizer_vector_bfgs2 gsl_multimin_fdfminimizer_vector_bfgs
+    #    gsl_multimin_fdfminimizer_steepest_descent
+    # In addition to algorithm, step_size and tol are the relevant parameters.  See
+    # https://www.gnu.org/software/gsl/manual/html_node/Multidimensional-Minimization.html
+    algorithm: gsl_multimin_fdfminimizer_vector_bfgs2
+    step_size: 0.01
+    tol: 0.001
+    max_iterations: 5000
+
+lbfgs:
+    # Native liblbfgs parameters as described on the following documentation pages:
+    # http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html
+    # http://www.chokkan.org/software/liblbfgs/group__liblbfgs__api.html
+    # The most important parameters are (TODO: select which to expose here):
+    #linesearch: 1           # 1
+    linesearch: 2           # 1
+    max_iterations: 5000    # 5000
+    #delta: 0.0              # 0.0
+    delta: 1.e-6              # 0.0
+    #epsilon: 1.e-5          # 1.e-5
+    epsilon: 1.e-6          # 1.e-5
+    #ftol: 1.e-4             # 1.e-4
+    ftol: 1.e-5             # 1.e-4
+    gtol: 0.9               # 0.9
+    past: 10                # 10
+    max_linesearch: 100     # 100 
+
+c_functions: # [expert]
+    # Options for the C implementations of the objective functions and their gradients.
+    n_threads: -1  # -1 auto (default), >0 set number of threads explicitly [expert]
+    cache_ytilde_transposed: auto  # auto (default), true, false [expert]
+

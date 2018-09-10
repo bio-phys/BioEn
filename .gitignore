@@ -1,0 +1,7 @@
+*~
+*.pyc
+*.o
+*.so
+.unison
+bioen/githash.py
+

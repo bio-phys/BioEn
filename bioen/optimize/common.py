@@ -1,0 +1,79 @@
+from __future__ import print_function
+import numpy as np
+
+
+def chiSqrTerm(w, yTilde, YTilde):
+    """
+    Legacy Python version of chiSqrTerm.
+
+    Parameters
+    ---------
+    w: array like, N  elements
+    yTilde: array_like, MxN matrix
+    YTilde: array_like, vector with M components
+
+    Returns
+    -------
+
+    """
+    v = (yTilde * w).T - YTilde
+    return .5 * (v * v.T)[0, 0]
+
+
+def getAve(w, y):
+    """
+    Legacy Python version of getAve.
+
+    Parameters
+    ----------
+    w: array like, N  elements (obtained from getWeights(g))
+    y: array like,
+
+    Returns
+    -------
+    array like
+    """
+    return np.asarray((y * w).T)[0]
+
+
+def print_highlighted(str, verbose=True):
+    """
+    Decorate a string to improve readability
+
+    Parameters
+    ----------
+    str:
+    verbose: True as default. Prints highlighted str
+
+    """
+    if verbose:
+        n = len(str)
+        print("-"*n)
+        print(str)
+        print("-"*n)
+
+
+def set_caching_heuristics(m, n):
+    """
+    Function that calculates size required for M:observables and N:structures
+    (size = sizeof(double) * m * n ) and evalutes this size for a fixed
+    threshold (2^30 * 8).
+    This is used to decide wheter caching functionality has to be enabled or
+    not when 'cache_ytilde_transposed' is configured in 'auto' mode.
+
+    Parameters
+    ----------
+    m: size of observables
+    n: size of structures
+
+    Returns
+    -------
+    bool: True (acceptable memory for caching)
+
+    """
+    max_acceptable_mem = 8 * 2**30
+    sizeof_double = 8
+    if (m * n * sizeof_double > max_acceptable_mem):
+        return False
+
+    return True

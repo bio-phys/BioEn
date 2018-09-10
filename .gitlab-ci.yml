@@ -1,0 +1,170 @@
+# "khr_ci" CI runner on VM on MPCDF OpenStack.  2 cores only.
+test_py27_lnx_nehalem:
+    tags:
+        # - DISABLE
+        - centos
+    variables:
+        GSL_HOME: /opt/gsl/2.4
+        LBFGS_HOME: /opt/liblbfgs/1.10
+        BIOEN_OPENMP: 1
+        BIOEN_FAST_CFLAGS: 0
+        # OMP_STACKSIZE: 64M
+    before_script:
+        - source /opt/anaconda/anavars2.sh
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py develop --user
+    script:
+        # run the included unit test cases
+        - cd test/optimize
+        - for NT in 1 2; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - cd -
+        - cd test/deer
+        - ./run_bioen_deer.sh
+        - cd -
+        - cd test/classical
+        - ./run_bioen.sh
+        - cd -
+        - cd test/scattering
+        - ./run_bioen_saxs.sh
+        - cd -
+        - python setup.py build_sphinx
+        - python setup.py sdist --formats=gztar
+    after_script:
+        # 'after_script' starts with a clean state
+        - source /opt/anaconda/anavars2.sh
+        - python setup.py develop --user --uninstall || true
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py clean || true
+
+
+# "testmac" CI runner on the Mac at MPCDF PC service
+# note: runner needs to be started manually inside a screen session
+test_py27_mac:
+    tags:
+        # - DISABLE
+        - mac
+    variables:
+        # we have GSL from homebrew at the standard location
+        # GSL_HOME: /opt/gsl/2.4
+        LBFGS_HOME: /opt/liblbfgs/1.10
+        BIOEN_OPENMP: 0
+        # BIOEN_FAST_CFLAGS: 0
+        # OMP_STACKSIZE: 64M
+    before_script:
+        - source /opt/anaconda/anavars2.sh
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py develop --user
+    script:
+        # 'before_script' is executed, working directory is 'package'
+        # Run the included unit test cases
+        - cd test/optimize
+        - py.test -sv
+        - cd -
+        - cd test/deer
+        - ./run_bioen_deer.sh
+        - cd -
+        - cd test/classical
+        - ./run_bioen.sh
+        - cd -
+        - cd test/scattering
+        - ./run_bioen_saxs.sh
+        - cd -
+        - python setup.py build_sphinx
+        - python setup.py sdist --formats=gztar
+    after_script:
+        # 'after_script' starts with a clean state
+        - source /opt/anaconda/anavars2.sh
+        - python setup.py develop --user --uninstall || true
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py clean || true
+
+
+# "khrtest@phys02" CI runner on phys02, being able to test AVX2 with more aggressive optimization
+# note: runner needs to be started manually inside a screen session
+test_py27_lnx_haswell:
+    tags:
+        # - DISABLE
+        - sles11
+        - haswell
+    variables:
+        BIOEN_OPENMP: 1
+        BIOEN_FAST_CFLAGS: 1
+        # OMP_STACKSIZE: 64M
+    before_script:
+        - source /etc/profile.d/modules.sh
+        - module purge
+        - module load git
+        - module load anaconda/2_4.3.1
+        - module load gcc/7.2
+        - module load gsl/2.1
+        - module load liblbfgs/1.10
+        - module list
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py develop --user
+    script:
+        # run the included unit test cases
+        - cd test/optimize
+        - for NT in 1 2 4 8 12 16 24 48; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - cd -
+        - cd test/deer
+        - ./run_bioen_deer.sh
+        - cd -
+        - cd test/classical
+        - ./run_bioen.sh
+        - cd -
+        - cd test/scattering
+        - ./run_bioen_saxs.sh
+        - cd -
+    after_script:
+        # 'after_script' starts with a clean state
+        - source /etc/profile.d/modules.sh
+        - module purge
+        - module load anaconda/2_4.3.1
+        - python setup.py develop --user --uninstall || true
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py clean || true
+
+
+# "khrtest@cobra02" CI runner on cobra02, being able to test AVX512 with more aggressive optimization
+# note: runner needs to be started manually inside a screen session
+test_py27_lnx_skylake:
+    tags:
+        - sles12
+        - skylake
+    variables:
+        BIOEN_OPENMP: 1
+        BIOEN_FAST_CFLAGS: 1
+        # OMP_STACKSIZE: 64M
+    before_script:
+        - source /etc/profile.d/modules.sh
+        - module purge
+        - module load git
+        - module load anaconda/2
+        - module load gcc/7
+        - module load gsl/2.4
+        - module load liblbfgs/1.10
+        - module list
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py develop --user
+    script:
+        # run the included unit test cases
+        - cd test/optimize
+        - for NT in 1 2 4 8 10 20 40; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - cd -
+        - cd test/deer
+        - ./run_bioen_deer.sh
+        - cd -
+        - cd test/classical
+        - ./run_bioen.sh
+        - cd -
+        - cd test/scattering
+        - ./run_bioen_saxs.sh
+        - cd -
+    after_script:
+        # 'after_script' starts with a clean state
+        - source /etc/profile.d/modules.sh
+        - module purge
+        - module load anaconda/2
+        - python setup.py develop --user --uninstall || true
+        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - python setup.py clean || true

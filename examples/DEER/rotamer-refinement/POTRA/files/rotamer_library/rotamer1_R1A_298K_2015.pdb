@@ -1,0 +1,81 @@
+HEADER    SPIN LABELING WITH LIBRARY R1A_298K_UFF_216_r1_CASD                   
+TITLE     [2LZM](A){1}72 LABELED WITH R1A AT 298 K                              
+REMARK 4                                                                        
+REMARK 4 MMM ROTAMERS (PSEUDO-PDB FORMAT) RESIDUE NUMBERS ARE ROTAMER IDS       
+MODEL        1
+HETATM    1  C   R1A A   1      28.813  -9.824  18.437  0.00 78.96           C
+HETATM    2  CA  R1A A   1      29.585 -11.103  18.751  0.00 78.96           C
+HETATM    3  N   R1A A   1      30.935 -11.130  18.213  0.00 78.96           N
+HETATM    4  CB  R1A A   1      29.613 -11.374  20.269  0.00 78.96           C
+HETATM    5  SG  R1A A   1      30.381 -12.966  20.783  0.00 78.96           S
+HETATM    6  SD  R1A A   1      32.211 -12.347  21.570  0.00 78.96           S
+HETATM    7  CE  R1A A   1      33.420 -12.783  20.216  0.00 78.96           C
+HETATM    8  C3  R1A A   1      34.497 -11.744  20.161  0.00 78.96           C
+HETATM    9  C2  R1A A   1      35.702 -11.746  21.098  0.00 78.96           C
+HETATM   10  C9  R1A A   1      35.361 -11.576  22.589  0.00 78.96           C
+HETATM   11  C8  R1A A   1      36.617 -12.969  20.896  0.00 78.96           C
+HETATM   12  C4  R1A A   1      34.536 -10.709  19.307  0.00 78.96           C
+HETATM   13  C5  R1A A   1      35.739  -9.820  19.492  0.00 78.96           C
+HETATM   14  C7  R1A A   1      35.377  -8.386  19.921  0.00 78.96           C
+HETATM   15  C6  R1A A   1      36.672  -9.796  18.267  0.00 78.96           C
+HETATM   16  N1  R1A A   1      36.408 -10.526  20.617  0.00 78.96           N
+HETATM   17  O1  R1A A   1      37.501 -10.132  21.114  0.00 78.96           O
+HETATM   18  O   R1A A   1      29.272  -8.922  17.780  0.00 78.96           O
+HETATM   19  HA  R1A A   1      29.017 -11.939  18.298  0.00 78.96           H
+HETATM   20  H   R1A A   1      30.892 -11.082  17.193  0.00 78.96           H
+HETATM   21  HB2 R1A A   1      28.596 -11.416  20.698  0.00 78.96           H
+HETATM   22  HB3 R1A A   1      30.137 -10.537  20.754  0.00 78.96           H
+HETATM   23  HE2 R1A A   1      32.860 -12.835  19.272  0.00 78.96           H
+HETATM   24  HE3 R1A A   1      33.827 -13.780  20.439  0.00 78.96           H
+HETATM   25  H91 R1A A   1      34.922 -12.491  23.015  0.00 78.96           H
+HETATM   26  H92 R1A A   1      36.292 -11.348  23.131  0.00 78.96           H
+HETATM   27  H93 R1A A   1      34.654 -10.746  22.743  0.00 78.96           H
+HETATM   28  H81 R1A A   1      36.158 -13.883  21.303  0.00 78.96           H
+HETATM   29  H82 R1A A   1      36.836 -13.129  19.829  0.00 78.96           H
+HETATM   30  H83 R1A A   1      37.566 -12.793  21.423  0.00 78.96           H
+HETATM   31  H4  R1A A   1      33.784 -10.507  18.539  0.00 78.96           H
+HETATM   32  H71 R1A A   1      36.293  -7.858  20.226  0.00 78.96           H
+HETATM   33  H72 R1A A   1      34.910  -7.834  19.090  0.00 78.96           H
+HETATM   34  H73 R1A A   1      34.680  -8.393  20.773  0.00 78.96           H
+HETATM   35  H61 R1A A   1      37.614  -9.296  18.540  0.00 78.96           H
+HETATM   36  H62 R1A A   1      36.906 -10.817  17.929  0.00 78.96           H
+HETATM   37  H63 R1A A   1      36.209  -9.247  17.432  0.00 78.96           H
+CONECT    1    2   18
+CONECT    2    1    3    4   19
+CONECT    3    2   20
+CONECT    4    2    5   21   22
+CONECT    5    4    6
+CONECT    6    5    7
+CONECT    7    6    8   23   24
+CONECT    8    7    9   12
+CONECT    9    8   10   11   16
+CONECT   10    9   25   26   27
+CONECT   11    9   28   29   30
+CONECT   12    8   13   31
+CONECT   13   12   14   15   16
+CONECT   14   13   32   33   34
+CONECT   15   13   35   36   37
+CONECT   16    9   13   17
+CONECT   17   16
+CONECT   18    1
+CONECT   19    2
+CONECT   20    3
+CONECT   21    4
+CONECT   22    4
+CONECT   23    7
+CONECT   24    7
+CONECT   25   10
+CONECT   26   10
+CONECT   27   10
+CONECT   28   11
+CONECT   29   11
+CONECT   30   11
+CONECT   31   12
+CONECT   32   14
+CONECT   33   14
+CONECT   34   14
+CONECT   35   15
+CONECT   36   15
+CONECT   37   15
+TER
+ENDMDL

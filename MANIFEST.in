@@ -1,0 +1,8 @@
+include LICENSE.txt
+include bioen/optimize/config/bioen_optimize.yaml
+recursive-include doc *
+recursive-include img *
+recursive-include ipynbs *
+recursive-include scripts *
+recursive-include test *
+exclude .unison
