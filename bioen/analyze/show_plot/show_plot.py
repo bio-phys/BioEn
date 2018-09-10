@@ -63,8 +63,8 @@ def start_plotting(self):
         figs_all.append(plot_deer(self, theta_series))
     if 'scattering' in experiments:
         figs_all.append(plot_scattering(self, theta_series))
-    if 'classical' in experiments:
-        figs_all.append(plot_classical(self, theta_series))
+    if 'generic' in experiments:
+        figs_all.append(plot_generic(self, theta_series))
     figs_all = [fig for sublist in figs_all for fig in sublist]
     for fig in figs_all:
         pp.savefig(fig)
@@ -124,30 +124,30 @@ def plot_scattering(self, theta_series):
     return [fig]
 
 
-def plot_classical(self, theta_series):
+def plot_generic(self, theta_series):
     theta_max = np.max(theta_series)
     figs = []
     exp_keys = []
-    for exp_key in self.bioen_data[theta_max]['exp']['classical'].keys():
+    for exp_key in self.bioen_data[theta_max]['exp']['generic'].keys():
         exp_keys.append(exp_key)
         if len(exp_keys) == 10:
-            figs.append(visualize_classical_data(self.bioen_data,
+            figs.append(visualize_generic_data(self.bioen_data,
                                                 exp_keys, theta_series))
             exp_keys = []
     if len(exp_keys) < 10:
-        figs.append(visualize_classical_data(self.bioen_data,
+        figs.append(visualize_generic_data(self.bioen_data,
                                             exp_keys, theta_series))
     return figs
 
 
-def visualize_classical_data(bioen_data, exp_keys, theta_series):
+def visualize_generic_data(bioen_data, exp_keys, theta_series):
     fig = plt.figure(figsize=[12, 5])
     ax = fig.add_subplot(111)
 
     exp_keys
     for idx, exp_key in enumerate(exp_keys):
-        exp = bioen_data[np.max(theta_series)]['exp']['classical'][exp_key]
-        exp_err = bioen_data[np.max(theta_series)]['exp_err']['classical'][exp_key]
+        exp = bioen_data[np.max(theta_series)]['exp']['generic'][exp_key]
+        exp_err = bioen_data[np.max(theta_series)]['exp_err']['generic'][exp_key]
         if idx == 0:
             ax.errorbar(idx, exp, yerr=exp_err, fmt='o', color='black',
                         label='Exp. + Error', zorder=2)
@@ -156,7 +156,7 @@ def visualize_classical_data(bioen_data, exp_keys, theta_series):
 
         a = np.linspace(0.1, 0.7, num=len(theta_series))
         for i, theta in enumerate(theta_series):
-            sim = bioen_data[theta]['sim_wopt']['classical'][exp_key]
+            sim = bioen_data[theta]['sim_wopt']['generic'][exp_key]
             if idx == 0:
                 ax.plot(idx, sim, marker='^', color='red', alpha=a[i],
                         label=r"BioEn ($\theta={}$)".format(theta), zorder=3)

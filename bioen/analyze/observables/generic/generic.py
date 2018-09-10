@@ -4,7 +4,7 @@ import numpy as np
 from ... import utils
 
 
-class Classical:
+class Generic:
     def __init__(self, kwargs):
         """
         Loads all information needed about data from different sources
@@ -16,7 +16,7 @@ class Classical:
 
         Returns
         --------
-        classical: object, contains all information about jcouplings data
+        generic: object, contains all information about jcouplings data
         """
         for key in kwargs:
             setattr(self, key, kwargs[key])
@@ -87,17 +87,17 @@ def get_sim_tmp(self):
     for flex_id in self.exp_tmp_dict.keys():
         fn = "{}/{}-{}-{}.dat".format(self.sim_path, self.sim_prefix, flex_id, self.sim_suffix)
         try:
-            sim_classical = np.genfromtxt(fn, comments='#')
+            sim_generic = np.genfromtxt(fn, comments='#')
         except IOError:
             print('ERROR: Cannot find simulated data file: {}'.format(fn))
             sys.exit()
 
-        if len(sim_classical) != self.nmodels:
+        if len(sim_generic) != self.nmodels:
             print("ERROR: Number of data points in file {} ".format(fn) + \
                   "and number of models (input option) are not the same.".format(self.nmodels))
             sys.exit()
-        sim_tmp_1.append(sim_classical)
-        sim_tmp_dict[flex_id] = sim_classical
+        sim_tmp_1.append(sim_generic)
+        sim_tmp_dict[flex_id] = sim_generic
 
     sim_tmp_1 = np.array(sim_tmp_1)
 

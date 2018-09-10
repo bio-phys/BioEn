@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from scipy.optimize import leastsq
 
-from .classical import classical
+from .generic import generic
 from .deer import deer
 from .scattering import scattering
 from ... import optimize
@@ -67,21 +67,21 @@ class Observables:
             kwargs['models_list'] = self.models_list
             self.observables['scattering'] = scattering.Scattering(kwargs)
 
-        if 'classical' in self.experiments:
+        if 'generic' in self.experiments:
             kwargs = dict()
-            kwargs['sim_path']    = options.classical_sim_path
-            kwargs['sim_prefix']  = options.classical_sim_prefix
-            kwargs['sim_suffix']  = options.classical_sim_suffix
-            kwargs['exp_path']    = options.classical_exp_path
-            kwargs['exp_prefix']  = options.classical_exp_prefix
-            kwargs['exp_suffix']  = options.classical_exp_suffix
-            kwargs['data_ids']    = options.classical_data_ids
-            kwargs['data_weight'] = options.classical_data_weight
-            kwargs['in_pkl']      = options.classical_in_pkl
-            kwargs['out_pkl']     = options.classical_out_pkl
+            kwargs['sim_path']    = options.generic_sim_path
+            kwargs['sim_prefix']  = options.generic_sim_prefix
+            kwargs['sim_suffix']  = options.generic_sim_suffix
+            kwargs['exp_path']    = options.generic_exp_path
+            kwargs['exp_prefix']  = options.generic_exp_prefix
+            kwargs['exp_suffix']  = options.generic_exp_suffix
+            kwargs['data_ids']    = options.generic_data_ids
+            kwargs['data_weight'] = options.generic_data_weight
+            kwargs['in_pkl']      = options.generic_in_pkl
+            kwargs['out_pkl']     = options.generic_out_pkl
             kwargs['nmodels']     = options.nmodels
             kwargs['models_list'] = self.models_list
-            self.observables['classical'] = classical.Classical(kwargs)
+            self.observables['generic'] = generic.Generic(kwargs)
 
         self.nrestraints = get_nrestraints_all(self)
         self.exp = get_proc_exp(self)
@@ -115,7 +115,7 @@ class Observables:
                 if experiment == 'scattering':
                     c = self.observables['scattering'].coeff
                     sim_l.extend((c * sim_tmp[nmodel]) / exp_err_tmp)
-                if experiment == 'classical':
+                if experiment == 'generic':
                     sim_l.extend(sim_tmp[nmodel] / exp_err_tmp)
             sim[:,j] = np.array(sim_l)
         return np.matrix(sim), np.matrix(sim.copy())
@@ -241,12 +241,12 @@ class Observables:
                     sim_tmp[:,j] = np.array(c * s)
                 sim_wopt['scattering'] = np.matrix(sim_tmp)*wopt
 
-            if experiment == 'classical':
+            if experiment == 'generic':
                 sim_tmp_1 = dict()
-                sim_tmp_dict = self.observables['classical'].sim_tmp_dict
-                for i, flex_id in enumerate(self.observables['classical'].exp_tmp_dict.keys()):
+                sim_tmp_dict = self.observables['generic'].sim_tmp_dict
+                for i, flex_id in enumerate(self.observables['generic'].exp_tmp_dict.keys()):
                     sim_tmp_1[flex_id] = sim_tmp_dict[flex_id]*np.matrix(wopt)
-                sim_wopt['classical'] = sim_tmp_1
+                sim_wopt['generic'] = sim_tmp_1
         return sim_wopt
 
 
@@ -256,14 +256,14 @@ def get_experiments(experiments):
     checks if the provided kind of data is implemented
     in BioEn.
     """
-    experiments_in_bioen = ['deer', 'scattering', 'classical']
+    experiments_in_bioen = ['deer', 'scattering', 'generic']
     if all(experiment in experiments_in_bioen for experiment in experiments.split(',')):
         return experiments.split(',')
     else:
         for experiment in experiments.split(','):
             if experiment not in experiments_in_bioen:
                 print('ERROR: The experimental data type {} is not implemented in BioEn yet. ' \
-                      'Please try \"classical\" (useful for distances, NOEs, CS, J-couplings, ' \
+                      'Please try \"generic\" (useful for distances, NOEs, CS, J-couplings, ' \
                       'PREs etc.)'.format(experiment))
                 sys.exit()
 
@@ -308,6 +308,6 @@ def get_proc_exp(self):
                 exp.extend((np.array(exp_tmp[ln][:,2], dtype=np.float64)) / exp_err_tmp[ln])
         elif experiment == 'scattering':
             exp.extend((np.array(exp_tmp[:,1], dtype=np.float64)) / exp_err_tmp)
-        elif experiment == 'classical':
+        elif experiment == 'generic':
             exp.extend((np.array(exp_tmp, dtype=np.float64)) / exp_err_tmp)
     return np.matrix(np.array(exp).reshape(1, self.nrestraints))

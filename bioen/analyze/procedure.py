@@ -116,7 +116,7 @@ def start_reweighting(options, obs):
                     exp_wopt[experiment] = obs.observables[experiment].exp_tmp
                     exp_err_wopt[experiment] = obs.observables[experiment].exp_err_tmp
                     d["coefficient"] = obs.observables['scattering'].coeff
-                elif experiment in ['classical']:
+                elif experiment in ['generic']:
                     exp_wopt[experiment] = obs.observables[experiment].exp_tmp_dict
                     exp_err_wopt[experiment] = obs.observables[experiment].exp_err_tmp_dict
             d["exp"] = exp_wopt

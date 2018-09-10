@@ -122,63 +122,63 @@ def main():
                       dest='experiments',
                       default=None,
                       help='Required: provide at least one of the following experimental '
-                      'methods: deer, scattering, flexible.')
+                      'methods: deer, scattering, generic.')
     parser.add_option('--input_pkl',
                       dest='input_pkl_fn',
                       default=None,
                       help='Name of input pkl file (e.g. <path_to_file>/input.pkl)')
 
-    # classical - experimental measurements with standard input
+    # generic - experimental measurements with standard input
     parser.add_option('--sim_path',
-                      dest='classical_sim_path',
+                      dest='generic_sim_path',
                       default=None,
-                      help='Path of files with simulated data (in a classical format).')
+                      help='Path of files with simulated data (in a generic format).')
     parser.add_option('--sim_prefix',
-                      dest='classical_sim_prefix',
+                      dest='generic_sim_prefix',
                       type='string',
                       default='sim',
                       help='Prefix of files with simulated data (e.g. sim (default).')
     parser.add_option('--sim_suffix',
-                      dest='classical_sim_suffix',
+                      dest='generic_sim_suffix',
                       type='string',
-                      default='classical',
-                      help='Suffix of files with simulated data (e.g. classical (default).')
+                      default='generic',
+                      help='Suffix of files with simulated data (e.g. generic (default).')
     parser.add_option('--exp_path',
-                      dest='classical_exp_path',
+                      dest='generic_exp_path',
                       default=None,
-                      help='Path of files with experimental data for classical data input.')
+                      help='Path of files with experimental data for generic data input.')
     parser.add_option('--exp_prefix',
-                      dest='classical_exp_prefix',
+                      dest='generic_exp_prefix',
                       type='string',
                       default='exp',
-                      help='Prefix of files with experimental data for classical data input. '
+                      help='Prefix of files with experimental data for generic data input. '
                       ' (e.g. exp (default).')
     parser.add_option('--exp_suffix',
-                      dest='classical_exp_suffix',
+                      dest='generic_exp_suffix',
                       type='string',
-                      default='classical',
-                      help='Suffix of files with experimental data for classical data input. '
-                      '(e.g. flexible (default).')
+                      default='generic',
+                      help='Suffix of files with experimental data for generic data input. '
+                      '(e.g. generic (default).')
     parser.add_option('--data_input_pkl',
-                      dest='classical_in_pkl',
+                      dest='generic_in_pkl',
                       type='string',
                       default=None,
-                      help='Input pkl file with experimental and simulated flexible data.')
+                      help='Input pkl file with experimental and simulated generic data.')
     parser.add_option('--data_output_pkl',
-                      dest='classical_out_pkl',
+                      dest='generic_out_pkl',
                       type='string',
                       default=None,
-                      help='Output pkl file with experimental and simulated flexible data.')
+                      help='Output pkl file with experimental and simulated generic data.')
     parser.add_option('--data_ids',
-                      dest='classical_data_ids',
+                      dest='generic_data_ids',
                       default=None,
                       help='Provide either a list of data ids e.g., "noe_1,noe_2,distance_1" or '
                       ' define \"all\" (all experimental data in your exp data file is used).')
     parser.add_option('--data_weight',
-                      dest='classical_data_weight',
+                      dest='generic_data_weight',
                       type=float,
                       default=1.0,
-                      help='Weight of the flexible data (in case of ensemble refinement '
+                      help='Weight of the generic data (in case of ensemble refinement '
                       'weighting with different experimental data).')
 
     # deer

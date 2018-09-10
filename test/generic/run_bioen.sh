@@ -6,8 +6,8 @@ flex_ids="noe_1,noe_2,distance_1,pre_1,r2-J1JNC"
 
 bioen \
     --number_of_models 10 \
-    --models_list ${path}/models-classical.dat \
-    --experiments classical \
+    --models_list ${path}/models-generic.dat \
+    --experiments generic \
     --theta thetas.dat \
     --sim_path ${path} \
     --exp_path ${path} \

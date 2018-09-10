@@ -8,6 +8,8 @@ Copyright (c) 2017-2018 Klaus Reuter, Max Planck Computing and Data Facility,
                         Giessenbachstraße 2, 85748 Garching, Germany.
 Copyright (c) 2017-2018 César Allande, Max Planck Computing and Data Facility,
                         Giessenbachstraße 2, 85748 Garching, Germany.
+Copyright (c) 2017-2018 Lukas S. Stelzl, Max Planck Institute of Biophysics,
+                        Max-von-Laue-Straße 3, 60438 Frankfurt am Main, Germany.
 Copyright (c) 2017-2018 Gerhard Hummer, Max Planck Institute of Biophysics,
                         Max-von-Laue-Straße 3, 60438 Frankfurt am Main, Germany.
 
