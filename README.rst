@@ -24,7 +24,7 @@ BioEn spin-label rotamer refinement
 
 **Precision DEER Distances from Spin-Label Ensemble Refinement**
 
-https://github.com/bio-phys/BioEn/examples/DEER/rotamer-refinement/POTRA
+https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA
 
 
 Dependencies and Software Requirements
