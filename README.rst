@@ -221,13 +221,6 @@ Please take note of the options ``--scattering_sim_prefix``, ``--scattering_sim_
 As indicated above, a nuisance parameter (here: coefficient) is needed to calculate the consistency of the simulated data with the experimental data correctly. To achieve this, we have to iteratively optimize the weights of the ensemble members and the modulation depth. For all cases tested with scattering data, 10 iterations seems to be sufficient until the optimization converges. To do so, we recommend to set the option ``--number_of_iterations`` to **10** or higher. 
 
 
-Other data related options
---------------------------
-
-``--models_list``
-``--number_of_models``
-
-
 Other options and settings
 --------------------------
 The initial and reference weights can be set with ``--reference_weights`` and ``--initial_weights``. For both options, one can either choose **uniform** (uniformly distributed weights; default), **random** (randmoly distributed weights), or provide a file as input.
@@ -248,7 +241,7 @@ The minimal amount of input parameters are:
 
 * number of ensemble members (``--number_of_models``)
 * list of models (``--models_list``)
-* type of experiments (``--experiments``
+* type of experiments (``--experiments``)
 * input experimental and simulated data
 
 In case you have data from NMR measurements (e.g. NOEs), a typical invocation would look like this:
