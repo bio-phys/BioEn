@@ -223,11 +223,6 @@ As indicated above, a nuisance parameter (here: coefficient) is needed to calcul
 
 Other data related options
 --------------------------
-The minimal amount of input parameters are:
-
-* list of models
-* type of experiments
-* input experimental and simulated data
 
 ``--models_list``
 ``--number_of_models``
@@ -249,6 +244,13 @@ The option ``--output_pkl_input_data`` can be used to generate a pkl file of all
 
 Minimal example
 ---------------
+The minimal amount of input parameters are:
+
+* number of ensemble members (``--number_of_models``)
+* list of models (``--models_list``)
+* type of experiments (``--experiments``
+* input experimental and simulated data
+
 In case you have data from NMR measurements (e.g. NOEs), a typical invocation would look like this:
 
 .. code-block:: bash
@@ -260,15 +262,14 @@ In case you have data from NMR measurements (e.g. NOEs), a typical invocation wo
         --theta 0.01 \
         --sim_path <path-to-data> \
         --exp_path <path-to-data> \
-        --data_IDs all
+        --data_ids all
 
-We provide example test scripts ``run_bioen_*.sh`` in ``test/generic/``, ``test/deer/``, and ``test/scattering/`` to run BioEn with the three mentioned types of data. 
+We provide example test scripts ``run_bioen*.sh`` in ``test/generic/``, ``test/deer/``, and ``test/scattering/`` to run BioEn with the three mentioned types of data. 
 
 
 Default settings
 ----------------
 The default setting for reweighting is log-weights for the procedure and bfgs2 for the optimization algorithm.
-
 
 
 Output
