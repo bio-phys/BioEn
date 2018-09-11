@@ -48,9 +48,13 @@ Installation
 ---------------------
 After loading the dependencies, install the package with::
 
-	BIOEN_OPENMP=1 python setup.py install --user
+	BIOEN_OPENMP=1 python setup.py install 
 
-BIOEN_OPENMP set to 1 enables OPENMP. The --user flag enables a local installation, which does not require admin/sudo rights. You may have to set the path to your GSL installation, before running the setup command. On OSX use BIOEN_OPENMP=0. 
+BIOEN_OPENMP set to 1 enables OPENMP. On OSX use BIOEN_OPENMP=0.
+
+You can use the --user flag for a local installation, which does not require admin/sudo rights. When you install BioEn locally, please check whether $HOME/.local/bin is on your path. You can add it the folder to the path, e.g., by adding export PATH=$HOME/.local/bin:$PATH to your .bashrc file. In a conda-environment install the package without the --user flag.
+
+You may have to set the path to your GSL installation, before running the setup command. 
 
 Installation on Linux
 ---------------------
