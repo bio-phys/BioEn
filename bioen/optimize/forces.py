@@ -135,54 +135,50 @@ def bioen_chi2_s_forces(forces, w0, y, yTilde, YTilde, theta):
 def check_params_forces(forcesInit, w0, y, yTilde, YTilde, theta):
     """
     Check the proper dimensionality of the forces parameters.
-    The reference dimensions are based on the MxN matrix yTilde
+    The reference dimensions are based on the (m, n) matrix yTilde
 
     Parameters
-    ---------
-    forcesInit: 1xM matrix
-    w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
-    yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
-    YTilde: 1xM matrix, experimental observables
-    theta: float, confidence parameter,
+    ----------
+    forcesInit : ndarray (m, 1)
+    w0 : ndarray (n, 1)
+    y : ndarray (m, n)
+        m observables calculate for the n structures
+    yTilde : ndarray (m, n)
+        m observables y_i / sigma_i for the n structures
+    YTilde : ndarray (1, m)
+        experimental observables
+    theta : float
+        confidence parameter
 
 
-    Notes
-    -----
-    Execution is aborted if dimensionality is not well defined.
+    Raises
+    ------
+    ValueError
     """
+    m, n = yTilde.shape
+    error = False
 
-    numdim = yTilde.ndim
-    m = yTilde.shape[0]
-    n = yTilde.shape[1]
-    error = 0
+    def _pretty_print(name, expected, current):
+        print("Unexpected shape for variable: {name}\n"
+              "Expected: {expected}\n"
+              "Current:  {current}".format(name=name, expected=expected, current=current))
 
     # check for correct dimensions
-    if (forcesInit.ndim != numdim or forcesInit.shape[0] != m or forcesInit.shape[1] != 1):
-        print("Correct form: forcesInit (", m, ",1)")
-        print("Current form: forcesInit (", forcesInit.shape[0], ",", forcesInit.shape[1], ")")
-        error = 1
+    if forcesInit.shape != (m, 1):
+        _pretty_print("forcesInit", (m, 1), forcesInit.shape)
+        error = True
+    if w0.shape != (n, 1):
+        _pretty_print('w0', (n, 1), w0.shape)
+        error = True
+    if y.shape != (m, n):
+        _pretty_print('y', (m, n), y.shape)
+        error = True
+    if YTilde.shape != (1, m):
+        _pretty_print('YTilde', (1, m), YTilde.shape)
+        error = True
 
-    if (w0.ndim != numdim or w0.shape[0] != n or w0.shape[1] != 1):
-        print("Correct form: w0 (", n, ",1)")
-        print("Current form: w0 (", w0.shape[0], ",", w0.shape[1], ")")
-        error = 1
-
-    if (y.ndim != numdim or y.shape[0] != m or y.shape[1] != n):
-        print("Correct form: y (", m, ",", n, ")")
-        print("Current form: y (", y.shape[0], ",", y.shape[1], ")")
-        error = 1
-
-    if (YTilde.ndim != numdim or YTilde.shape[0] != 1 or YTilde.shape[1] != m):
-        print("Correct form: YTilde (1,", m, ")")
-        print("Current form: YTilde (", YTilde.shape[0], ",", YTilde.shape[1], ")")
-        error = 1
-
-    if (error == 1):
-        print("EXIT: Error/s on arguments dimensionality for the 'forces' method")
-        sys.exit(0)
-
-    return
+    if error:
+        raise ValueError("arguments dimensionality for the 'forces' method are wrong")
 
 
 # FORCES function insterace selector
