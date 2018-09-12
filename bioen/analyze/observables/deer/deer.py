@@ -113,13 +113,13 @@ def get_exp_tmp(self):
 
         if any(extension in self.noise[-4:] for extension in [".dat", ".txt"]):
             for line in utils.load_lines(self.noise):
-                le = line.split()
-                if le[0] == ln: tmp_2 = np.array([float(le[1])]*len(tmp))
+
+                if line[0] == ln: tmp_2 = np.array([float(line[1])]*len(tmp))
 
                 try:
                     tmp_2
                 except:
-                    msg = "ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) + \
+                    msg = "ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) +\
                           "in file \'{}\'.".format(self.noise)
                     raise RuntimeError(msg)
 
