@@ -133,7 +133,7 @@ def get_exp_tmp(self):
         try:
             tmp_2
         except:
-            msg = "ERROR: please provide the correct format for DEER noise.",
+            msg = "ERROR: please provide the correct format for DEER noise. " +\
                   "Current format: \'{}\'".format(self.noise)
             raise RuntimeError(msg)
 
