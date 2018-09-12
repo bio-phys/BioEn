@@ -21,7 +21,7 @@ def gen_synthetic_data(M, N, YTrue, sig_exp):
     Observed values drawn from normal distribution.
 
     Parameters
-    ---------
+    ----------
     M: double
     N: double
     YTrue:
@@ -43,7 +43,7 @@ def gen_synthetic_data(M, N, YTrue, sig_exp):
 def gen_sythetic_ensemble(M, N, YTrue, sig_exp, sig_sim):
     """
     Parameters
-    ---------
+    ----------
     M: double
     N: double
     YTrue:
@@ -71,7 +71,7 @@ def gen_sythetic_ensemble(M, N, YTrue, sig_exp, sig_sim):
 def init_forces(M, val=0):
     """
     Parameters
-    ---------
+    ----------
     M:
     val:
 
@@ -132,7 +132,7 @@ def bioen_chi2_s_forces(forces, w0, y, yTilde, YTilde, theta):
     return theta * np.dot((np.log(w[ind] / w0[ind])).T, w[ind])[0, 0], chiSqr
 
 
-def check_params_forces(forcesInit, w0, y, yTilde, YTilde, theta):
+def check_params_forces(forcesInit, w0, y, yTilde, YTilde):
     """
     Check the proper dimensionality of the forces parameters.
     The reference dimensions are based on the (m, n) matrix yTilde
@@ -147,9 +147,6 @@ def check_params_forces(forcesInit, w0, y, yTilde, YTilde, theta):
         m observables y_i / sigma_i for the n structures
     YTilde : ndarray (1, m)
         experimental observables
-    theta : float
-        confidence parameter
-
 
     Raises
     ------
@@ -188,7 +185,7 @@ def bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, cachin
     function using the forces method
 
     Parameters
-    ---------
+    ----------
     forcesInit: 1xM matrix
     w0: array of length N
     y: MxN matrix, M observables calculate for the M structures
@@ -216,7 +213,7 @@ def grad_bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, c
     function using the forces method
 
     Parameters
-    ---------
+    ----------
     forces: 1xM matrix
     w0: array of length N
     y: MxN matrix, M observables calculate for the M structures
@@ -272,7 +269,7 @@ def grad_bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta, use_c=Tr
     Legacy Python version of grad_bioen_log_posterior forces method
 
     Parameters
-    ---------
+    ----------
     forces: 1xM matrix
     w0: array of length N
     y: MxN matrix, M observables calculate for the M structures
@@ -323,7 +320,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
 
     """
 
-    check_params_forces(forcesInit, w0, y, yTilde, YTilde, theta)
+    check_params_forces(forcesInit, w0, y, yTilde, YTilde)
 
     minimizer = cfg["minimizer"]
     caching = cfg["cache_ytilde_transposed"]
