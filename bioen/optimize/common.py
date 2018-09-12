@@ -7,7 +7,7 @@ def chiSqrTerm(w, yTilde, YTilde):
     Legacy Python version of chiSqrTerm.
 
     Parameters
-    ---------
+    ----------
     w: array like, N  elements
     yTilde: array_like, MxN matrix
     YTilde: array_like, vector with M components
