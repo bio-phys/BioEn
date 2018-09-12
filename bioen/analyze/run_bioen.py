@@ -46,8 +46,8 @@ def main():
         print("Exception occurred!"
         # print("Error Message: ")
         # print(e)
-        raise(e)  # show stacktrace
-        sys.exit(1)
+        raise  # show stacktrace
+        sys.exit(1)  # indicate error via non-zero exit status
 
 
 def main_function():
