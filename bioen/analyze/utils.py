@@ -136,5 +136,5 @@ def load_lines(fn):
     lines = []
     for line in lines_all:
         if not line.startswith('#'):
-            lines.append(line)
+            lines.append(line.split())
     return lines

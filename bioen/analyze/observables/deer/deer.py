@@ -112,14 +112,13 @@ def get_exp_tmp(self):
         nrestraints += tmp[:, 0].shape[0]
         if any(extension in self.noise[-4:] for extension in [".dat", ".txt"]):
             for line in utils.load_lines(self.noise):
-                le = line.split()
-                if le[0] == ln: tmp_2 = np.array([float(le[1])]*len(tmp))
-                try:
-                    tmp_2
-                except:
-                    print("ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) +\
-                          "in file \'{}\'.".format(self.noise))
-                    sys.exit(1)
+                if line[0] == ln: tmp_2 = np.array([float(line[1])]*len(tmp))
+            try:
+                tmp_2
+            except:
+                print("ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) +\
+                      "in file \'{}\'.".format(self.noise))
+                sys.exit(1)
         elif self.noise == "exp_fit_dif":
             tmp_2 = np.array([np.abs(tmp[:, 1] - tmp[:, 2])])[0]
         elif self.noise == "exp_fit_std":
