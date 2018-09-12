@@ -411,8 +411,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                                full_output=True)
 
         else:
-            common.print_highlighted("Method '" + cfg["algorithm"] + "' not recognized for scipy/c library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
-            sys.exit(0)
+            raise RuntimeError("Method '" + cfg["algorithm"] + "' not recognized for scipy/c library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
 
     elif cfg["minimizer"].upper() == 'SCIPY' and cfg["use_c_functions"] == False:
         common.print_highlighted("FORCES -- Library scipy/PY", cfg["verbose"])
@@ -470,12 +469,10 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                                disp=cfg["verbose"],
                                full_output=True)
         else:
-            common.print_highlighted("Method '" + cfg["algorithm"] + "' not recognized for scipy/py library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
-            sys.exit(0)
+            raise RuntimeError("Method '" + cfg["algorithm"] + "' not recognized for scipy/py library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
 
     else:
-        common.print_highlighted("Library " + cfg["minimizer"] + " not recognized (valid values =  'LIBLBFGS', 'GSL', 'scipy', 'scipy' ) ")
-        sys.exit(0)
+        raise RuntimeError("Library " + cfg["minimizer"] + " not recognized (valid values =  'LIBLBFGS', 'GSL', 'scipy', 'scipy' ) ")
 
     end = time.time()
 

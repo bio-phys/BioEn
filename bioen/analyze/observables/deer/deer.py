@@ -110,28 +110,32 @@ def get_exp_tmp(self):
                                                         self.exp_suffix), comments="#")
         exp_tmp[ln] = tmp
         nrestraints += tmp[:, 0].shape[0]
+
         if any(extension in self.noise[-4:] for extension in [".dat", ".txt"]):
             for line in utils.load_lines(self.noise):
                 le = line.split()
                 if le[0] == ln: tmp_2 = np.array([float(le[1])]*len(tmp))
+
                 try:
                     tmp_2
                 except:
-                    print("ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) +\
-                          "in file \'{}\'.".format(self.noise))
-                    sys.exit(1)
+                    msg = "ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) + \
+                          "in file \'{}\'.".format(self.noise)
+                    raise RuntimeError(msg)
+
         elif self.noise == "exp_fit_dif":
             tmp_2 = np.array([np.abs(tmp[:, 1] - tmp[:, 2])])[0]
         elif self.noise == "exp_fit_std":
             tmp_2 = np.array([np.std(tmp[:, 1] - tmp[:, 2])]*len(tmp))
         elif utils.is_float(self.noise):
             tmp_2 = np.array([float(self.noise)]*len(tmp))
+
         try:
             tmp_2
         except:
-            print("ERROR: please provide the correct format for DEER noise.",
-                  "Current format: \'{}\'".format(self.noise))
-            sys.exit(1)
+            msg = "ERROR: please provide the correct format for DEER noise.",
+                  "Current format: \'{}\'".format(self.noise)
+            raise RuntimeError(msg)
 
         tmp_2[tmp_2 == 0.0] = 0.01
         exp_err_tmp[ln] = tmp_2
@@ -152,9 +156,6 @@ def get_sim_tmp(self):
         for i, label in enumerate(self.labels):
             ln = "{}-{}".format(label[0], label[1])
             sim_tmp_2[ln] = np.genfromtxt("{0}/{1}{2}-{3}-{4}-{5}.dat".format(self.sim_path,
-                                                                              self.sim_prefix,
-									      int(model), label[0],
-                                                                              label[1],
-									      self.sim_suffix))[:, 1]
+                self.sim_prefix, int(model), label[0], label[1], self.sim_suffix))[:, 1]
         sim_tmp[model] = sim_tmp_2
     return sim_tmp

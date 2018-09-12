@@ -29,25 +29,23 @@ def get_weights(w_setting, nmodels):
             print(e)
             print('ERROR: Please provide the correct path to your weights file.' +\
                   'Right now it is: \'{}\'.'.format(w_setting))
-            sys.exit(1)
+            raise
         wtmp[wtmp == 0.0] = 1e-150
         wsum = np.sum(wtmp)
 
         # complains if input by the user is inconsistent
         if len(wtmp) != nmodels:
-            print('ERROR: Please provide the same number of ensemble members ' +\
+            msg = 'ERROR: Please provide the same number of ensemble members ' +\
                   '(--number_of_models {}) as number of weights in your '.format(nmodels) +\
-                  'file \'{}\' ({}).'.format(w_setting, len(wtmp)))
-            sys.exit(1)
-        return (np.matrix(np.array(wtmp)/np.array(wsum))).T
+                  'file \'{}\' ({}).'.format(w_setting, len(wtmp))
+            raise RuntimeError(msg)
 
+        return (np.matrix(np.array(wtmp)/np.array(wsum))).T
     # complains if not the correct input is provided
     else:
-        print('ERROR: Please provide information on weights (e.g. \'uniform\', \'random\' or ' +\
-              'define a file in *dat or *txt format).')
-        sys.exit(1)
-
-
+        msg = 'ERROR: Please provide information on weights (e.g. \'uniform\', \'random\' or ' +\
+              'define a file in .dat or .txt format).'
+        raise RuntimeError(msg)
 
 
 def get_uniform_weights(nmodels):
@@ -130,7 +128,7 @@ def load_lines(fn):
     Returns:
     --------
     lines: array,
-        array of strings 
+        array of strings
     """
     lines_all = open(fn, 'r').readlines()
     lines = []

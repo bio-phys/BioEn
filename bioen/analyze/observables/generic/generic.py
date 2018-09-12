@@ -87,16 +87,18 @@ def get_sim_tmp(self):
     sim_tmp_dict = dict()
     for flex_id in self.exp_tmp_dict.keys():
         fn = "{}/{}-{}-{}.dat".format(self.sim_path, self.sim_prefix, flex_id, self.sim_suffix)
+
         try:
             sim_generic = np.genfromtxt(fn, comments='#')
-        except IOError:
+        except:
             print('ERROR: Cannot find simulated data file \'{}\''.format(fn))
-            sys.exit(1)
+            raise
 
         if len(sim_generic) != self.nmodels:
-            print("ERROR: Number of data points in file \'{}\' ".format(fn) + \
-                  "and number of models (--number_of_models {}) are not the same.".format(self.nmodels))
-            sys.exit(1)
+            msg = "ERROR: Number of data points in file \'{}\' ".format(fn) + \
+                  "and number of models (--number_of_models {}) are not the same.".format(self.nmodels)
+            raise RuntimeError(msg)
+
         sim_tmp_1.append(sim_generic)
         sim_tmp_dict[flex_id] = sim_generic
 

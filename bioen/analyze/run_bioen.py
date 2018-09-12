@@ -6,6 +6,7 @@
 #
 ################################################
 
+import sys
 import numpy as np
 import random as rdm
 import time
@@ -39,6 +40,17 @@ def get_thetas(theta):
 
 
 def main():
+    try:
+        main_function()
+    except Exception as e:
+        print("Exception occurred!")
+        print("Error Message: ")
+        print(e)
+        # raise(e)  # show stacktrace
+        sys.exit(1)
+
+
+def main_function():
     from optparse import OptionParser
     parser = OptionParser(usage=__doc__)
     # optimization options
@@ -345,7 +357,7 @@ def main():
                       default=None,
                       help='Input hd5 with dictionary of simulated scattering data '
                       '(e.g. sim_tmp[nmodel][label].')
-    
+
     parser.add_option('--number_of_iterations',
                       dest='iterations',
                       type=int,
@@ -371,7 +383,7 @@ def main():
                       type='string',
                       default='test.pdf',
                       help='Define filename of simple plot output (test.pdf (default)).')
-    
+
     options, args = parser.parse_args()
 
     if options.simple_plot is True:
