@@ -123,6 +123,10 @@ test_py27_lnx_haswell:
         - python setup.py develop --user --uninstall || true
         - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
         - python setup.py clean || true
+    only:
+        - branches
+    except:
+        - master
 
 
 # "khrtest@cobra02" CI runner on cobra02, being able to test AVX512 with more aggressive optimization
@@ -168,3 +172,7 @@ test_py27_lnx_skylake:
         - python setup.py develop --user --uninstall || true
         - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
         - python setup.py clean || true
+    only:
+        - branches
+    except:
+        - master
