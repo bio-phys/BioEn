@@ -262,11 +262,9 @@ def get_experiments(experiments):
     else:
         for experiment in experiments.split(','):
             if experiment not in experiments_in_bioen:
-                print('ERROR: The experimental data type {} is not implemented in BioEn yet. ' \
-                      'Please try \"generic\" (useful for distances, NOEs, CS, J-couplings, ' \
-                      'PREs etc.)'.format(experiment))
-                sys.exit()
-
+                raise RuntimeError('ERROR: The experimental data type {} is not implemented in BioEn yet. ' \
+                                   'Please try \"generic\" (useful for distances, NOEs, CS, J-couplings, ' \
+                                   'PREs etc.)'.format(experiment))
 
 
 def get_models_list(models_list_fn, nmodels):

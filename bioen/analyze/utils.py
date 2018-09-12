@@ -22,18 +22,13 @@ def get_weights(w_setting, nmodels):
     elif w_setting == 'random':
         return get_rdm_weights(nmodels)
     elif ".dat" in w_setting:
-        try:
-            wtmp = np.loadtxt(w_setting, unpack=True)
-            wtmp[wtmp == 0.0] = 1e-150
-            wsum = np.sum(wtmp)
-            return (np.matrix(np.array(wtmp)/np.array(wsum))).T
-        except IOError:
-            print('ERROR: Weights file {} could not be loaded.'.format(w_setting))
-            sys.exit()
+        wtmp = np.loadtxt(w_setting, unpack=True)
+        wtmp[wtmp == 0.0] = 1e-150
+        wsum = np.sum(wtmp)
+        return (np.matrix(np.array(wtmp)/np.array(wsum))).T
     else:
-        print('ERROR: Please provide information on weights (e.g. \'uniform\', \'random\' or ' +\
-              'define a file\').')
-        sys.exit()
+        raise RuntimeError('ERROR: Please provide information on weights '
+                           '(e.g. \'uniform\', \'random\' or define a file\').')
 
 
 def get_uniform_weights(nmodels):

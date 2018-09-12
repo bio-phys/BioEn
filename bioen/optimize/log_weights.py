@@ -183,8 +183,7 @@ def check_params_logweights(GInit, G, y, yTilde, YTilde):
         error = 1
 
     if (error == 1):
-        print("EXIT: Error/s on arguments dimensionality for the 'log_weigths' method")
-        sys.exit(0)
+        raise RuntimeError("EXIT: Error/s on arguments dimensionality for the 'log_weigths' method")
 
     return
 
@@ -419,8 +418,7 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                                full_output=True)
 
         else:
-            common.print_highlighted("Method '" + cfg["algorithm"] + "' not recognized for scipy/c library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
-            sys.exit(0)
+            raise RuntimeError("Method '" + cfg["algorithm"] + "' not recognized for scipy/c library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
 
     elif cfg["minimizer"].upper() == 'SCIPY' and cfg["use_c_functions"] == False:
 
@@ -486,12 +484,10 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                                full_output=True)
 
         else:
-            common.print_highlighted("Method '" + cfg["algorithm"] + "' not recognized for scipy/py library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
-            sys.exit(0)
+            raise RuntimeError("Method '" + cfg["algorithm"] + "' not recognized for scipy/py library (valid values =  'lbfgs', 'bfgs', 'cg' ) ")
 
     else:
-        common.print_highlighted("Library " + cfg["minimizer"] + " not recognized (valid values =  'LIBLBFGS', 'GSL', 'scipy', 'scipy' ) ")
-        sys.exit(0)
+        raise RuntimeError("Library " + cfg["minimizer"] + " not recognized (valid values =  'LIBLBFGS', 'GSL', 'scipy', 'scipy' ) ")
 
     end = time.time()
 

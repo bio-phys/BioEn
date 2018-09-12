@@ -94,10 +94,8 @@ def get_exp_tmp(self):
     """
 
     fn = "{}/{}-{}.dat".format(self.exp_path, self.exp_prefix, self.exp_suffix)
-    try:
-        exp_1 = np.genfromtxt(fn, comments='#')
-    except IOError:
-        print('ERROR: Cannot open file with simulated scattering data: {}'.format(fn))
+    exp_1 = np.genfromtxt(fn, comments='#')
+
     exp_tmp = exp_1[:, 0:2]
     exp_err_tmp = exp_1[:, 2]
 
@@ -112,9 +110,5 @@ def get_sim_tmp(self):
     sim_tmp = dict()
     for nmodel in range(0, self.nmodels):
         fn = "{}/{}{}-{}.dat".format(self.sim_path, self.sim_prefix, nmodel, self.sim_suffix)
-        try:
-            sim_tmp[nmodel] = np.genfromtxt(fn, comments='#')[:, 1]
-        except IOError:
-            print('ERROR: Cannot open simulated data scattering file: {}'.format(fn))
-            sys.exit()
+        sim_tmp[nmodel] = np.genfromtxt(fn, comments='#')[:, 1]
     return sim_tmp
