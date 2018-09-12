@@ -20,7 +20,7 @@ def bioen_log_prior(w, s, g, G, theta):
     Legacy Python version of bioen_log_prior
 
     Parameters
-    ---------
+    ----------
     w: array like, N  elements (obtained from getWeights(g))
     s: double, (obtained from getWeights(g))
     g: array_like, N log weights (initial log-weights)
@@ -41,7 +41,7 @@ def init_log_weights(w0):
     Observed values drawn from normal distribution.
 
     Parameters
-    ---------
+    ----------
     w0:
 
     Returns
@@ -63,7 +63,7 @@ def getWeights(g):
     Legacy Python version of getWeights.
 
     Parameters
-    ---------
+    ----------
     g: array_like, N log weights (initial log-weights)
 
     Returns
@@ -82,7 +82,7 @@ def getGs(w):
     Legacy Python version of getGs.
 
     Parameters
-    ---------
+    ----------
     w: array like, N  elements (obtained from getWeights(g))
 
     Returns
@@ -98,7 +98,7 @@ def getWOpt(G, gPrimeOpt):
     """
     Legacy Python version of getWOpt.
     Parameters
-    ---------
+    ----------
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
     gPrimeOpt:
 
@@ -118,7 +118,7 @@ def grad_chiSqrTerm(gPrime, g, G, yTilde, YTilde, theta):
     Legacy Python version of grad_chiSqrTerm.
 
     Parameters
-    ---------
+    ----------
     gPrime: array_like, current log weights
     g: array_like, N log weights (initial log-weights)
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
@@ -143,50 +143,47 @@ def grad_chiSqrTerm(gPrime, g, G, yTilde, YTilde, theta):
 def check_params_logweights(GInit, G, y, yTilde, YTilde):
     """
     Check the proper dimensionality of the logweights parameters.
-    The reference dimensions are based on the MxN matrix yTilde
+    The reference dimensions are based on the (m, n) matrix yTilde
 
     Parameters
-    ---------
-    gInit: array_like, N log weights (initial log-weights)
-    G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
-    y: array_like, MxN matrix
-    yTilde: array_like, MxN matrix
-    YTilde: array_like, vector with M components
+    ----------
+    GInit : (n, 1)
+    G : (n, 1)
+    y : (m, n)
+    YTilde : (1, m)
 
-    Notes
-    -----
-    Execution is aborted if dimensionality is not well defined.
+    Raises
+    ------
+    ValueError
     """
-    numdim = yTilde.ndim
-    m = yTilde.shape[0]
-    n = yTilde.shape[1]
-    error = 0
+    m, n  = yTilde.shape
+    error = False
 
-    if (GInit.ndim != numdim or GInit.shape[0] != n or GInit.shape[1] != 1):
-        print("Correct form: GInit (", m, ",1)")
-        print("Current form: GInit (", GInit.shape[0], ",", GInit.shape[1], ")")
-        error = 1
+    def _pretty_print(name, expected, current):
+        print("Unexpected shape for variable: {name}\n"
+              "Expected: {expected}\n"
+              "Current:  {current}".format(name=name, expected=expected, current=current))
 
-    if (G.ndim != numdim or G.shape[0] != n or G.shape[1] != 1):
-        print("Correct form: G (", n, ",1)")
-        print("Current form: G (", G.shape[0], ",", G.shape[1], ")")
-        error = 1
+    # check for correct dimensions
+    if GInit.shape != (n, 1):
+        _pretty_print("GInit", (n, 1), GInit.shape)
+        error = True
 
-    if (y.ndim != numdim or y.shape[0] != m or y.shape[1] != n):
-        print("Correct form: y (", m, ",", n, ")")
-        print("Current form: y (", y.shape[0], ",", y.shape[1], ")")
-        error = 1
+    if G.shape != (n, 1):
+        _pretty_print("G", (n, 1), G.shape)
+        error = True
 
-    if (YTilde.ndim != numdim or YTilde.shape[0] != 1 or YTilde.shape[1] != m):
-        print("Correct form: YTilde (1,", m, ")")
-        print("Current form: YTilde (", YTilde.shape[0], ",", YTilde.shape[1], ")")
-        error = 1
+    if y.shape != (m, n):
+        _pretty_print("y", (m, n), y.shape)
+        error = True
 
-    if (error == 1):
-        print("EXIT: Error/s on arguments dimensionality for the 'log_weigths' method")
-        sys.exit(0)
+    if YTilde.shape != (1, m):
+        _pretty_print("YTilde", (1, m), YTilde.shape)
+        error = True
 
-    return
+    if error:
+        raise ValueError("arguments dimensionality for the 'log_weights' method are wrong")
+
 
 
 # LOGWEIGHTS function interface selector
@@ -195,7 +192,7 @@ def bioen_log_posterior(gPrime, g, G, yTilde, YTilde, theta, use_c=True, caching
     Interface for the objective function log_weights. Selector of C/GSL or Python
 
     Parameters
-    ---------
+    ----------
     gPrime: array_like, current log weights
     g: array_like, N log weights (initial log-weights)
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
@@ -248,7 +245,7 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     Legacy Python version of bioen_log_posterior
 
     Parameters
-    -----------
+    ----------
     gPrime: array_like, current log weights
     g: array_like, N log weights (initial log-weights)
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
@@ -257,7 +254,7 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     theta: float, confidene parameter
 
     Returns
-    --------
+    -------
     L: BioEn loglikelihood
     """
     g[:, 0] = gPrime[:, np.newaxis]
@@ -273,7 +270,7 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     Legacy Python version of grad_bioen_log_posterior
 
     Parameters
-    ---------
+    ----------
     gPrime: array_like, current log weights
     g: array_like, N log weights (initial log-weights)
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
