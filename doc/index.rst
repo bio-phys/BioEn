@@ -48,9 +48,9 @@ present in the bioen source code.
 Copyright and License
 =====================
 
-Copyright 2018 Katrin Reichel, Juergen Koefinger, Lukas S Stelzl, Gerhard Hummer
+Copyright 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
 
-License: GNU GPL version 3. See the included file ``LICENSE.txt`` for details.
+License: GNU GPL version 3. See the files ``LICENSE.txt`` and ``COPYING`` for details.
 
 
 Indices and tables
