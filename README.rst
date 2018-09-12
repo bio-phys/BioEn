@@ -4,7 +4,7 @@
 
 :Authors:      Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl
 :Year:         2018
-:Licence:      MIT Lisence
+:Licence:      GPLv3
 :Copyright:    © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
 :Citation:     Hummer G. and Köfinger J., J. Chem. Phys. 143 (2015) doi: 10.1063/1.4937786
 
