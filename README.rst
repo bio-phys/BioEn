@@ -5,18 +5,18 @@
 :Authors:      Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl
 :Year:         2018
 :Licence:      MIT Lisence
-:Copyright:    © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer 
-:Citation:     Hummer G. and Köfinger J., J. Chem. Phys. 143 (2015) doi: 10.1063/1.4937786 
+:Copyright:    © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
+:Citation:     Hummer G. and Köfinger J., J. Chem. Phys. 143 (2015) doi: 10.1063/1.4937786
 
 
 Description
 ===========
 
-BioEn integrates a broad range of experimental data to refine ensembles of structures. 
+BioEn integrates a broad range of experimental data to refine ensembles of structures.
 
 .. #.. image::  /img/bioen.png
 
-.. #For a detailed description of the procedures and the algorithm, we refer to [Hummer 2018]. 
+.. #For a detailed description of the procedures and the algorithm, we refer to [Hummer 2018].
 
 
 BioEn spin-label rotamer refinement
@@ -34,8 +34,8 @@ Dependencies and Software Requirements
 * Python packages: sys, numpy, scipy, MDAnalysis, pandas
 * GSL (>= 2.1)
 * GCC (>= 4.9)
- 
-To run Jupyter notebooks ``*.ipynb`` in ./examples/ you need addtionally
+
+To run Jupyter notebooks ``*.ipynb`` in ./examples/ you need additionally
 
 * Jupyter (https://jupyter.org/)
 * Python packages: matplotlib
@@ -48,13 +48,13 @@ Installation
 ---------------------
 After loading the dependencies, install the package with::
 
-	BIOEN_OPENMP=1 python setup.py install 
+	BIOEN_OPENMP=1 python setup.py install
 
 BIOEN_OPENMP set to 1 enables OPENMP. On OSX use BIOEN_OPENMP=0.
 
 You can use the --user flag for a local installation, which does not require admin/sudo rights. When you install BioEn locally, please check whether $HOME/.local/bin is on your path. You can add it the folder to the path, e.g., by adding export PATH=$HOME/.local/bin:$PATH to your .bashrc file. In a conda-environment install the package without the --user flag.
 
-You may have to set the path to your GSL installation, before running the setup command. 
+You may have to set the path to your GSL installation, before running the setup command.
 
 Installation on Linux
 ---------------------
@@ -64,8 +64,8 @@ If you have sudo rights you can install GSL via a package manager such as apt-ge
 Installing to GSL is you do not have sudo rights is also simple. Download and unpack GSL and cd to folder with unpacked files.::
 
         configure  --prefix="~/gsl_install"
-        make 
- 
+        make
+
 
 If you have installed GSL into a non-standard location, you have to set the GSL path.::
 
@@ -74,17 +74,17 @@ If you have installed GSL into a non-standard location, you have to set the GSL 
 Installation on Mac
 -------------------
 On a Mac, GSL might have been installed via homebrew::
-       
+
         brew install gsl
 
 You can find the path to your GSL installation typing::
-        
+
         brew info gsl
 
-		
+
 into a terminal and then set the path::
 
-        export GSL_HOME=/usr/local/Cellar/gsl/1.16 
+        export GSL_HOME=/usr/local/Cellar/gsl/1.16
 
 
 Usage
@@ -93,13 +93,13 @@ Usage
 We want to integrate a diverse set of experimental data with simulated observations. Therefore, we implemented three types of chi2-square calculations to use different kinds of experimental data:
 
 * Generic data (chi-square calculation without nuisance parameters)
-* DEER/PELDOR data (includs the modulation depth as a nuisance paramter)
-* Scattering data (includs the coefficient as a nuisance parameter)
+* DEER/PELDOR data (includes the modulation depth as a nuisance parameter)
+* Scattering data (includes the coefficient as a nuisance parameter)
 
 
 (1) Generic data
 --------------------
-The term generic data refers to experimental data, where measurements provide single data points including noise (e.g. NOE, PREs, chemical shifts, J-couplings, distances, chemical cross-links etc). To use generic data, the bioen options should contain ``--experiments generic``. In the experimental data file (e.g. ``test/generic/exp-generic.dat``), the ID (first column) of a data point (second column) and its noise (third column) has to be provided. The ID referes than to the file from the simulated data (e.g. ``sim-noe_1-generic.dat``), in which each line is the simulated data point from a single ensemble member (e.g. from a trajectory of a MD simulation).
+The term generic data refers to experimental data, where measurements provide single data points including noise (e.g. NOE, PREs, chemical shifts, J-couplings, distances, chemical cross-links etc). To use generic data, the bioen options should contain ``--experiments generic``. In the experimental data file (e.g. ``test/generic/exp-generic.dat``), the ID (first column) of a data point (second column) and its noise (third column) has to be provided. The ID refers than to the file from the simulated data (e.g. ``sim-noe_1-generic.dat``), in which each line is the simulated data point from a single ensemble member (e.g. from a trajectory of a MD simulation).
 
 The full list of options for generic data is:
 
@@ -116,18 +116,18 @@ The full list of options for generic data is:
 	--input_pkl
 	--output_pkl
 
-Please take note of the options ``--sim_prefix, --sim_sufffix, --exp_prefix, --exp_suffix``. These are useful to define the names of the files. 
-	
+Please take note of the options ``--sim_prefix, --sim_sufffix, --exp_prefix, --exp_suffix``. These are useful to define the names of the files.
+
 
 (2) Experimental data from DEER/PELDOR measurement
 --------------------------------------------------
-For the reweighting with experimental data including a nuiscance parameter (here: modulation depth), the structure of the input files is extended and more information is needed. To use DEER data, the bioen options should contain ``--experiments deer``. In the case of DEER data, we can either perform reweighting over an ensemble of conformations with averaged spin-label rotamer states or over an ensemble of spin-label rotamer states with a single protein conformation. 
+For the reweighting with experimental data including a nuisance parameter (here: modulation depth), the structure of the input files is extended and more information is needed. To use DEER data, the bioen options should contain ``--experiments deer``. In the case of DEER data, we can either perform reweighting over an ensemble of conformations with averaged spin-label rotamer states or over an ensemble of spin-label rotamer states with a single protein conformation.
 
 If an ensemble of conformations is investigated, provide for each label pair (e.g. 319-259) a single file of the experimental data (e.g. ``exp-319-259-deer.dat``) and ensemble member (e.g. ``conf0-319-259-deer.dat``). The experimental data file (e.g. ``exp-319-259-deer.dat``) contains:
 
 .. code-block:: bash
-	
-	#time   #raw        #polyfit                                                                             
+
+	#time   #raw        #polyfit
 	0.0     0.9886054   1.0
 	0.008   0.97737117  0.99091340848
 	0.016   1.0         0.988879614369
@@ -138,7 +138,7 @@ The simulated data file (e.g. ``conf0-319-259-deer.dat``) contains:
 
 .. code-block:: bash
 
-	#time   #simulated_data                                                                                  
+	#time   #simulated_data
 	0.0     1.0
 	0.008   0.99984697806
 	0.016   0.999388027044
@@ -147,7 +147,7 @@ The simulated data file (e.g. ``conf0-319-259-deer.dat``) contains:
 
 If an ensemble of spin-label rotamer states is investigated, we recommend to use the ipython notebook (``ipynbs/deer_spin_label_reweighting.ipynb``). Here, the user can define the protein structure and a own rotamer library. By executing the cells in the ipython notebook, data preparation, BioEn run, and analysis can be performed in a smooth procedure.
 
-Using DEER data in BioEn, the models file (``models-deer.dat``) is of particular interest: listed numbers (model IDs) in this file have to be the same as the deer file names (``conf0-319-259-deer.dat, conf1-319-259-deer.dat, conf2-319-259-deer.dat`` and so on). With the option ``--deer_modulation_depth``, an initial guess ("<path_to_file>/modulation-depth.dat") can be provided or an initial optimization ("initial-optimization") can be performed for each spin-label pair. 
+Using DEER data in BioEn, the models file (``models-deer.dat``) is of particular interest: listed numbers (model IDs) in this file have to be the same as the deer file names (``conf0-319-259-deer.dat, conf1-319-259-deer.dat, conf2-319-259-deer.dat`` and so on). With the option ``--deer_modulation_depth``, an initial guess ("<path_to_file>/modulation-depth.dat") can be provided or an initial optimization ("initial-optimization") can be performed for each spin-label pair.
 
 The full list of options for DEER data is:
 
@@ -170,16 +170,16 @@ The full list of options for DEER data is:
 
 Please take note of the options ``--deer_sim_prefix``, ``--deer_sim_suffix``, ``--deer_exp_prefix``, and ``--deer_exp_suffix``. These options are useful to define the names of the simulated and experimental files. In addition, please define the spin-label pairs with ``--deer_labels`` (e.g.; "319-259,370-259"), which is also part of the experimental and simulated data file names (see above).
 
-As indicated above, a nuisance parameter (here: modulation depth) is needed to calculate the consistency of the simulated data with the experimental data correctly. To achieve this, we have to iteratively optimize the weights of the ensemble members and the modulation depth. For all cases tested with DEER data, 10 iterations seems to be sufficient until the optimization converges. To do so, we recommend to set the option ``--number_of_iterations`` to **10** or higher. 
+As indicated above, a nuisance parameter (here: modulation depth) is needed to calculate the consistency of the simulated data with the experimental data correctly. To achieve this, we have to iteratively optimize the weights of the ensemble members and the modulation depth. For all cases tested with DEER data, 10 iterations seems to be sufficient until the optimization converges. To do so, we recommend to set the option ``--number_of_iterations`` to **10** or higher.
 
 
 (3) Experimental data from SAXS/WAXS measurements
-------------------------------------------------- 
-BioEn can be used with scattering data like SAXS or WAXS, for which we provide also the optimization of the nuiscance parameter (here: coefficient). To use scattering data, the bioen options should contain ``--experiments scattering``. The input data is handled in a similar way as the DEER data, but just for a single scattering curve and not different label-pairs. The standard file format for experimental data (e.g. ``lyz-exp.dat``) is:
+-------------------------------------------------
+BioEn can be used with scattering data like SAXS or WAXS, for which we provide also the optimization of the nuisance parameter (here: coefficient). To use scattering data, the bioen options should contain ``--experiments scattering``. The input data is handled in a similar way as the DEER data, but just for a single scattering curve and not different label-pairs. The standard file format for experimental data (e.g. ``lyz-exp.dat``) is:
 
 .. code-block:: bash
 
-	#   q                 I(q)        error/noise                                                          
+	#   q                 I(q)        error/noise
     4.138455E-02        5.904029    1.555333E-01
     4.371607E-02        5.652469    1.527037E-01
     4.604759E-02        5.533381    1.521723E-01
@@ -222,14 +222,14 @@ The full list of options for scattering data is:
 
 Please take note of the options ``--scattering_sim_prefix``, ``--scattering_sim_sufffix``, ``--scattering_exp_prefix``, and ``--scattering_exp_suffix``. These options are useful to define the names of the files of experimental and simulated.
 
-As indicated above, a nuisance parameter (here: coefficient) is needed to calculate the consistency of the simulated data with the experimental data correctly. To achieve this, we have to iteratively optimize the weights of the ensemble members and the modulation depth. For all cases tested with scattering data, 10 iterations seems to be sufficient until the optimization converges. To do so, we recommend to set the option ``--number_of_iterations`` to **10** or higher. 
+As indicated above, a nuisance parameter (here: coefficient) is needed to calculate the consistency of the simulated data with the experimental data correctly. To achieve this, we have to iteratively optimize the weights of the ensemble members and the modulation depth. For all cases tested with scattering data, 10 iterations seems to be sufficient until the optimization converges. To do so, we recommend to set the option ``--number_of_iterations`` to **10** or higher.
 
 
 Other options and settings
 --------------------------
-The initial and reference weights can be set with ``--reference_weights`` and ``--initial_weights``. For both options, one can either choose **uniform** (uniformly distributed weights; default), **random** (randmoly distributed weights), or provide a file as input.
+The initial and reference weights can be set with ``--reference_weights`` and ``--initial_weights``. For both options, one can either choose **uniform** (uniformly distributed weights; default), **random** (randomly distributed weights), or provide a file as input.
 
-As described in [Hummer2015], we have to balance the consistency with the experimental data (chi-square) with the changes in the weights (relative entropy) by the **confidence parameter theta**. We can achieve this aim by the maximum-entropy principle and as such avoid over-fitting. To decide for the correct confidence parameter theta for a specific set of data, usually a theta-series is applied. This means, that for each theta an independent ensemble refinement run is performed. Subsequent L-curve analysis (relative entropy vs. chi-square) leads us to the optimal weight distribution. Please note, that the choice of the confidence parameter depends on the system and data. In the BioEn sofware package, one can choose ``--theta`` by defining a single value (e.g.; 10.0) or a theta-series, which can be provided as a list (e.g.; 100.0,10.0,1.0) or a list in a file (e.g.; <path_to_file>/thetas.dat).
+As described in [Hummer2015], we have to balance the consistency with the experimental data (chi-square) with the changes in the weights (relative entropy) by the **confidence parameter theta**. We can achieve this aim by the maximum-entropy principle and as such avoid over-fitting. To decide for the correct confidence parameter theta for a specific set of data, usually a theta-series is applied. This means, that for each theta an independent ensemble refinement run is performed. Subsequent L-curve analysis (relative entropy vs. chi-square) leads us to the optimal weight distribution. Please note, that the choice of the confidence parameter depends on the system and data. In the BioEn software package, one can choose ``--theta`` by defining a single value (e.g.; 10.0) or a theta-series, which can be provided as a list (e.g.; 100.0,10.0,1.0) or a list in a file (e.g.; <path_to_file>/thetas.dat).
 
 To check the BioEn results quickly, a simple plot can be generated, that compares experimental data and ensemble averaged simulated data for the used confidence values. Therefore, the following three options have to be set: ``--simple_plot``, ``--simple_plot_input`` and ``--simple_plot_output``. The file name of the output pkl file has to be provided for ``--simple_plot_input``. The data in this pkl file is visualized and saved in a pdf file, which can be specified with ``--simple_plot_output``.
 
@@ -261,7 +261,7 @@ In case you have data from NMR measurements (e.g. NOEs), a typical invocation wo
         --exp_path <path-to-data> \
         --data_ids all
 
-We provide example test scripts ``run_bioen*.sh`` in ``test/generic/``, ``test/deer/``, and ``test/scattering/`` to run BioEn with the three mentioned types of data. 
+We provide example test scripts ``run_bioen*.sh`` in ``test/generic/``, ``test/deer/``, and ``test/scattering/`` to run BioEn with the three mentioned types of data.
 
 
 Default settings
@@ -271,18 +271,22 @@ The default setting for reweighting is log-weights for the procedure and bfgs2 f
 
 Output
 ------
-Three BioEn output files are generated by default, for which you can choose the file names or leave it with the default naming. 
+Three BioEn output files are generated by default, for which you can choose the file names or leave it with the default naming.
 
-(1) The most useful BioEn output file is in pickle (pkl) format. Choose the name of this file with the option ``--output_pkl``. The default file name is **bioen_result.pkl**. This pkl file contains all relevant information from the weight optimization including experimental data, ensemble averaged data, (reference, initial, and optimized) weights, consistency of experimental data with experimental data (chi-squared), relative entropy, etc. For a complete analysis of your BioEn calculations, this file is essential. 
+(1) The most useful BioEn output file is in pickle (pkl) format. Choose the name of this file with the option ``--output_pkl``. The default file name is **bioen_result.pkl**. This pkl file contains all relevant information from the weight optimization including experimental data, ensemble averaged data, (reference, initial, and optimized) weights, consistency of experimental data with experimental data (chi-squared), relative entropy, etc. For a complete analysis of your BioEn calculations, this file is essential.
 
-(2) The second file contains a list of weights in text file format. The name can be choosen with ``--output_weights``. The default name is **bioen_result_weights.dat**. But careful, it generates this file only for the smalles confidence value theta. 
+(2) The second file contains a list of weights in text file format. The name can be choosen with ``--output_weights``. The
+default name is **bioen_result_weights.dat**. But careful, it generates this file only for the smallest confidence value theta.
 
-(3) The third files contains for each ensemble member the corresponding weight. This file is similar to the second file, however, it includes also the IDs of each ensemble member and is as such in a tabular form. The name of the file can be chosen by ``--output_models_weights`` with the default file name **bioen_result_models_weights.dat**. Also here, this file is generated from the smalles confidence value theta.
+(3) The third files contains for each ensemble member the corresponding weight. This file is similar to the second file,
+however, it includes also the IDs of each ensemble member and is as such in a tabular form. The name of the file can be chosen
+by ``--output_models_weights`` with the default file name **bioen_result_models_weights.dat**. Also here, this file is generated
+from the smallest confidence value theta.
 
 
 Misc information
 ----------------
-We recommend to have a close look at the files in the folders ``test/generic/``, ``test/deer/``, and ``test/scatter/``. These files can be used to understand and transfer the own scrientific questions to BioEn. Lines including ``#`` are in general ignored. 
+We recommend to have a close look at the files in the folders ``test/generic/``, ``test/deer/``, and ``test/scatter/``. These files can be used to understand and transfer the own scientific questions to BioEn. Lines including ``#`` are in general ignored.
 
 For further options and more information, type::
 
@@ -294,13 +298,11 @@ Help
 
 If you have questions or issues, please contact bioen@biophys.mpg.de.
 
-    
+
 References
 ==========
-   
+
 .. Articles
 .. --------
 
 .. Hummer G. and Köfinger J., Bayesian ensemble refinement by replica simulations and reweighting. J. Chem. Phys. 143(24):12B634_1 (2015).
-
-
