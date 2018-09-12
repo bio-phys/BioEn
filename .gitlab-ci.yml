@@ -21,7 +21,7 @@ test_py27_lnx_nehalem:
         - cd test/deer
         - ./run_bioen_deer.sh
         - cd -
-        - cd test/classical
+        - cd test/generic
         - ./run_bioen.sh
         - cd -
         - cd test/scattering
@@ -63,7 +63,7 @@ test_py27_mac:
         - cd test/deer
         - ./run_bioen_deer.sh
         - cd -
-        - cd test/classical
+        - cd test/generic
         - ./run_bioen.sh
         - cd -
         - cd test/scattering
@@ -109,7 +109,7 @@ test_py27_lnx_haswell:
         - cd test/deer
         - ./run_bioen_deer.sh
         - cd -
-        - cd test/classical
+        - cd test/generic
         - ./run_bioen.sh
         - cd -
         - cd test/scattering
@@ -154,7 +154,7 @@ test_py27_lnx_skylake:
         - cd test/deer
         - ./run_bioen_deer.sh
         - cd -
-        - cd test/classical
+        - cd test/generic
         - ./run_bioen.sh
         - cd -
         - cd test/scattering

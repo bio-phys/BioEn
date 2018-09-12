@@ -88,18 +88,18 @@ bioen.analyze.observables.deer.deer
    :undoc-members:
 
 
-bioen.analyze.observables.classical
------------------------------------
+bioen.analyze.observables.generic
+---------------------------------
 
-.. automodule:: bioen.analyze.observables.classical
+.. automodule:: bioen.analyze.observables.generic
    :members:
    :undoc-members:
 
 
-bioen.analyze.observables.classical.classical
----------------------------------------------
+bioen.analyze.observables.generic.generic
+-----------------------------------------
 
-.. automodule:: bioen.analyze.observables.classical.classical
+.. automodule:: bioen.analyze.observables.generic.generic
    :members:
    :undoc-members:
 
