@@ -39,8 +39,9 @@ class Deer:
                 self.sim_tmp = get_sim_tmp(self)
 
         if self.out_pkl is not None:
-            pickle.dump([self.labels, self.moddepth, self.nrestraints, self.exp_tmp,
-                         self.exp_err_tmp, self.sim_tmp], open(self.out_pkl, 'wb'))
+            with open(self.out_pkl, 'wb') as fp:
+                pickle.dump([self.labels, self.moddepth, self.nrestraints,
+                             self.exp_tmp, self.exp_err_tmp, self.sim_tmp], fp)
 
 
 def get_labels(labels):
@@ -145,9 +146,9 @@ def get_sim_tmp(self):
         for i, label in enumerate(self.labels):
             ln = "{}-{}".format(label[0], label[1])
             sim_tmp_2[ln] = np.genfromtxt("{0}/{1}{2}-{3}-{4}-{5}.dat".format(self.sim_path,
-                                                                              self.sim_prefix, 
+                                                                              self.sim_prefix,
 									      int(model), label[0],
-                                                                              label[1], 
+                                                                              label[1],
 									      self.sim_suffix))[:, 1]
         sim_tmp[model] = sim_tmp_2
     return sim_tmp
