@@ -111,13 +111,13 @@ def get_exp_tmp(self):
         nrestraints += tmp[:, 0].shape[0]
         if "dat" in self.noise:
             for line in utils.load_lines(self.noise):
-		le = line.split()
-		if le[0] == ln: tmp_2 = np.array([float(le[1])]*len(tmp))
-	    try:
-		tmp_2
-	    except:
-		print("ERROR: Missing noise value of {} in file {}.".format(ln, self.noise))
-		sys.exit()
+                le = line.split()
+                if le[0] == ln:
+                    try:
+                        tmp_2 = np.array([float(le[1])]*len(tmp))
+                        break
+                    except:
+                        raise RuntimeError("Missing noise value of {} in file {}.".format(ln, self.noise))
         elif self.noise == "exp_fit_dif":
             tmp_2 = np.array([np.abs(tmp[:, 1] - tmp[:, 2])])[0]
         elif self.noise == "exp_fit_std":
@@ -125,8 +125,8 @@ def get_exp_tmp(self):
         elif utils.is_float(self.noise):
             tmp_2 = np.array([float(self.noise)]*len(tmp))
         else:
-            print("ERROR: please provide the correct format for DEER noise. ",
-                  "Current format: {}".format(self.noise))
+            raise RuntimeError("ERROR: please provide the correct format for DEER noise. "
+                               "Current format: {}".format(self.noise))
 
         tmp_2[tmp_2 == 0.0] = 0.01
         exp_err_tmp[ln] = tmp_2
