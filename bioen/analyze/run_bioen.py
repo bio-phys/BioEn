@@ -39,11 +39,11 @@ def get_thetas(theta):
         raise ValueError('Please provide theta value(s) in an appropriate format.')
 
 
-def main(verbose=False):
+def main():
     try:
         main_function()
     except Exception as e:
-        print("Exception occurred")
+        print("Exception occurred!")
         print("Error Message: ")
         print(e)
         # raise(e)  # show stacktrace
