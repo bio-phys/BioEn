@@ -22,10 +22,10 @@ class Generic:
             setattr(self, key, kwargs[key])
 
         if self.in_pkl is not None:
-            with open(self.in_pkl, 'r') as file:
+            with open(self.in_pkl, 'r') as fp:
                 [self.data_ids, self.nrestraints, self.exp_tmp,
                  self.exp_tmp_dict, self.exp_err_tmp, self.exp_err_tmp_dict,
-                 self.sim_tmp] = pickle.load(file)
+                 self.sim_tmp] = pickle.load(fp)
         else:
             self.data_ids = get_data_ids(self.data_ids)
             (self.nrestraints, self.exp_tmp, self.exp_tmp_dict,
@@ -33,9 +33,10 @@ class Generic:
             self.sim_tmp, self.sim_tmp_dict = get_sim_tmp(self)
 
             if self.out_pkl is not None:
-                pickle.dump([self.data_ids, self.nrestraints, self.exp_tmp,
-                             self.exp_tmp_dict, self.exp_err_tmp, self.exp_err_tmp_dict,
-                             self.sim_tmp], open(self.out_pkl, 'wb'))
+                with open(self.out_pkl, 'wb') as fp:
+                    pickle.dump([self.data_ids, self.nrestraints, self.exp_tmp,
+                                 self.exp_tmp_dict, self.exp_err_tmp, self.exp_err_tmp_dict,
+                                 self.sim_tmp], fp)
 
 
 def get_data_ids(data_ids):
@@ -54,7 +55,7 @@ def get_exp_tmp(self):
     try:
         lines = utils.load_lines(fn)
     except IOError:
-        print('ERROR: Cannot find experimental data file: {}'.format(fn))
+        print('ERROR: Cannot find experimental data file \'{}\''.format(fn))
 
     exp_tmp = []
     exp_tmp_dict = dict()
@@ -70,9 +71,9 @@ def get_exp_tmp(self):
             exp_err_tmp.append(float(le[2]))
             exp_err_tmp_dict[flex_id_tmp] = float(le[2])
         else:
-            print("WARNING: Experimental data ID {} is not used in reweighting,".format(flex_id_tmp) +\
-                  "\nsince it is undefined in the submission script.\n" +\
-                  "If you are ok with this, you can ignore the warning.")
+            print("WARNING: Experimental data ID \'{}\' is not used in ".format(flex_id_tmp) +\
+                  "reweighting, since it is undefined in the submission script. " +\
+                  "If you are ok with this, you can ignore this warning.")
     nrestraints = len(exp_tmp_dict.keys())
     return (nrestraints, exp_tmp, exp_tmp_dict, exp_err_tmp, exp_err_tmp_dict)
 
@@ -89,13 +90,13 @@ def get_sim_tmp(self):
         try:
             sim_generic = np.genfromtxt(fn, comments='#')
         except IOError:
-            print('ERROR: Cannot find simulated data file: {}'.format(fn))
-            sys.exit()
+            print('ERROR: Cannot find simulated data file \'{}\''.format(fn))
+            sys.exit(1)
 
         if len(sim_generic) != self.nmodels:
-            print("ERROR: Number of data points in file {} ".format(fn) + \
-                  "and number of models (input option) are not the same.".format(self.nmodels))
-            sys.exit()
+            print("ERROR: Number of data points in file \'{}\' ".format(fn) + \
+                  "and number of models (--number_of_models {}) are not the same.".format(self.nmodels))
+            sys.exit(1)
         sim_tmp_1.append(sim_generic)
         sim_tmp_dict[flex_id] = sim_generic
 

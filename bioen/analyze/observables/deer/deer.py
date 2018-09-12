@@ -25,19 +25,20 @@ class Deer:
             setattr(self, key, kwargs[key])
 
         if self.in_pkl is not None:
-            with open(self.in_pkl, 'r') as file:
+            with open(self.in_pkl, 'r') as fp:
                 [self.labels, self.moddepth, self.nrestraints, self.exp_tmp,
-                 self.exp_err_tmp, self.sim_tmp] = pickle.load(file)
+                 self.exp_err_tmp, self.sim_tmp] = pickle.load(fp)
         else:
             self.labels = get_labels(self.labels)
             self.moddepth = get_moddepth(self.moddepth, self.labels)
             self.nrestraints, self.exp_tmp, self.exp_err_tmp = get_exp_tmp(self)
             if self.in_sim_pkl is not None:
-                with open(self.in_sim_pkl, 'r') as file:
-                    [self.sim_tmp] = pickle.load(file)
+                with open(self.in_sim_pkl, 'r') as fp:
+                    [self.sim_tmp] = pickle.load(fp)
             else:
                 self.sim_tmp = get_sim_tmp(self)
 
+        # save data as output pkl and use it for the next run
         if self.out_pkl is not None:
             with open(self.out_pkl, 'wb') as fp:
                 pickle.dump([self.labels, self.moddepth, self.nrestraints,
@@ -80,8 +81,8 @@ def get_moddepth(moddepth, labels):
         for label in labels:
             ln = "{}-{}".format(label[0], label[1])
             if ln not in moddepth_new.keys():
-                raise ValueError('Please provide modulation depth of label {} ',
-                                 'in file {}.'.format(ln, moddepth))
+                raise ValueError('Please provide modulation depth of label \'{}\' '.format(ln) +\
+                                 'in file \'{}\'.'.format(moddepth))
     elif 'initial-optimization' == moddepth:
         for label in labels:
             ln = "{}-{}".format(label[0], label[1])
@@ -109,24 +110,28 @@ def get_exp_tmp(self):
                                                         self.exp_suffix), comments="#")
         exp_tmp[ln] = tmp
         nrestraints += tmp[:, 0].shape[0]
-        if "dat" in self.noise:
+        if any(extension in self.noise[-4:] for extension in [".dat", ".txt"]):
             for line in utils.load_lines(self.noise):
-		le = line.split()
-		if le[0] == ln: tmp_2 = np.array([float(le[1])]*len(tmp))
-	    try:
-		tmp_2
-	    except:
-		print("ERROR: Missing noise value of {} in file {}.".format(ln, self.noise))
-		sys.exit()
+                le = line.split()
+                if le[0] == ln: tmp_2 = np.array([float(le[1])]*len(tmp))
+                try:
+                    tmp_2
+                except:
+                    print("ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) +\
+                          "in file \'{}\'.".format(self.noise))
+                    sys.exit(1)
         elif self.noise == "exp_fit_dif":
             tmp_2 = np.array([np.abs(tmp[:, 1] - tmp[:, 2])])[0]
         elif self.noise == "exp_fit_std":
             tmp_2 = np.array([np.std(tmp[:, 1] - tmp[:, 2])]*len(tmp))
         elif utils.is_float(self.noise):
             tmp_2 = np.array([float(self.noise)]*len(tmp))
-        else:
-            print("ERROR: please provide the correct format for DEER noise. ",
-                  "Current format: {}".format(self.noise))
+        try:
+            tmp_2
+        except:
+            print("ERROR: please provide the correct format for DEER noise.",
+                  "Current format: \'{}\'".format(self.noise))
+            sys.exit(1)
 
         tmp_2[tmp_2 == 0.0] = 0.01
         exp_err_tmp[ln] = tmp_2
@@ -138,8 +143,9 @@ def get_sim_tmp(self):
     Provides dictionary of simulated data (simulated DEER trace).
     """
     if len(self.models_list) != self.nmodels:
-        print("ERROR: Number of models (input option) {} ".format(self.nmodels) +
-              "and number of models available in file {} are not the same.".format(len(self.models_list)))
+        print("ERROR: Number of models (--number_of_models {}) ".format(self.nmodels) +\
+              "and number of IDs available in file '\{}\' ".format(len(self.models_list)) +\
+              "are not the same.")
     sim_tmp = dict()
     for model in self.models_list:
         sim_tmp_2 = dict()

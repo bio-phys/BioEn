@@ -21,19 +21,33 @@ def get_weights(w_setting, nmodels):
         return get_uniform_weights(nmodels)
     elif w_setting == 'random':
         return get_rdm_weights(nmodels)
-    elif ".dat" in w_setting:
+    elif any(extension in w_setting[-4:] for extension in [".dat", ".txt"]):
+        # complains if file does not exist
         try:
             wtmp = np.loadtxt(w_setting, unpack=True)
-            wtmp[wtmp == 0.0] = 1e-150
-            wsum = np.sum(wtmp)
-            return (np.matrix(np.array(wtmp)/np.array(wsum))).T
-        except IOError:
-            print('ERROR: Weights file {} could not be loaded.'.format(w_setting))
-            sys.exit()
+        except Exception as e:
+            print(e)
+            print('ERROR: Please provide the correct path to your weights file.' +\
+                  'Right now it is: \'{}\'.'.format(w_setting))
+            sys.exit(1)
+        wtmp[wtmp == 0.0] = 1e-150
+        wsum = np.sum(wtmp)
+
+        # complains if input by the user is inconsistent
+        if len(wtmp) != nmodels:
+            print('ERROR: Please provide the same number of ensemble members ' +\
+                  '(--number_of_models {}) as number of weights in your '.format(nmodels) +\
+                  'file \'{}\' ({}).'.format(w_setting, len(wtmp)))
+            sys.exit(1)
+        return (np.matrix(np.array(wtmp)/np.array(wsum))).T
+
+    # complains if not the correct input is provided
     else:
         print('ERROR: Please provide information on weights (e.g. \'uniform\', \'random\' or ' +\
-              'define a file\').')
-        sys.exit()
+              'define a file in *dat or *txt format).')
+        sys.exit(1)
+
+
 
 
 def get_uniform_weights(nmodels):
@@ -103,6 +117,21 @@ def is_float(text):
 
 
 def load_lines(fn):
+    """
+    Load content of a file and ignore '#'.
+    Here: file lines contain also IDs or label information, which can
+    be in string format.
+
+    Parameters
+    ----------
+    fn: string,
+        filename
+
+    Returns:
+    --------
+    lines: array,
+        array of strings 
+    """
     lines_all = open(fn, 'r').readlines()
     lines = []
     for line in lines_all:

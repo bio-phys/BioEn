@@ -31,33 +31,34 @@ class Scattering:
 
         # all input data in pkl format
         if self.in_pkl is not None:
-            with open(self.in_pkl, 'r') as file:
+            with open(self.in_pkl, 'r') as fp:
                 [self.coeff, self.nrestraints, self.exp_tmp,
-                 self.exp_err_tmp, self.sim_tmp] = pickle.load(file)
+                 self.exp_err_tmp, self.sim_tmp] = pickle.load(fp)
         # all input data in hd5 format
         elif self.in_hd5 is not None:
-            with open(self.in_hd5, 'r') as file:
+            with open(self.in_hd5, 'r') as fp:
                 [self.nrestraints, self.exp_tmp,
-                 self.exp_err_tmp, self.sim_tmp] = h5py.File(file, 'r')
+                 self.exp_err_tmp, self.sim_tmp] = h5py.File(fp, 'r')
         # input data provided in different files
         else:
             self.coeff = get_coeff(self.coeff)
             self.nrestraints, self.exp_tmp, self.exp_err_tmp = get_exp_tmp(self)
             # simulated data provided in pkl format
             if self.in_sim_pkl is not None:
-                with open(self.in_sim_pkl, 'r') as file:
-                    [self.sim_tmp] = pickle.load(file)
+                with open(self.in_sim_pkl, 'r') as fp:
+                    [self.sim_tmp] = pickle.load(fp)
             # simulated data provided in hd5 data
             elif self.in_sim_hd5 is not None:
-                with open(self.in_sim_hd5, 'r') as file:
-                    [self.sim_tmp] = h5py.File(file, 'r')
+                with open(self.in_sim_hd5, 'r') as fp:
+                    [self.sim_tmp] = h5py.File(fp, 'r')
             else:
                 self.sim_tmp = get_sim_tmp(self)
 
         # save data as output pkl and use it for the next run
         if self.out_pkl is not None:
-            pickle.dump([self.nrestraints, self.exp_tmp,
-                         self.exp_err_tmp, self.sim_tmp], open(self.out_pkl, 'wb'))
+            with open(self.out_pkl, 'wb') as fp:
+                pickle.dump([self.nrestraints, self.exp_tmp,
+                             self.exp_err_tmp, self.sim_tmp], fp)
 
 
 def get_coeff(coeff):
@@ -97,7 +98,7 @@ def get_exp_tmp(self):
     try:
         exp_1 = np.genfromtxt(fn, comments='#')
     except IOError:
-        print('ERROR: Cannot open file with simulated scattering data: {}'.format(fn))
+        print('ERROR: Cannot open file with simulated scattering data \'{}\''.format(fn))
     exp_tmp = exp_1[:, 0:2]
     exp_err_tmp = exp_1[:, 2]
 
@@ -107,7 +108,7 @@ def get_exp_tmp(self):
 
 def get_sim_tmp(self):
     """
-    xxxx
+    Load simulated data for each model.
     """
     sim_tmp = dict()
     for nmodel in range(0, self.nmodels):
@@ -115,6 +116,8 @@ def get_sim_tmp(self):
         try:
             sim_tmp[nmodel] = np.genfromtxt(fn, comments='#')[:, 1]
         except IOError:
-            print('ERROR: Cannot open simulated data scattering file: {}'.format(fn))
-            sys.exit()
+            print('ERROR: Cannot open simulated data scattering file \'{}\''.format(fn))
+            sys.exit(1)
     return sim_tmp
+
+

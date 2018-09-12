@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path="data/"
+path="data"
 
 bioen \
     --optimization_method log-weights \
@@ -9,7 +9,6 @@ bioen \
     --experiments deer \
     --number_of_models 10 \
     --models_list ${path}/models-deer.dat \
-    --initial_weights uniform \
     --theta thetas.dat \
     --number_of_iterations 10 \
     --deer_sim_path ${path} \
