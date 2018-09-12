@@ -75,8 +75,7 @@ def get_moddepth(moddepth, labels):
             moddepth_new[ln] = float(moddepth)
     elif '.dat' in moddepth:
         lines = utils.load_lines(moddepth)
-        for line in lines:
-            le = line.split()
+        for le in lines:
             moddepth_new[le[0]] = float(le[1])
         for label in labels:
             ln = "{}-{}".format(label[0], label[1])

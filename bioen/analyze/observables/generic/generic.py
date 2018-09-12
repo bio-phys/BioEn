@@ -61,8 +61,7 @@ def get_exp_tmp(self):
     exp_tmp_dict = dict()
     exp_err_tmp = []
     exp_err_tmp_dict = dict()
-    for line in lines:
-        le = line.split()
+    for le in lines:
         flex_id_tmp = le[0]
         if (len(self.data_ids) == 1 and self.data_ids[0] == 'all') or \
                 (flex_id_tmp in self.data_ids):
