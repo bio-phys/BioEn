@@ -43,10 +43,10 @@ def main():
     try:
         main_function()
     except Exception as e:
-        print("Exception occurred!"
+        print("Exception occurred!")
         # print("Error Message: ")
         # print(e)
-        raise  # show stacktrace
+        raise
         sys.exit(1)  # indicate error via non-zero exit status
 
 
