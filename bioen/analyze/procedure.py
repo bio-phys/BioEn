@@ -56,9 +56,9 @@ def start_reweighting(options, obs):
     # check if an iterative optimization is defined
     if any(experiment in obs.experiments for experiment in ['deer', 'scattering']) \
             and options.iterations == 1:
-        print("WARNING: Please increase the number of iterations, if you are using " \
-              "DEER or scattering data. An optimal BioEn result is only guaranteed " \
-              "with an iterative procedure of optimization of the weights " \
+        print("WARNING: Please increase the number of iterations, if you are using "
+              "DEER or scattering data. An optimal BioEn result is only guaranteed "
+              "with an iterative procedure of optimization of the weights "
               "and the nuisance parameters.")
 
     # bioen optimization with theta-series

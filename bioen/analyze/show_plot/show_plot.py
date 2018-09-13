@@ -132,11 +132,11 @@ def plot_generic(self, theta_series):
         exp_keys.append(exp_key)
         if len(exp_keys) == 10:
             figs.append(visualize_generic_data(self.bioen_data,
-                                                exp_keys, theta_series))
+                                               exp_keys, theta_series))
             exp_keys = []
     if len(exp_keys) < 10:
         figs.append(visualize_generic_data(self.bioen_data,
-                                            exp_keys, theta_series))
+                                           exp_keys, theta_series))
     return figs
 
 

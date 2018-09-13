@@ -17,6 +17,7 @@ from . import procedure
 from .observables import observables
 from .show_plot import show_plot
 
+
 def get_thetas(theta):
     """
     Converts theta information to array.
@@ -408,6 +409,7 @@ def main_function():
         procedure.start_reweighting(options, obs)
         end_time = time.time()
         logging.info("BioEn finished weight refinement in {:.2f} s.".format(end_time - start_time))
+
 
 if __name__ == "__main__":
     main()

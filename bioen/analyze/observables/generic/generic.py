@@ -70,8 +70,8 @@ def get_exp_tmp(self):
             exp_err_tmp.append(float(le[2]))
             exp_err_tmp_dict[flex_id_tmp] = float(le[2])
         else:
-            print("WARNING: Experimental data ID \'{}\' is not used in ".format(flex_id_tmp) +\
-                  "reweighting, since it is undefined in the submission script. " +\
+            print("WARNING: Experimental data ID \'{}\' is not used in ".format(flex_id_tmp) +
+                  "reweighting, since it is undefined in the submission script. " +
                   "If you are ok with this, you can ignore this warning.")
     nrestraints = len(exp_tmp_dict.keys())
     return (nrestraints, exp_tmp, exp_tmp_dict, exp_err_tmp, exp_err_tmp_dict)

@@ -156,7 +156,7 @@ def check_params_logweights(GInit, G, y, yTilde, YTilde):
     ------
     ValueError
     """
-    m, n  = yTilde.shape
+    m, n = yTilde.shape
     error = False
 
     def _pretty_print(name, expected, current):

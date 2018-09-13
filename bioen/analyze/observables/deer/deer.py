@@ -80,7 +80,7 @@ def get_moddepth(moddepth, labels):
         for label in labels:
             ln = "{}-{}".format(label[0], label[1])
             if ln not in moddepth_new.keys():
-                raise ValueError('Please provide modulation depth of label \'{}\' '.format(ln) +\
+                raise ValueError('Please provide modulation depth of label \'{}\' '.format(ln) +
                                  'in file \'{}\'.'.format(moddepth))
     elif 'initial-optimization' == moddepth:
         for label in labels:
@@ -113,7 +113,8 @@ def get_exp_tmp(self):
         if any(extension in self.noise[-4:] for extension in [".dat", ".txt"]):
             for line in utils.load_lines(self.noise):
 
-                if line[0] == ln: tmp_2 = np.array([float(line[1])]*len(tmp))
+                if line[0] == ln:
+                    tmp_2 = np.array([float(line[1])]*len(tmp))
 
                 try:
                     tmp_2
@@ -146,8 +147,8 @@ def get_sim_tmp(self):
     Provides dictionary of simulated data (simulated DEER trace).
     """
     if len(self.models_list) != self.nmodels:
-        print("ERROR: Number of models (--number_of_models {}) ".format(self.nmodels) +\
-              "and number of IDs available in file '\{}\' ".format(len(self.models_list)) +\
+        print("ERROR: Number of models (--number_of_models {}) ".format(self.nmodels) +
+              "and number of IDs available in file '\{}\' ".format(len(self.models_list)) +
               "are not the same.")
     sim_tmp = dict()
     for model in self.models_list:
@@ -155,6 +156,6 @@ def get_sim_tmp(self):
         for i, label in enumerate(self.labels):
             ln = "{}-{}".format(label[0], label[1])
             sim_tmp_2[ln] = np.genfromtxt("{0}/{1}{2}-{3}-{4}-{5}.dat".format(self.sim_path,
-                self.sim_prefix, int(model), label[0], label[1], self.sim_suffix))[:, 1]
+                                                                              self.sim_prefix, int(model), label[0], label[1], self.sim_suffix))[:, 1]
         sim_tmp[model] = sim_tmp_2
     return sim_tmp

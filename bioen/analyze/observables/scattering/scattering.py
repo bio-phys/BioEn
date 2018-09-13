@@ -80,8 +80,8 @@ def get_coeff(coeff):
         try:
             coeff_new = float(self.coeff)
         except ValueError:
-            print("Please provide information on the value of the nuisance parameter: " \
-                  "either single value (float) or let BioEn perform an initial " \
+            print("Please provide information on the value of the nuisance parameter: "
+                  "either single value (float) or let BioEn perform an initial "
                   "optimization of the nuiscance parameter.")
     return coeff_new
 

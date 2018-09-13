@@ -27,7 +27,7 @@ def get_weights(w_setting, nmodels):
             wtmp = np.loadtxt(w_setting, unpack=True)
         except Exception as e:
             print(e)
-            print('ERROR: Please provide the correct path to your weights file.' +\
+            print('ERROR: Please provide the correct path to your weights file.' +
                   'Right now it is: \'{}\'.'.format(w_setting))
             raise
         wtmp[wtmp == 0.0] = 1e-150
