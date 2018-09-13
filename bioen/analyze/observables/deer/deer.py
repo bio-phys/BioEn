@@ -112,16 +112,13 @@ def get_exp_tmp(self):
 
         if any(extension in self.noise[-4:] for extension in [".dat", ".txt"]):
             for line in utils.load_lines(self.noise):
-
-                if line[0] == ln:
-                    tmp_2 = np.array([float(line[1])]*len(tmp))
-
-                try:
-                    tmp_2
-                except:
-                    msg = "ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) +\
-                          "in file \'{}\'.".format(self.noise)
-                    raise RuntimeError(msg)
+                if line[0] == ln: tmp_2 = np.array([float(line[1])]*len(tmp))
+            try:
+               tmp_2
+            except:
+               msg = "ERROR: Missing noise value of spin-label pair \'{}\' ".format(ln) +\
+                     "in file \'{}\'.".format(self.noise)
+               raise RuntimeError(msg)
 
         elif self.noise == "exp_fit_dif":
             tmp_2 = np.array([np.abs(tmp[:, 1] - tmp[:, 2])])[0]
@@ -133,7 +130,7 @@ def get_exp_tmp(self):
         try:
             tmp_2
         except:
-            msg = "ERROR: please provide the correct format for DEER noise. " +\
+            msg = "ERROR: Please provide the correct format for DEER noise. " +\
                   "Current format: \'{}\'".format(self.noise)
             raise RuntimeError(msg)
 

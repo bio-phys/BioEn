@@ -7,18 +7,15 @@ path_input="files/output_preparation"
 path_output="files/output_bioen"
 
 bioen \
-    --optimizationMethod log-weights \
-    --optimizationAlgorithm bfgs \
-    --optimizationMinimizer scipy \
-    --optimizationDebug \
-    --numberOfModels ${nmodels} \
-    --modelsList ${path_input}/models_scattering.dat \
+    --optimization_minimizer GSL \
+    --number_of_models ${nmodels} \
+    --models_list ${path_input}/models_scattering.dat \
     --experiments scattering \
     --theta theta.dat \
-    --numberOfIterations 10 \
-    --scatteringInputPkl ${path_input}/input-bioen-scattering.pkl \
-    --scatteringCoefficient initial-optimization \
-    --outputPkl ${path_output}/test-${nmodels}-scattering.pkl 
+    --number_of_iterations 10 \
+    --scattering_input_pkl ${path_input}/input-bioen-scattering.pkl \
+    --scattering_coefficient initial-optimization \
+    --output_pkl ${path_output}/bioen-scattering.pkl 
 
 
 

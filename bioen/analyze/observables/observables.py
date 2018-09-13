@@ -150,6 +150,9 @@ class Observables:
 
 
     def coeff_fit(self, c, wopt):
+        """
+        Fit coefficient.
+        """
         exp_err = self.observables['scattering'].exp_err_tmp
         exp = np.asarray(self.observables['scattering'].exp_tmp[:,1])
         exp = ((np.array(exp, dtype=np.float64)) / exp_err)
@@ -262,9 +265,10 @@ def get_experiments(experiments):
     else:
         for experiment in experiments.split(','):
             if experiment not in experiments_in_bioen:
-                raise RuntimeError('ERROR: The experimental data type {} is not implemented in BioEn yet. ' \
-                                   'Please try \"generic\" (useful for distances, NOEs, CS, J-couplings, ' \
-                                   'PREs etc.)'.format(experiment))
+                msg = 'ERROR: The experimental data type {} is not implemented in BioEn yet. ' \
+                      'Please try \"generic\" (useful for distances, NOEs, CS, J-couplings, ' \
+                      'PREs etc.)'.format(experiment))
+                raise RuntimeError(msg)
 
 
 def get_models_list(models_list_fn, nmodels):

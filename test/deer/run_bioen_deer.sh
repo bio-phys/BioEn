@@ -18,6 +18,7 @@ bioen \
     --deer_exp_prefix exp \
     --deer_exp_suffix deer \
     --deer_labels 319-259 \
+    --deer_noise ${path}/exp-error.dat \
     --deer_modulation_depth ${path}/moddepth-deer.dat \
     --output_pkl out-deer.pkl \
 

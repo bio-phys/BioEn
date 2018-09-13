@@ -1,27 +1,27 @@
 #!/bin/bash
 
-path_output_bioen=$1
+label_pair_id=$1
 nmodels=$2
-spin_label_pair=$3
-file_id=$4
 
-path_exp="files/experimental_data"
 path_input="files/output_preparation"
+path_output="files/output_bioen"
+path_exp="files/experimental_data"
 
 bioen \
+    --optimization_minimizer GSL \
     --experiments deer \
     --number_of_models ${nmodels} \
-    --models_list ${path_input}/models_${file_id}.dat \
+    --models_list ${path_input}/models_${label_pair_id}.dat \
     --theta theta.dat \
-    --number_of_iterations 10 \
+    --number_of_iterations 15 \
     --deer_exp_path ${path_exp} \
     --deer_exp_prefix exp \
     --deer_exp_suffix signal-deer \
-    --deer_noise file \
-    --deer_labels ${spin_label_pair} \
-    --deer_modulation_depth ${path_exp}/models-moddepth_potra.dat \
-    --deer_input_sim_pkl ${path_input}/data_${file_id}.pkl \
-    --output_pkl ${path_output_bioen}/test-${nmodels}-${file_id}.pkl \
+    --deer_noise ${path_exp}/exp-error.dat \
+    --deer_labels ${label_pair_id} \
+    --deer_modulation_depth initial-optimization \
+    --deer_input_sim_pkl ${path_input}/data_${label_pair_id}.pkl \
+    --output_pkl ${path_output}/bioen_${label_pair_id}.pkl \
 
 
 
