@@ -6,7 +6,7 @@
 :Year:         2018
 :Licence:      GPLv3
 :Copyright:    © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
-:Citation:     Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (2018)  
+:Citation:     Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (in press) (2018)
                Hummer G. and Köfinger J., J. Chem. Phys. 143 (2015) doi: 10.1063/1.4937786
 
 
@@ -21,9 +21,9 @@ For a detailed description of the procedures and the algorithm, we refer to [Hum
 
 
 BioEn spin-label rotamer refinement
-===================================
+-----------------------------------
 
-**Precision DEER Distances from Spin-Label Ensemble Refinement**
+Link to **Precision DEER Distances from Spin-Label Ensemble Refinement**
 
 https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA
 
