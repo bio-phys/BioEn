@@ -265,9 +265,9 @@ def get_experiments(experiments):
     else:
         for experiment in experiments.split(','):
             if experiment not in experiments_in_bioen:
-                msg = 'ERROR: The experimental data type {} is not implemented in BioEn yet. ' \
-                      'Please try \"generic\" (useful for distances, NOEs, CS, J-couplings, ' \
-                      'PREs etc.)'.format(experiment))
+                msg = 'ERROR: The experimental data type {} is not implemented in BioEn yet. ' + \
+                      'Please try \"generic\" (useful for distances, NOEs, CS, J-couplings, ' + \
+                      'PREs etc.)'.format(experiment)
                 raise RuntimeError(msg)
 
 
