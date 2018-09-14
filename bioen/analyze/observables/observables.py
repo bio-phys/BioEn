@@ -15,11 +15,11 @@ class Observables:
         Loads all information needed about experimental data.
 
         Parameters
-        -----------
+        ----------
         options: object, provided options (settings) from user interface
 
         Returns
-        --------
+        -------
         obs: object, contains all information about experimental data
         """
         self.experiments = get_experiments(options.experiments)
@@ -93,11 +93,11 @@ class Observables:
         experimental data and noise of each data point.
 
         Parameters
-        -----------
+        ----------
         self: object, contains all information about experimental data
 
         Returns
-        --------
+        -------
         sim, sim_init: matrices, simulated data points scaled by experimental noise
         """
         sim = np.zeros((self.nrestraints, len(self.models_list)))
@@ -126,14 +126,14 @@ class Observables:
         Fitting of the modulation depths for DEER data.
 
         Parameters
-        -----------
+        ----------
         self: object, contains all information about experimental data
         m: float, moddepth of a single DEER trace
         ln: string, label name
         wopt: array-like, optimized/current weights
 
         Returns
-        --------
+        -------
         chi2: float, agreement of experimental and simulated data scaled by m
         """
         exp_label = np.asarray(self.observables['deer'].exp_tmp[ln][:,1])
@@ -171,12 +171,12 @@ class Observables:
         Updates sim and sim_init after optimization of nuisance parameters.
 
         Parameters
-        -----------
+        ----------
         self: object, contains all information about experimental data
         wopt: array-like, optimized/current weights
 
         Returns
-        --------
+        -------
         sim, sim_init: matrices, simulated data points scaled by experimental noise
         """
         for experiment in self.experiments:
@@ -212,12 +212,12 @@ class Observables:
         Provides weighted averages of the simulated data.
 
         Parameters
-        -----------
+        ----------
         self: object, contains all information about experimental data
         wopt: array-like, optimized/current weights
 
         Returns
-        --------
+        -------
         sim_wopt: dictionary, contains all weighted simulated data
         """
         sim_wopt = dict()
@@ -293,11 +293,11 @@ def get_proc_exp(self):
     Formats experimental data into a matrix.
 
     Parameters
-    -----------
+    ----------
     self: object, contains all information about experimental data
 
     Returns
-    --------
+    -------
     exp: matrix, contains all experimental data in a matrix format
     """
     exp = []

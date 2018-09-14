@@ -19,11 +19,11 @@ class Scattering:
         Loads all information needed about Scattering data.
 
         Parameters
-        -----------
+        ----------
         kwargs: provides options (settings) from user interface
 
         Returns
-        --------
+        -------
         scattering: object, contains all information about DEER data
         """
         for key in kwargs:
@@ -64,12 +64,12 @@ class Scattering:
 def get_coeff(coeff):
     """
     Parameters
-    -----------
+    ----------
     coeff: string,
         value for nuisance parameter or \"initial-optimization\"
 
     Returns
-    --------
+    -------
     coeff_new: float,
         value for nusicane parameter from input of after initial optimization
     """

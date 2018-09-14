@@ -11,11 +11,11 @@ class Generic:
         (e.g. NOEs, distances).
 
         Parameters
-        -----------
+        ----------
         kwargs: provides options (settings) from user interface
 
         Returns
-        --------
+        -------
         generic: object, contains all information about jcouplings data
         """
         for key in kwargs:

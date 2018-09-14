@@ -104,8 +104,8 @@ def is_float(text):
     ----------
     text: string
 
-    Returns:
-    --------
+    Returns
+    -------
     float/boolean: float if text can be converted to float, False if not
     """
     try:
@@ -125,8 +125,8 @@ def load_lines(fn):
     fn: string,
         filename
 
-    Returns:
-    --------
+    Returns
+    -------
     lines: array,
         array of strings
     """

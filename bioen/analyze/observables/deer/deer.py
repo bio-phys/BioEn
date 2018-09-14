@@ -14,11 +14,11 @@ class Deer:
         Loads all information needed about DEER data.
 
         Parameters
-        -----------
+        ----------
         kwargs: provides options (settings) from user interface
 
         Returns
-        --------
+        -------
         deer: object, contains all information about DEER data
         """
         for key in kwargs:
@@ -60,12 +60,12 @@ def get_moddepth(moddepth, labels):
     Converts provided theta information to array.
 
     Parameters
-    -----------
+    ----------
     moddepth: float, list of floats or file
     labels: array, label pairs
 
     Returns
-    --------
+    -------
     moddepth_new: dict, contains for each label pair a modulation depth
     """
     moddepth_new = dict()
