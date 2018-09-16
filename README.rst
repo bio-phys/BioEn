@@ -6,8 +6,8 @@
 :Year:         2018
 :Licence:      GPLv3
 :Copyright:    © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
-:Citation:     Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (2018) doi:10.1021/acs.jpclett.8b02439 
-               Hummer G. and Köfinger J., J. Chem. Phys. (2015) doi: 10.1063/1.4937786
+:Citation:     | Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (2018) doi:10.1021/acs.jpclett.8b02439 
+               | Hummer G. and Köfinger J., J. Chem. Phys. (2015) doi: 10.1063/1.4937786
 
 
 Description
@@ -299,6 +299,6 @@ Please, if you have an issue with the software, open an issue here on the github
 References
 ==========
 
-.. \[Reichel2018] K. Reichel, Lukas S. Stelzl, J. Köfinger, G. Hummer, Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018).
+.. [Reichel2018] K. Reichel, Lukas S. Stelzl, J. Köfinger, G. Hummer, Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018).
 
-.. \[Hummer2015] Hummer G. and Köfinger J., Bayesian ensemble refinement by replica simulations and reweighting. J. Chem. Phys. 143(24):12B634_1 (2015).
+.. [Hummer2015] Hummer G. and Köfinger J., Bayesian ensemble refinement by replica simulations and reweighting. J. Chem. Phys. 143(24):12B634_1 (2015).
