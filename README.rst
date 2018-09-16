@@ -309,3 +309,4 @@ References
 .. [Hummer2015] Hummer G. and Koefinger J., Bayesian Ensemble Refinement by Replica Simulations and Reweighting. J. Chem. Phys. 143(24):12B634_1 (2015). doi:`10.1063/1.4937786`_.
 
 .. _`10.1063/1.4937786`: http://doi.org/10.1063/1.4937786
+
