@@ -17,7 +17,7 @@ BioEn integrates a broad range of experimental data to refine ensembles of struc
 
 .. image::  /img/bioen.png
 
-For a detailed description of the procedures and the algorithm, we refer to [Hummer2015]_ [Reichel2018]_.
+For a detailed description of the procedures and the algorithm, we refer to [Hummer2015,Reichel2018].
 
 
 BioEn spin-label rotamer refinement
@@ -148,7 +148,7 @@ The simulated data file (e.g. ``conf0-319-259-deer.dat``) contains:
 
 Using DEER data in BioEn, the models file (``models-deer.dat``) is of particular interest: listed numbers (model IDs) in this file have to be the same as the deer file names (``conf0-319-259-deer.dat, conf1-319-259-deer.dat, conf2-319-259-deer.dat`` and so on).
 
-If an ensemble of spin-label rotamer states is investigated, we recommend to use the Jupyter notebook ``deer_spin_label_reweighting.ipynb`` in ``./examples/DEER/rotamer-refinement/single_trace/``. Here, the user can define the protein structure and a own rotamer library (or use the default). By executing the cells in the notebook, data preparation, BioEn run, and analysis can be performed in a smooth procedure. The analysis of the BioEn data include also the L-curve analysis. More details on the method are provided in \[Reichel2018]_.
+If an ensemble of spin-label rotamer states is investigated, we recommend to use the Jupyter notebook ``deer_spin_label_reweighting.ipynb`` in ``./examples/DEER/rotamer-refinement/single_trace/``. Here, the user can define the protein structure and a own rotamer library (or use the default). By executing the cells in the notebook, data preparation, BioEn run, and analysis can be performed in a smooth procedure. The analysis of the BioEn data include also the L-curve analysis. More details on the method are provided in \[Reichel2018].
 
 For both cases, refinement over an ensemble of protein conformations or over spin-label rotamer states, the modulation depth as the nuisance parameter is relevant. With the option ``--deer_modulation_depth``, an initial guess ("<path_to_file>/modulation-depth.dat") can be provided or an initial optimization ("initial-optimization") can be performed for each spin-label pair. As indicated above, the modulation depth is needed to calculate the consistency of the simulated data with the experimental data correctly. To achieve this, we have to iteratively optimize the weights of the ensemble members and the modulation depth. For all cases tested with DEER data, 10 iterations seems to be sufficient until the optimization converges. To do so, we recommend to set the option ``--number_of_iterations`` to **10** or higher.
 
@@ -230,7 +230,7 @@ Other options and settings
 --------------------------
 The initial and reference weights can be set with ``--reference_weights`` and ``--initial_weights``. For both options, one can either choose **uniform** (uniformly distributed weights; default), **random** (randomly distributed weights), or provide a file as input.
 
-As described in [Hummer2015]_, we have to balance the consistency with the experimental data (chi-square) with the changes in the weights (relative entropy) by the **confidence parameter theta**. We can achieve this aim by the maximum-entropy principle and as such avoid over-fitting. To decide for the correct confidence parameter theta for a specific set of data, usually a theta-series is applied. This means, that for each theta an independent ensemble refinement run is performed. Subsequent L-curve analysis (relative entropy vs. chi-square) leads us to the optimal weight distribution. Please note, that the choice of the confidence parameter depends on the system and data. In the BioEn software package, one can choose ``--theta`` by defining a single value (e.g., 10.0) or a theta-series, which can be provided as a list (e.g., 100.0,10.0,1.0) or a list in a file (e.g., <path_to_file>/thetas.dat).
+As described in [Hummer2015], we have to balance the consistency with the experimental data (chi-square) with the changes in the weights (relative entropy) by the **confidence parameter theta**. We can achieve this aim by the maximum-entropy principle and as such avoid over-fitting. To decide for the correct confidence parameter theta for a specific set of data, usually a theta-series is applied. This means, that for each theta an independent ensemble refinement run is performed. Subsequent L-curve analysis (relative entropy vs. chi-square) leads us to the optimal weight distribution. Please note, that the choice of the confidence parameter depends on the system and data. In the BioEn software package, one can choose ``--theta`` by defining a single value (e.g., 10.0) or a theta-series, which can be provided as a list (e.g., 100.0,10.0,1.0) or a list in a file (e.g., <path_to_file>/thetas.dat).
 
 To check the BioEn results quickly, a simple plot can be generated, that compares experimental data and ensemble averaged simulated data for the used confidence values. Therefore, the following three options have to be set: ``--simple_plot``, ``--simple_plot_input`` and ``--simple_plot_output``. The file name of the output pkl file has to be provided for ``--simple_plot_input``. The data in this pkl file is visualized and saved in a pdf file, which can be specified with ``--simple_plot_output``.
 
@@ -298,6 +298,7 @@ Please, if you have an issue with the software, open an issue here on the github
 
 References
 ==========
+
 .. Articles
 .. --------
 
