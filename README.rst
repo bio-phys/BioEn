@@ -299,6 +299,6 @@ Please, if you have an issue with the software, open an issue here on the github
 References
 ==========
 
-[Reichel2018] K. Reichel, Lukas S. Stelzl, J. Köfinger, G. Hummer, Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018).
+.. [Reichel2018] K. Reichel, Lukas S. Stelzl, J. Köfinger, G. Hummer, Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018).
 
-[Hummer2015] Hummer G. and Köfinger J., Bayesian ensemble refinement by replica simulations and reweighting. J. Chem. Phys. 143(24):12B634_1 (2015).
+.. [Hummer2015] Hummer G. and Köfinger J., Bayesian ensemble refinement by replica simulations and reweighting. J. Chem. Phys. 143(24):12B634_1 (2015).
