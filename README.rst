@@ -6,8 +6,8 @@
 :Year:         2018
 :Licence:      GPLv3
 :Copyright:    © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
-:Citation:     | Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (2018) doi:10.1021/acs.jpclett.8b02439 
-               | Hummer G. and Köfinger J., J. Chem. Phys. (2015) doi: 10.1063/1.4937786
+:Citation:     | Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (2018) `doi:10.1021/acs.jpclett.8b02439`_
+	       | Hummer G. and Köfinger J., J. Chem. Phys. (2015) `doi:10.1063/1.4937786i`_
 
 
 Description
