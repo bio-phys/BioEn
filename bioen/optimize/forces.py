@@ -107,7 +107,7 @@ def get_weights_from_forces(w0, y, forces):
     return w / w.sum()
 
 
-def bioen_chi2_s_forces(forces, w0, y, yTilde, YTilde, theta):
+def bioen_chi2_s_forces(forces, w0, y, yTilde, YTilde):
     """
     Parameters
     ----------
@@ -129,7 +129,7 @@ def bioen_chi2_s_forces(forces, w0, y, yTilde, YTilde, theta):
     chiSqr = common.chiSqrTerm(w, yTilde, YTilde)
     # selecting non-zero weights because lim w->0 w log(w) = 0
     ind = np.where(w > 0)[0]
-    return theta * np.dot((np.log(w[ind] / w0[ind])).T, w[ind])[0, 0], chiSqr
+    return np.dot((np.log(w[ind] / w0[ind])).T, w[ind])[0, 0], chiSqr
 
 
 def check_params_forces(forcesInit, w0, y, yTilde, YTilde):
@@ -492,6 +492,6 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
         print("fmin_final             =", fmin_final)
         print("========================")
 
-    S, chiSqr = bioen_chi2_s_forces(forces_opt, w0, y, yTilde, YTilde, theta)
+    S, chiSqr = bioen_chi2_s_forces(forces_opt, w0, y, yTilde, YTilde)
 
     return wopt, yopt, forces_opt, fmin_initial, fmin_final, chiSqr, S
