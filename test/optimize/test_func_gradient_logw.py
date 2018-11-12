@@ -5,6 +5,7 @@ if sys.version_info >= (3,):
     import pickle
 else:
     import cPickle as pickle
+import pytest
 import numpy as np
 from bioen import optimize
 
@@ -34,8 +35,11 @@ def run_grad(use_c=True):
     return fprime
 
 
-def test_func_gradient():
-    optimize.minimize.set_fast_openmp_flag(1)
+fast_openmp_values = [0, 1]
+
+@pytest.mark.parametrize("fast_openmp", fast_openmp_values)
+def test_func_gradient(fast_openmp):
+    optimize.minimize.set_fast_openmp_flag(fast_openmp)
     print()
     print("fast_openmp_flag = {}".format(optimize.minimize.get_fast_openmp_flag()))
     print()
