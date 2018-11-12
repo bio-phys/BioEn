@@ -166,7 +166,7 @@ void _get_weights_from_forces(double* w0, double* yTilde, double* forces, double
             for (size_t x = 0; x < n; x++) {
                 s += w[x];
             }
-            double s_inv = 1.0 / s;
+            const double s_inv = 1.0 / s;
 
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
             for (size_t x = 0; x < n; x++) {
@@ -216,7 +216,7 @@ void _get_weights_from_forces(double* w0, double* yTilde, double* forces, double
         for (size_t x = 0; x < n; x++) {
             s += w[x];
         }
-        double s_inv = 1.0 / s;
+        const double s_inv = 1.0 / s;
 
         PRAGMA_OMP_PARALLEL(default(shared))
         {
