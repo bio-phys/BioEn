@@ -52,4 +52,5 @@ def check_logw_reproducibility(file_name, n_iter=500):
 
 
 def test_logw_reproducibility():
+    optimize.minimize.set_fast_openmp_flag(0)
     check_logw_reproducibility(filenames[0])

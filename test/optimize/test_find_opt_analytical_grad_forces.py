@@ -171,6 +171,7 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
 def test_find_opt_analytical_grad_forces():
     """Entry point for py.test."""
     print("")
+    optimize.minimize.set_fast_openmp_flag(0)
     for file_name in filenames:
 
         caching_options = ["False"]

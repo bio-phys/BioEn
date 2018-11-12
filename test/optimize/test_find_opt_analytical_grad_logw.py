@@ -177,6 +177,7 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
 def test_find_opt_analytical_grad():
     """Entry point for py.test."""
     print("")
+    optimize.minimize.set_fast_openmp_flag(0)
     for file_name in filenames:
         caching_options = ["False"]
         if (not create_reference_values):

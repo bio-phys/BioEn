@@ -52,4 +52,5 @@ def check_forces_reproducibility(file_name, n_iter=500):
 
 
 def test_forces_reproducibility():
+    optimize.minimize.set_fast_openmp_flag(0)
     check_forces_reproducibility(filenames[0])
