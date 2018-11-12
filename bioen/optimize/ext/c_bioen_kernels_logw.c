@@ -80,21 +80,21 @@ double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
     if (_fast_openmp_flag) {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(+ : s))
-            for (size_t i = 0; i < n; ++i) {
-                tmp_n[i] = exp(g[i]);
-                s += tmp_n[i];
+            for (size_t j = 0; j < n; ++j) {
+                tmp_n[j] = exp(g[j]);
+                s += tmp_n[j];
             }
         }
     } else {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-            for (size_t i = 0; i < n; ++i) {
-                tmp_n[i] = exp(g[i]);
+            for (size_t j = 0; j < n; ++j) {
+                tmp_n[j] = exp(g[j]);
             }
         }
 
-        for (size_t i = 0; i < n; ++i) {
-            s += tmp_n[i];
+        for (size_t j = 0; j < n; ++j) {
+            s += tmp_n[j];
         }
     }
 
@@ -108,35 +108,35 @@ double _get_weights(const double* const g, double* const w, const size_t n) {
     if (_fast_openmp_flag) {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(+ : s))
-            for (size_t i = 0; i < n; ++i) {
-                w[i] = exp(g[i]);
-                s += w[i];
+            for (size_t j = 0; j < n; ++j) {
+                w[j] = exp(g[j]);
+                s += w[j];
             }
 
             const double s_inv = 1.0 / s;
 
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-            for (size_t i = 0; i < n; ++i) {
-                w[i] *= s_inv;
+            for (size_t j = 0; j < n; ++j) {
+                w[j] *= s_inv;
             }
         }
     } else {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-            for (size_t i = 0; i < n; ++i) {
-                w[i] = exp(g[i]);
+            for (size_t j = 0; j < n; ++j) {
+                w[j] = exp(g[j]);
             }
         }
 
-        for (size_t i = 0; i < n; ++i) {
-            s += w[i];
+        for (size_t j = 0; j < n; ++j) {
+            s += w[j];
         }
         double s_inv = 1.0 / s;
 
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-            for (size_t i = 0; i < n; ++i) {
-                w[i] *= s_inv;
+            for (size_t j = 0; j < n; ++j) {
+                w[j] *= s_inv;
             }
         }
     }
@@ -152,21 +152,21 @@ double _bioen_log_prior(const double* const w, const double s, const double* con
     if (_fast_openmp_flag) {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(+ : val))
-            for (size_t i = 0; i < n; i++) {
-                tmp_n[i] = (g[i] - G[i]) * w[i];
-                val += tmp_n[i];
+            for (size_t j = 0; j < n; j++) {
+                tmp_n[j] = (g[j] - G[j]) * w[j];
+                val += tmp_n[j];
             }
         }
     } else {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-            for (size_t i = 0; i < n; i++) {
-                tmp_n[i] = (g[i] - G[i]) * w[i];
+            for (size_t j = 0; j < n; j++) {
+                tmp_n[j] = (g[j] - G[j]) * w[j];
             }
         }
 
-        for (size_t i = 0; i < n; ++i) {
-            val += tmp_n[i];
+        for (size_t j = 0; j < n; ++j) {
+            val += tmp_n[j];
         }
     }
 
@@ -209,6 +209,7 @@ void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double
     _get_weights(g, w, n);
 
     if (_fast_openmp_flag) {
+        // printf("FAST_OPENMP\n");
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR(OMP_SCHEDULE)
             for (size_t i = 0; i < m; i++) {
@@ -223,38 +224,39 @@ void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double
             if (caching) {
                 // use cached transposed yTilde
                 PRAGMA_OMP_FOR(OMP_SCHEDULE)
-                for (size_t i = 0; i < n; i++) {
+                for (size_t j = 0; j < n; j++) {
                     double tmp = 0.0;
                     PRAGMA_OMP_SIMD(reduction(+ : tmp))
-                    for (size_t j = 0; j < m; j++) {
-                        tmp += (t1[j] - YTilde[j]) * (yTildeT[i * m + j] - t1[j]);
+                    for (size_t i = 0; i < m; i++) {
+                        tmp += (t1[i] - YTilde[i]) * (yTildeT[j * m + i] - t1[i]);
                     }
-                    t2[i] = w[i] * tmp;
+                    t2[j] = w[j] * tmp;
                 }
             } else {
                 PRAGMA_OMP_FOR(OMP_SCHEDULE)
-                for (size_t i = 0; i < n; i++) {
+                for (size_t j = 0; j < n; j++) {
                     double tmp = 0.0;
-                    for (size_t j = 0; j < m; j++) {
-                        tmp += (t1[j] - YTilde[j]) * (yTilde[j * n + i] - t1[j]);
+                    for (size_t i = 0; i < m; i++) {
+                        tmp += (t1[i] - YTilde[i]) * (yTilde[i * n + j] - t1[i]);
                     }
-                    t2[i] = w[i] * tmp;
+                    t2[j] = w[j] * tmp;
                 }
             }
 
             // Potential non-reproducibility due to parallel summation!!!
             PRAGMA_OMP_FOR_SIMD(reduction(+ : tmp1, tmp2))
-            for (size_t i = 0; i < n; i++) {
-                tmp1 += g[i] * w[i];
-                tmp2 += G[i] * w[i];
+            for (size_t j = 0; j < n; j++) {
+                tmp1 += g[j] * w[j];
+                tmp2 += G[j] * w[j];
             }
 
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-            for (size_t i = 0; i < n; i++) {
-                result[i] = w[i] * theta * (g[i] - tmp1 - G[i] + tmp2) + t2[i];
+            for (size_t j = 0; j < n; j++) {
+                result[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
             }
         }  // END PRAGMA_OMP_PARALLEL()
     } else {
+        // printf("SLOW_OPENMP\n");
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR(OMP_SCHEDULE)
             for (size_t i = 0; i < m; i++) {
@@ -269,36 +271,36 @@ void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double
             if (caching) {
                 // use cached transposed yTilde
                 PRAGMA_OMP_FOR(OMP_SCHEDULE)
-                for (size_t i = 0; i < n; i++) {
+                for (size_t j = 0; j < n; j++) {
                     double tmp = 0.0;
                     PRAGMA_OMP_SIMD(reduction(+ : tmp))
-                    for (size_t j = 0; j < m; j++) {
-                        tmp += (t1[j] - YTilde[j]) * (yTildeT[i * m + j] - t1[j]);
+                    for (size_t i = 0; i < m; i++) {
+                        tmp += (t1[i] - YTilde[i]) * (yTildeT[j * m + i] - t1[i]);
                     }
-                    t2[i] = w[i] * tmp;
+                    t2[j] = w[j] * tmp;
                 }
             } else {
                 PRAGMA_OMP_FOR(OMP_SCHEDULE)
-                for (size_t i = 0; i < n; i++) {
+                for (size_t j = 0; j < n; j++) {
                     double tmp = 0.0;
-                    for (size_t j = 0; j < m; j++) {
-                        tmp += (t1[j] - YTilde[j]) * (yTilde[j * n + i] - t1[j]);
+                    for (size_t i = 0; i < m; i++) {
+                        tmp += (t1[i] - YTilde[i]) * (yTilde[i * n + j] - t1[i]);
                     }
-                    t2[i] = w[i] * tmp;
+                    t2[j] = w[j] * tmp;
                 }
             }
         }  // END PRAGMA_OMP_PARALLEL()
 
         // Use a non-parallel version here, do not use any pragma, not even SIMD!!!
-        for (size_t i = 0; i < n; i++) {
-            tmp1 += g[i] * w[i];
-            tmp2 += G[i] * w[i];
+        for (size_t j = 0; j < n; j++) {
+            tmp1 += g[j] * w[j];
+            tmp2 += G[j] * w[j];
         }
 
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-            for (size_t i = 0; i < n; i++) {
-                result[i] = w[i] * theta * (g[i] - tmp1 - G[i] + tmp2) + t2[i];
+            for (size_t j = 0; j < n; j++) {
+                result[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
             }
         }  // END PRAGMA_OMP_PARALLEL()
     }

@@ -53,32 +53,32 @@ double _bioen_chi_squared(double* w, double* yTilde, double* YTilde, double* tmp
     if (_fast_openmp_flag) {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR(OMP_SCHEDULE reduction(+ : val))
-            for (size_t j = 0; j < m; j++) {
+            for (size_t i = 0; i < m; i++) {
                 double me = 0.0;
                 PRAGMA_OMP_SIMD(reduction(+ : me))
-                for (size_t i = 0; i < n; i++) {
-                    me += yTilde[j * n + i] * w[i];
+                for (size_t j = 0; j < n; j++) {
+                    me += yTilde[i * n + j] * w[j];
                 }
-                me -= YTilde[j];
-                tmp_m[j] = me * me;
-                val += tmp_m[j];
+                me -= YTilde[i];
+                tmp_m[i] = me * me;
+                val += tmp_m[i];
             }
         }
     } else {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR(OMP_SCHEDULE)
-            for (size_t j = 0; j < m; j++) {
+            for (size_t i = 0; i < m; i++) {
                 double me = 0.0;
                 PRAGMA_OMP_SIMD(reduction(+ : me))
-                for (size_t i = 0; i < n; i++) {
-                    me += yTilde[j * n + i] * w[i];
+                for (size_t j = 0; j < n; j++) {
+                    me += yTilde[i * n + j] * w[j];
                 }
-                me -= YTilde[j];
-                tmp_m[j] = me * me;
+                me -= YTilde[i];
+                tmp_m[i] = me * me;
             }
         }
-        for (size_t j = 0; j < m; j++) {
-            val += tmp_m[j];
+        for (size_t i = 0; i < m; i++) {
+            val += tmp_m[i];
         }
     }
 
