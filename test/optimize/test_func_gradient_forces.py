@@ -31,6 +31,10 @@ def run_grad_forces(use_c=True):
 
 
 def test_func_gradient_forces():
+    optimize.minimize.set_fast_openmp_flag(1)
+    print()
+    print("fast_openmp_flag = {}".format(optimize.minimize.get_fast_openmp_flag()))
+    print()
 
     # run GSL/C-based routines
     log_posterior_c = run_func_forces(use_c=True)

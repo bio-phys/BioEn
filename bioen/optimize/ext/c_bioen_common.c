@@ -28,13 +28,13 @@ int _library_lbfgs() {
 }
 
 // flag to toggle aggressive OpenMP parallelization, default: 0 == off
-static int _fast_openmp_flag = 0;
+int _fast_openmp_flag = 0;
 
 void _set_fast_openmp_flag(int flag) {
     _fast_openmp_flag = flag;
 };
 
-int _get_fast_openmp_flag(void) {
+int _get_fast_openmp_flag() {
     return _fast_openmp_flag;
 };
 
@@ -48,26 +48,41 @@ double get_wtime(void) {
 
 double _bioen_chi_squared(double* w, double* yTilde, double* YTilde, double* tmp_m, size_t m,
                           size_t n) {
+    double val = 0.0;
 
-    PRAGMA_OMP_PARALLEL(default(shared)) {
-        PRAGMA_OMP_FOR(OMP_SCHEDULE)
-        for (size_t j = 0; j < m; j++) {
-            double me = 0.0;
-            PRAGMA_OMP_SIMD(reduction(+ : me))
-            for (size_t i = 0; i < n; i++) {
-                me += yTilde[j * n + i] * w[i];
+    if (_fast_openmp_flag) {
+        PRAGMA_OMP_PARALLEL(default(shared)) {
+            PRAGMA_OMP_FOR(OMP_SCHEDULE reduction(+ : val))
+            for (size_t j = 0; j < m; j++) {
+                double me = 0.0;
+                PRAGMA_OMP_SIMD(reduction(+ : me))
+                for (size_t i = 0; i < n; i++) {
+                    me += yTilde[j * n + i] * w[i];
+                }
+                me -= YTilde[j];
+                tmp_m[j] = me * me;
+                val += tmp_m[j];
             }
-            me -= YTilde[j];
-            tmp_m[j] = me * me;
+        }
+    } else {
+        PRAGMA_OMP_PARALLEL(default(shared)) {
+            PRAGMA_OMP_FOR(OMP_SCHEDULE)
+            for (size_t j = 0; j < m; j++) {
+                double me = 0.0;
+                PRAGMA_OMP_SIMD(reduction(+ : me))
+                for (size_t i = 0; i < n; i++) {
+                    me += yTilde[j * n + i] * w[i];
+                }
+                me -= YTilde[j];
+                tmp_m[j] = me * me;
+            }
+        }
+        for (size_t j = 0; j < m; j++) {
+            val += tmp_m[j];
         }
     }
 
-    double val = 0.0;
-    for (size_t j = 0; j < m; j++) {
-        val += tmp_m[j];
-    }
     val *= 0.5;
-
     return val;
 }
 

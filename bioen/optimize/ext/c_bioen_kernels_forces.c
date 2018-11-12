@@ -123,56 +123,107 @@ void _getAve(double* w, double* yTilde, double* yTildeAve, size_t m, size_t n) {
 
 void _get_weights_from_forces(double* w0, double* yTilde, double* forces, double* w,
                               int caching, double* yTildeT, double* tmp_n, size_t m, size_t n) {
-
-    double x_max = -dmax;
-    PRAGMA_OMP_PARALLEL(default(shared))
-    {
-        if (caching) {
-            // use cached transposed yTilde
-            PRAGMA_OMP_FOR(OMP_SCHEDULE)
-            for (size_t x = 0; x < n; x++) {
-                double tmp = 0.0;
-                PRAGMA_OMP_SIMD(reduction(+ : tmp))
-                for (size_t y = 0; y < m; y++) {
-                    tmp += forces[y] * yTildeT[x * m + y];
+    if (_fast_openmp_flag) {
+        double x_max = -dmax;
+        double s = 0.0;
+        PRAGMA_OMP_PARALLEL(default(shared))
+        {
+            if (caching) {
+                // use cached transposed yTilde
+                PRAGMA_OMP_FOR(OMP_SCHEDULE)
+                for (size_t x = 0; x < n; x++) {
+                    double tmp = 0.0;
+                    PRAGMA_OMP_SIMD(reduction(+ : tmp))
+                    for (size_t y = 0; y < m; y++) {
+                        tmp += forces[y] * yTildeT[x * m + y];
+                    }
+                    tmp_n[x] = tmp;
                 }
-                tmp_n[x] = tmp;
-            }
-        } else {
-            PRAGMA_OMP_FOR(OMP_SCHEDULE)
-            for (size_t x = 0; x < n; x++) {
-                double tmp = 0.0;
-                for (size_t y = 0; y < m; y++) {
-                    tmp += forces[y] * yTilde[y * n + x];
+            } else {
+                PRAGMA_OMP_FOR(OMP_SCHEDULE)
+                for (size_t x = 0; x < n; x++) {
+                    double tmp = 0.0;
+                    for (size_t y = 0; y < m; y++) {
+                        tmp += forces[y] * yTilde[y * n + x];
+                    }
+                    tmp_n[x] = tmp;
                 }
-                tmp_n[x] = tmp;
+            }
+
+            // double x_max = tmp_n[0];
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(max : x_max))
+            for (size_t x = 0; x < n; x++) {
+                x_max = x_max > tmp_n[x] ? x_max : tmp_n[x];
+            }
+
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
+            for (size_t x = 0; x < n; x++) {
+                w[x] = w0[x] * exp(tmp_n[x] - x_max);
+            }
+
+            // the following parallel block potentially leads to non-reproducibility!
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(+ : s))
+            for (size_t x = 0; x < n; x++) {
+                s += w[x];
+            }
+            double s_inv = 1.0 / s;
+
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
+            for (size_t x = 0; x < n; x++) {
+                w[x] = s_inv * w[x];
+            }
+        }
+    } else {
+        double x_max = -dmax;
+        PRAGMA_OMP_PARALLEL(default(shared))
+        {
+            if (caching) {
+                // use cached transposed yTilde
+                PRAGMA_OMP_FOR(OMP_SCHEDULE)
+                for (size_t x = 0; x < n; x++) {
+                    double tmp = 0.0;
+                    PRAGMA_OMP_SIMD(reduction(+ : tmp))
+                    for (size_t y = 0; y < m; y++) {
+                        tmp += forces[y] * yTildeT[x * m + y];
+                    }
+                    tmp_n[x] = tmp;
+                }
+            } else {
+                PRAGMA_OMP_FOR(OMP_SCHEDULE)
+                for (size_t x = 0; x < n; x++) {
+                    double tmp = 0.0;
+                    for (size_t y = 0; y < m; y++) {
+                        tmp += forces[y] * yTilde[y * n + x];
+                    }
+                    tmp_n[x] = tmp;
+                }
+            }
+
+            // double x_max = tmp_n[0];
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(max : x_max))
+            for (size_t x = 0; x < n; x++) {
+                x_max = x_max > tmp_n[x] ? x_max : tmp_n[x];
+            }
+
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
+            for (size_t x = 0; x < n; x++) {
+                w[x] = w0[x] * exp(tmp_n[x] - x_max);
             }
         }
 
-        // double x_max = tmp_n[0];
-        PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(max : x_max))
+        // Do _not_ parallelize the following block because it leads to non-reproducibility!
+        double s = 0.0;
         for (size_t x = 0; x < n; x++) {
-            x_max = x_max > tmp_n[x] ? x_max : tmp_n[x];
+            s += w[x];
         }
+        double s_inv = 1.0 / s;
 
-        PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-        for (size_t x = 0; x < n; x++) {
-            w[x] = w0[x] * exp(tmp_n[x] - x_max);
-        }
-    }
-
-    // Do _not_ parallelize the following block because it leads to non-reproducibility!
-    double s = 0.0;
-    for (size_t x = 0; x < n; x++) {
-        s += w[x];
-    }
-    double s_inv = 1.0 / s;
-
-    PRAGMA_OMP_PARALLEL(default(shared))
-    {
-        PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-        for (size_t x = 0; x < n; x++) {
-            w[x] = s_inv * w[x];
+        PRAGMA_OMP_PARALLEL(default(shared))
+        {
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
+            for (size_t x = 0; x < n; x++) {
+                w[x] = s_inv * w[x];
+            }
         }
     }
     return;
@@ -193,6 +244,7 @@ double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, 
     double chiSqr = 0.0;
     double* w = NULL;
     int status = 0;
+    double d = 0.0;
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
@@ -206,21 +258,36 @@ double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, 
 
     chiSqr = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
 
-    PRAGMA_OMP_PARALLEL(default(shared))
-    {
-        PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
-        for (size_t x = 0; x < n; x++) {
-            if ((w[x] >= dmin) && (w0[x] >= dmin)) {
-                tmp_n[x] = (log(w[x]) - log(w0[x])) * w[x];
-            } else {
-                tmp_n[x] = 0.0;
+    if (_fast_openmp_flag) {
+        PRAGMA_OMP_PARALLEL(default(shared))
+        {
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(+ : d))
+            for (size_t x = 0; x < n; x++) {
+                if ((w[x] >= dmin) && (w0[x] >= dmin)) {
+                    tmp_n[x] = (log(w[x]) - log(w0[x])) * w[x];
+                } else {
+                    tmp_n[x] = 0.0;
+                }
+
+                d += tmp_n[x];
             }
         }
-    }
+    } else {
+        PRAGMA_OMP_PARALLEL(default(shared))
+        {
+            PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
+            for (size_t x = 0; x < n; x++) {
+                if ((w[x] >= dmin) && (w0[x] >= dmin)) {
+                    tmp_n[x] = (log(w[x]) - log(w0[x])) * w[x];
+                } else {
+                    tmp_n[x] = 0.0;
+                }
+            }
+        }
 
-    double d = 0.0;
-    for (size_t x = 0; x < n; x++) {
-        d += tmp_n[x];
+        for (size_t x = 0; x < n; x++) {
+            d += tmp_n[x];
+        }
     }
 
     free(w);

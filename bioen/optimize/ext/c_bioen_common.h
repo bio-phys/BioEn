@@ -103,6 +103,7 @@ int _get_bfgs_gsl_algorithm(void);
 int _library_gsl(void);
 int _library_lbfgs(void);
 
+extern int _fast_openmp_flag;
 void _set_fast_openmp_flag(int);
 int _get_fast_openmp_flag(void);
 

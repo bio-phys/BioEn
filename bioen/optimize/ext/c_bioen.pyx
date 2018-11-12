@@ -102,6 +102,14 @@ cdef extern from "c_bioen_common.h":
         size_t verbose          "verbose"
 
 
+def set_fast_openmp_flag(flag):
+    _set_fast_openmp_flag(flag)
+
+
+def get_fast_openmp_flag():
+    return _get_fast_openmp_flag()
+
+
 def get_gsl_method(algorithm):
     """
     Returns the id. of gsl's corresponding internal value to string name algorithm

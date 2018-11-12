@@ -11,6 +11,15 @@ else:
 import numpy as np
 
 from . import util
+from .ext import c_bioen
+
+
+def set_fast_openmp_flag(flag):
+    c_bioen.set_fast_openmp_flag(flag)
+
+
+def get_fast_openmp_flag():
+    return c_bioen.get_fast_openmp_flag()
 
 
 def show_params(packed_params):
