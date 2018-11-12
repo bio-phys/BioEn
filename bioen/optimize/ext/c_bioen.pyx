@@ -69,8 +69,11 @@ cdef extern from "c_bioen_kernels_forces.h":
 
 
 cdef extern from "c_bioen_common.h":
-    int     _library_gsl                     ()
-    int     _library_lbfgs                   ()
+    int _library_gsl()
+    int _library_lbfgs()
+
+    void _set_fast_openmp_flag(int)
+    int _get_fast_openmp_flag()
 
     struct gsl_config_params  "gsl_config_params":
         double step_size        "step_size"

@@ -27,6 +27,16 @@ int _library_lbfgs() {
     return 0;
 }
 
+// flag to toggle aggressive OpenMP parallelization, default: 0 == off
+static int _fast_openmp_flag = 0;
+
+void _set_fast_openmp_flag(int flag) {
+    _fast_openmp_flag = flag;
+};
+
+int _get_fast_openmp_flag(void) {
+    return _fast_openmp_flag;
+};
 
 // get the time since the epoch in microseconds
 double get_wtime(void) {
@@ -57,7 +67,7 @@ double _bioen_chi_squared(double* w, double* yTilde, double* YTilde, double* tmp
         val += tmp_m[j];
     }
     val *= 0.5;
-    
+
     return val;
 }
 

@@ -103,6 +103,9 @@ int _get_bfgs_gsl_algorithm(void);
 int _library_gsl(void);
 int _library_lbfgs(void);
 
+void _set_fast_openmp_flag(int);
+int _get_fast_openmp_flag(void);
+
 // Shared functions
 double get_wtime(void);
 double _bioen_chi_squared(double *, double *, double *, double *, size_t,
