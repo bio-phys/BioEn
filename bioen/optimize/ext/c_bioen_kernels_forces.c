@@ -236,11 +236,12 @@ void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_para
                                       double theta, int caching, double* yTildeT, double* tmp_n,
                                       double* tmp_m, int m_int, int n_int) {
     double* w_local = NULL;
+    int status = 0;
 
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
-    posix_memalign((void**)&w_local, ALIGN_CACHE, sizeof(double) * n);
+    status += posix_memalign((void**)&w_local, ALIGN_CACHE, sizeof(double) * n);
     if (w_local == NULL) {
         printf("ERROR; allocating w_local\n");
         exit(-1);
