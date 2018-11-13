@@ -302,6 +302,6 @@ References
 .. Articles
 .. --------
 
-.. [Reichel2018] Reichel K., Stelzl Lukas S., Köfinger J., Hummer G., Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018). https://doi.org/10.1021/acs.jpclett.8b02439
+.. [Reichel2018] Reichel K., Stelzl L. S., Köfinger J., Hummer G., Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018). https://doi.org/10.1021/acs.jpclett.8b02439
 
 .. [Hummer2015] Hummer G. and Koefinger J., Bayesian Ensemble Refinement by Replica Simulations and Reweighting. J. Chem. Phys. 143(24):12B634_1 (2015). https://doi.org/10.1063/1.4937786
