@@ -201,24 +201,24 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if caching == True:
         yTildeT = yTilde.T.copy()
 
     # temporary array for weights
-    cdef np.ndarray w = np.zeros([n], dtype=np.double)
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
 
     # The correspondence of number of parameters between func. and grad. must
     # be preserved when running the optimizer.
     # The temporary arrays t1 and t2 are used on the gradient function.
     # Allocation is done at python level
-    cdef np.ndarray t1 = np.zeros([m], dtype=np.double)
-    cdef np.ndarray t2 = np.zeros([n], dtype=np.double)
+    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
+    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
     # result array
-    cdef np.ndarray result = np.zeros([n], dtype=np.double)
+    cdef np.ndarray result = np.empty([n], dtype=np.double)
 
     result_local = _bioen_log_posterior_logw(<double*> gPrime.data, <double*> g.data, <double*> yTilde.data,
                               <double*> YTilde.data, <double*> w.data,
@@ -260,20 +260,20 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if caching == True:
         yTildeT = yTilde.T.copy()
 
     # temporary array for weights
-    cdef np.ndarray w = np.zeros([n], dtype=np.double, order='C')
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
     # temporary arrays
-    cdef np.ndarray t1 = np.zeros([m], dtype=np.double, order='C')
-    cdef np.ndarray t2 = np.zeros([n], dtype=np.double, order='C')
+    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
+    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
     # result array
-    cdef np.ndarray result = np.zeros([n], dtype=np.double, order='C')
+    cdef np.ndarray result = np.empty([n], dtype=np.double)
 
     _grad_bioen_log_posterior_logw(<double*> gPrime.data, <double*> G.data, <double*> yTilde.data,
                               <double*> YTilde.data, <double*> w.data,
@@ -316,20 +316,20 @@ def bioen_opt_bfgs_logw( np.ndarray g,      np.ndarray G,
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if params["cache_ytilde_transposed"] == True:
         yTildeT = yTilde.T.copy()
 
     # temporary array for the weights
-    cdef np.ndarray w = np.zeros([n], dtype=np.double)
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
     # temporary arrays
-    cdef np.ndarray t1 = np.zeros([m], dtype=np.double)
-    cdef np.ndarray t2 = np.zeros([n], dtype=np.double)
+    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
+    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
     # x array
-    cdef np.ndarray x = np.zeros([n], dtype=np.double)
+    cdef np.ndarray x = np.empty([n], dtype=np.double)
 
     # structures containing adition info.
     cdef gsl_config_params c_params
@@ -391,20 +391,20 @@ def bioen_opt_lbfgs_logw( np.ndarray g,      np.ndarray G,
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if params["cache_ytilde_transposed"] == True:
         yTildeT = yTilde.T.copy()
 
     # temporary array for the weights
-    cdef np.ndarray w = np.zeros([n], dtype=np.double)
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
     # temporary arrays
-    cdef np.ndarray t1 = np.zeros([m], dtype=np.double)
-    cdef np.ndarray t2 = np.zeros([n], dtype=np.double)
+    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
+    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
     # x array
-    cdef np.ndarray x = np.zeros([n], dtype=np.double)
+    cdef np.ndarray x = np.empty([n], dtype=np.double)
 
     cdef lbfgs_config_params c_params
     cdef caching_params c_caching_params
@@ -469,9 +469,9 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if caching == True:
         yTildeT = yTilde.T.copy()
@@ -518,15 +518,15 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if caching == True:
         yTildeT = yTilde.T.copy()
 
     # result array
-    cdef np.ndarray result = np.zeros([m], dtype=np.double)
+    cdef np.ndarray result = np.empty([m], dtype=np.double)
 
     _grad_bioen_log_posterior_forces(<double*> forces.data ,
                 <double*>w0.data,    <double*> y.data  ,
@@ -569,14 +569,14 @@ def bioen_opt_bfgs_forces(  np.ndarray forces,  np.ndarray w0,      np.ndarray y
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if params["cache_ytilde_transposed"] == True:
         yTildeT = yTilde.T.copy()
 
-    cdef np.ndarray x = np.zeros([m], dtype=np.double)
+    cdef np.ndarray x = np.empty([m], dtype=np.double)
 
     # structures containing adition info.
     cdef gsl_config_params c_params
@@ -635,14 +635,14 @@ def bioen_opt_lbfgs_forces( np.ndarray forces,  np.ndarray w0,      np.ndarray y
         size_cache = m*n
         lcaching = 1
 
-    cdef np.ndarray yTildeT = np.zeros([size_cache], dtype=np.double)
-    cdef np.ndarray tmp_n = np.zeros([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.zeros([m], dtype=np.double)
+    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
     if params["cache_ytilde_transposed"] == True:
         yTildeT = yTilde.T.copy()
 
-    cdef np.ndarray x = np.zeros([m], dtype=np.double)
+    cdef np.ndarray x = np.empty([m], dtype=np.double)
 
     # structures containing adition info.
     cdef lbfgs_config_params c_params
