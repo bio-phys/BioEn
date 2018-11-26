@@ -5,73 +5,6 @@
 #include "ompmagic.h"
 #include <stdlib.h>
 
-// Global variable to count the number of iterations required to converge for
-// the libLBFGS version
-size_t iterations_lbfgs_logw = 0;
-// Global variable to control verbosity for the LibLBFGS version. It is
-// controlled through a global variable to avoid increasing parameters on the
-// functions.
-size_t lbfgs_verbose_logw = 1;
-
-#ifdef ENABLE_LBFGS
-// Interface function used by LibLBFGS to perform an interation.
-// The new functions coordinates are provided by LibLBFGS and they are named as
-// new_gs.
-// Executes function and gradient and returns current function evaluation.
-static lbfgsfloatval_t interface_lbfgs_logw(void* instance,
-                                            const lbfgsfloatval_t* new_g,  // current values of func.
-                                            lbfgsfloatval_t* grad_vals,    // current grad values of func.
-                                            const int n,
-                                            const lbfgsfloatval_t step) {
-    params_t* p = (params_t*)instance;
-    double* G = p->G;
-    double* yTilde = p->yTilde;
-    double* YTilde = p->YTilde;
-    double* w = p->w;
-    double* t1 = p->t1;
-    double* t2 = p->t2;
-    //double* result = p->result;
-    double theta = p->theta;
-    double* yTildeT = p->yTildeT;
-    int caching = p->caching;
-    double* tmp_n = p->tmp_n;
-    double* tmp_m = p->tmp_m;
-    int m = p->m;
-    // int n          = p->n ;
-    double val = 0.0;
-
-    // pointer aliases for lbfgsfloatval_t input and output types
-    double* g_ptr = (double*) new_g;
-    double* result_ptr = (double*) grad_vals;
-
-    // Evaluation of objective function
-    val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
-                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n);
-
-    // Evaluation of gradient
-    _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
-                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n);
-
-    return val;
-}
-
-
-// Function that controls the progress of the LBFGS execution.
-// Counts iterations and prints progress after 1000 iterations
-static int progress_logw(void* instance, const lbfgsfloatval_t* x, const lbfgsfloatval_t* g,
-                         const lbfgsfloatval_t fx, const lbfgsfloatval_t xnorm,
-                         const lbfgsfloatval_t gnorm, const lbfgsfloatval_t step, int n, int k,
-                         int ls) {
-    iterations_lbfgs_logw++;
-
-    if (lbfgs_verbose_logw)
-        if ((iterations_lbfgs_logw != 0) && ((iterations_lbfgs_logw % 1000) == 0))
-            printf("\t\tOpt Iteration %zu\n", iterations_lbfgs_logw);
-
-    return 0;
-}
-#endif
-
 
 double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
     double s = 0.0;
@@ -181,11 +114,19 @@ double _bioen_log_prior(const double* const w, const double s, const double* con
 double _bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* YTilde,
                                  double* w, double* t1, double* t2, double* result,
                                  double theta, int caching, double* yTildeT, double* tmp_n,
-                                 double* tmp_m, int m_int, int n_int) {
+                                 double* tmp_m, int m_int, int n_int,
+                                 int run_get_weights, double weights_sum) {
+    double s;
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
-    double s = _get_weights(g, w, n);
+    if (run_get_weights) {
+        s = _get_weights(g, w, n);
+    } else {
+        // 'w' already contains weights from a previous invocation
+        s = weights_sum;
+    }
+
     double val1 = _bioen_log_prior(w, s, g, G, theta, tmp_n, n);
     double val2 = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
     double val = val1 + val2;
@@ -198,14 +139,17 @@ double _bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* Y
 void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* YTilde,
                                     double* w, double* t1, double* t2, double* result,
                                     double theta, int caching, double* yTildeT, double* tmp_n,
-                                    double* tmp_m, int m_int, int n_int) {
+                                    double* tmp_m, int m_int, int n_int,
+                                    int run_get_weights, double weights_sum) {
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
+    if (run_get_weights) {
+        _get_weights(g, w, n);
+    }
+
     double tmp1 = 0.0;
     double tmp2 = 0.0;
-
-    _get_weights(g, w, n);
 
     if (_fast_openmp_flag) {
         // printf("FAST_OPENMP\n");
@@ -329,8 +273,13 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
 
     double* v_ptr = (double*) v->data;
 
+    // arguments: run get_weights internally
+    const int run_get_weights = 1;
+    const double weights_sum = -1.0;
+
     double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
-                                           theta, caching, yTildeT, tmp_n, tmp_m, m, n);
+                                           theta, caching, yTildeT, tmp_n, tmp_m, m, n,
+                                           run_get_weights, weights_sum);
 
     return val;
 }
@@ -359,15 +308,48 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     double* v_ptr = (double*) v->data;
     double* result_ptr = (double*) df->data;
 
+    // arguments: run get_weights internally
+    const int run_get_weights = 1;
+    const double weights_sum = -1.0;
+
     _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
-                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n);
+                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
+                                   run_get_weights, weights_sum);
 }
 
 
 // GSL interface, for objective and gradient, to evaluate an iteration.
 void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
-    *f = _bioen_log_posterior_interface(x, params);
-    _grad_bioen_log_posterior_interface(x, params, df);
+    params_t* p = (params_t*)params;
+    double* G = p->G;
+    double* yTilde = p->yTilde;
+    double* YTilde = p->YTilde;
+    double* w = p->w;
+    double* t1 = p->t1;
+    double* t2 = p->t2;
+    // double* result = p->result;
+    double theta = p->theta;
+    double* yTildeT = p->yTildeT;
+    int caching = p->caching;
+    double* tmp_n = p->tmp_n;
+    double* tmp_m = p->tmp_m;
+    int m = p->m;
+    int n = p->n;
+
+    double* v_ptr = (double*) x->data;
+    double* result_ptr = (double*) df->data;
+
+    // run get_weights only once per invocation of f and grad f
+    const int run_get_weights = 0;
+    const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
+
+    *f = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
+                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
+                                   run_get_weights, weights_sum);
+
+    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
+                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
+                                   run_get_weights, weights_sum);
 }
 #endif
 
@@ -541,6 +523,82 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
     return final_val;
 }
 
+
+
+#ifdef ENABLE_LBFGS
+// Global variable to count the number of iterations required to converge for
+// the libLBFGS version
+size_t iterations_lbfgs_logw = 0;
+// Global variable to control verbosity for the LibLBFGS version. It is
+// controlled through a global variable to avoid increasing parameters on the
+// functions.
+size_t lbfgs_verbose_logw = 1;
+
+// Interface function used by LibLBFGS to perform an interation.
+// The new functions coordinates are provided by LibLBFGS and they are named as
+// new_gs.
+// Executes function and gradient and returns current function evaluation.
+static lbfgsfloatval_t interface_lbfgs_logw(void* instance,
+                                            const lbfgsfloatval_t* new_g,  // current values of func.
+                                            lbfgsfloatval_t* grad_vals,    // current grad values of func.
+                                            const int n,
+                                            const lbfgsfloatval_t step) {
+    params_t* p = (params_t*)instance;
+    double* G = p->G;
+    double* yTilde = p->yTilde;
+    double* YTilde = p->YTilde;
+    double* w = p->w;
+    double* t1 = p->t1;
+    double* t2 = p->t2;
+    //double* result = p->result;
+    double theta = p->theta;
+    double* yTildeT = p->yTildeT;
+    int caching = p->caching;
+    double* tmp_n = p->tmp_n;
+    double* tmp_m = p->tmp_m;
+    int m = p->m;
+    // int n          = p->n ;
+    double val = 0.0;
+
+    // pointer aliases for lbfgsfloatval_t input and output types
+    double* g_ptr = (double*) new_g;
+    double* result_ptr = (double*) grad_vals;
+
+    // run get_weights only once
+    const int run_get_weights = 0;
+    const double weights_sum = _get_weights(g_ptr, w, (size_t)n);
+
+    // Evaluation of objective function
+    val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
+                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n,
+                                    run_get_weights, weights_sum);
+
+    // Evaluation of gradient
+    _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
+                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
+                                   run_get_weights, weights_sum);
+
+    return val;
+}
+
+
+// Function that controls the progress of the LBFGS execution.
+// Counts iterations and prints progress after 1000 iterations
+static int progress_logw(void* instance, const lbfgsfloatval_t* x, const lbfgsfloatval_t* g,
+                         const lbfgsfloatval_t fx, const lbfgsfloatval_t xnorm,
+                         const lbfgsfloatval_t gnorm, const lbfgsfloatval_t step, int n, int k,
+                         int ls) {
+    iterations_lbfgs_logw++;
+
+    if (lbfgs_verbose_logw)
+        if ((iterations_lbfgs_logw != 0) && ((iterations_lbfgs_logw % 1000) == 0))
+            printf("\t\tOpt Iteration %zu\n", iterations_lbfgs_logw);
+
+    return 0;
+}
+#endif  // ENABLE_LBFGS
+
+
 // LibLBFGS optimization interface
 
 double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, double* w,
@@ -649,7 +707,7 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
 
 #else
     printf("LibLBFGS has not been configured properly\n");
-#endif
+#endif // ENABLE_LBFGS
 
     return final_result;
 }
