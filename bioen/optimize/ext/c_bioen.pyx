@@ -10,13 +10,15 @@ cdef extern from "c_bioen_kernels_logw.h":
     double _bioen_log_posterior_logw        (   double* , double* , double* ,
                                                 double* , double* , double* ,
                                                 double* , double* , double  ,
-                                                int, double* ,double*, double*,
+                                                int,
+                                                double* , double* , double* ,
                                                 int     , int)
 
     double _grad_bioen_log_posterior_logw   (   double* , double* , double* ,
                                                 double* , double* , double* ,
                                                 double* , double* , double  ,
-                                                int, double* ,double*, double*,
+                                                int,
+                                                double* , double* , double* ,
                                                 int     , int)
 
     double _opt_bfgs_logw                   (   double* , double* , double* ,
@@ -38,14 +40,14 @@ cdef extern from "c_bioen_kernels_logw.h":
 
 cdef extern from "c_bioen_kernels_forces.h":
 
-    double _opt_bfgs_forces                  (   double*, double* , double* ,
+    double _opt_bfgs_forces                 (   double* , double* , double* ,
                                                 double* , double* , double* ,
                                                 double  , int     , int,
                                                 gsl_config_params,
                                                 caching_params,
                                                 visual_params)
 
-    double _opt_lbfgs_forces                 (   double*, double*   , double* ,
+    double _opt_lbfgs_forces                (   double* , double*   , double* ,
                                                 double* , double*   , double* ,
                                                 double  ,
                                                 int     , int,
@@ -53,17 +55,17 @@ cdef extern from "c_bioen_kernels_forces.h":
                                                 caching_params,
                                                 visual_params)
 
-    void   _grad_bioen_log_posterior_forces  (   double* , double*, double* ,
+    void   _grad_bioen_log_posterior_forces (   double* , double* , double* ,
                                                 double* , double* , double* ,
                                                 double  ,
-                                                int     , double* , double*,
+                                                int     , double* , double* ,
                                                 double* , int     , int)
 
-    double _bioen_log_posterior_forces       (   double*, double*, double*,
-                                                double* , double*, double*,
+    double _bioen_log_posterior_forces      (   double* , double* , double* ,
+                                                double* , double* , double* ,
                                                 double  ,
-                                                int     , double*, double*,
-                                                double* , int    , int)
+                                                int     , double* , double* ,
+                                                double* , int     , int)
 
 
 cdef extern from "c_bioen_common.h":
