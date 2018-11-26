@@ -1,4 +1,4 @@
-"""Cython interface to the C implementations of [grad_]log_posterior[_forces].
+"""Cython interface to the C implementations of the log-weights and the forces methods.
 """
 
 import numpy as np
