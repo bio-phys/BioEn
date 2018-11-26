@@ -109,8 +109,9 @@ int _get_fast_openmp_flag(void);
 
 // Shared functions
 double get_wtime(void);
-double _bioen_chi_squared(double *, double *, double *, double *, size_t,
-                          size_t);
+double _bioen_chi_squared(const double* const, const double* const,
+                          const double* const,       double* const,
+                          const size_t, const size_t);
 
 #ifdef ENABLE_GSL
 void handler(const char *, const char *, int, int);

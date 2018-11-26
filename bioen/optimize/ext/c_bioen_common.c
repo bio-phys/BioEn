@@ -46,8 +46,9 @@ double get_wtime(void) {
 }
 
 
-double _bioen_chi_squared(double* w, double* yTilde, double* YTilde, double* tmp_m, size_t m,
-                          size_t n) {
+double _bioen_chi_squared(const double* const w, const double* const yTilde,
+                          const double* const YTilde, double* const tmp_m,
+                          const size_t m, const size_t n) {
     double val = 0.0;
 
     if (_fast_openmp_flag) {
