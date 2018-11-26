@@ -185,8 +185,6 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     -------
     double: BioEn loglikelihood
     """
-    cdef double result_local
-
     cdef int m = yTilde.shape[0]
     cdef int n = yTilde.shape[1]
 
@@ -212,23 +210,22 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     # result array
     cdef np.ndarray result = np.empty([n], dtype=np.double)
 
-    result_local = _bioen_log_posterior_logw(<double*> gPrime.data,
-                                             <double*> g.data,
-                                             <double*> yTilde.data,
-                                             <double*> YTilde.data,
-                                             <double*> w.data,
-                                             <double*> t1.data,
-                                             <double*> t2.data,
-                                             <double*> result.data,
-                                             <double> theta,
-                                             <int> use_cache_flag,
-                                             <double*> yTildeT.data,
-                                             <double*> tmp_n.data,
-                                             <double*> tmp_m.data,
-                                             <int> m,
-                                             <int> n)
-
-    return result_local
+    cdef double val = _bioen_log_posterior_logw(<double*> gPrime.data,
+                                                <double*> g.data,
+                                                <double*> yTilde.data,
+                                                <double*> YTilde.data,
+                                                <double*> w.data,
+                                                <double*> t1.data,
+                                                <double*> t2.data,
+                                                <double*> result.data,
+                                                <double> theta,
+                                                <int> use_cache_flag,
+                                                <double*> yTildeT.data,
+                                                <double*> tmp_n.data,
+                                                <double*> tmp_m.data,
+                                                <int> m,
+                                                <int> n)
+    return val
 
 
 def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
@@ -283,7 +280,6 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                    <double*> tmp_m.data,
                                    <int> m,
                                    <int> n)
-
     return result
 
 
@@ -360,7 +356,6 @@ def bioen_opt_bfgs_logw(np.ndarray g,
                                       <gsl_config_params> c_params,
                                       <caching_params> c_caching_params,
                                       <visual_params> c_visual_params)
-
     return x, fmin
 
 
@@ -441,7 +436,6 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
                                        <lbfgs_config_params> c_params,
                                        <caching_params> c_caching_params,
                                        <visual_params> c_visual_params)
-
     return x, fmin
 
 
@@ -489,7 +483,6 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
                                                   <double*>tmp_m.data,
                                                   <int> m,
                                                   <int> n)
-
     return  val
 
 
@@ -540,7 +533,6 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
                                      <double*> tmp_m.data,
                                      <int> m,
                                      <int> n)
-
     return result
 
 
@@ -606,12 +598,11 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_p
                                         <gsl_config_params> c_params,
                                         <caching_params> c_caching_params,
                                         <visual_params> c_visual_params)
-
     return x, fmin
 
 
-def bioen_opt_lbfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_param,
-                           np.ndarray yTilde,  np.ndarray YTilde,  theta, params):
+def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,     np.ndarray y_param,
+                           np.ndarray yTilde, np.ndarray YTilde, theta, params):
     """
     Parameters
     ----------
@@ -655,10 +646,10 @@ def bioen_opt_lbfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_
     c_params.past           = params["params"]["past"]
     c_params.max_linesearch = params["params"]["max_linesearch"]
 
-    c_caching_params.lcaching   = use_cache_flag
-    c_caching_params.yTildeT    = <double*> yTildeT.data
-    c_caching_params.tmp_n      = <double*> tmp_n.data
-    c_caching_params.tmp_m      = <double*> tmp_m.data
+    c_caching_params.lcaching = use_cache_flag
+    c_caching_params.yTildeT  = <double*> yTildeT.data
+    c_caching_params.tmp_n    = <double*> tmp_n.data
+    c_caching_params.tmp_m    = <double*> tmp_m.data
 
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
@@ -675,5 +666,4 @@ def bioen_opt_lbfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_
                                          <lbfgs_config_params> c_params,
                                          <caching_params> c_caching_params,
                                          <visual_params> c_visual_params)
-
     return x, fmin
