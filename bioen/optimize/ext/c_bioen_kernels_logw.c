@@ -318,7 +318,7 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
     double* w = p->w;
     double* t1 = p->t1;
     double* t2 = p->t2;
-    double* result = p->result;
+    // double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
@@ -327,10 +327,10 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
     int m = p->m;
     int n = p->n;
 
-    double* v_ptr = v->data;
+    double* v_ptr = (double*) v->data;
 
-    double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result, theta,
-                                           caching, yTildeT, tmp_n, tmp_m, m, n);
+    double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
+                                           theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     return val;
 }
@@ -347,7 +347,7 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     double* w = p->w;
     double* t1 = p->t1;
     double* t2 = p->t2;
-    double* result = p->result;
+    // double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
@@ -356,15 +356,11 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     int m = p->m;
     int n = p->n;
 
-    double* v_ptr = v->data;
+    double* v_ptr = (double*) v->data;
+    double* result_ptr = (double*) df->data;
 
-    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result, theta, caching,
-                                   yTildeT, tmp_n, tmp_m, m, n);
-
-    // copy back results to gsl_vector df; TODO: avoid copy!
-    for (size_t i = 0; i < n; i++) {
-        gsl_vector_set(df, i, result[i]);
-    }
+    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
+                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 }
 
 
