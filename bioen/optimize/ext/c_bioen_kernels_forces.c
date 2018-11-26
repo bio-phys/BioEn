@@ -637,9 +637,10 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     double final_result = 0;
 
 #ifdef ENABLE_LBFGS
+    int status = 0;
     params_t* params = NULL;
     // Set up arguments in param_t structure
-    posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
     params->forces = forces;
     params->w0 = w0;
     params->y_param = y_param;

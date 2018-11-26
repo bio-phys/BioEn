@@ -18,11 +18,11 @@ size_t lbfgs_verbose_logw = 1;
 // The new functions coordinates are provided by LibLBFGS and they are named as
 // new_gs.
 // Executes function and gradient and returns current function evaluation.
-static lbfgsfloatval_t interface_lbfgs_logw(
-    void* instance,
-    const lbfgsfloatval_t* new_g,  // current values of func.
-    lbfgsfloatval_t* grad_vals,    // current grad values of func.
-    const int n, const lbfgsfloatval_t step) {
+static lbfgsfloatval_t interface_lbfgs_logw(void* instance,
+                                            const lbfgsfloatval_t* new_g,  // current values of func.
+                                            lbfgsfloatval_t* grad_vals,    // current grad values of func.
+                                            const int n,
+                                            const lbfgsfloatval_t step) {
     params_t* p = (params_t*)instance;
     double* G = p->G;
     double* yTilde = p->yTilde;
@@ -30,7 +30,7 @@ static lbfgsfloatval_t interface_lbfgs_logw(
     double* w = p->w;
     double* t1 = p->t1;
     double* t2 = p->t2;
-    double* result = p->result;
+    //double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
@@ -38,21 +38,21 @@ static lbfgsfloatval_t interface_lbfgs_logw(
     double* tmp_m = p->tmp_m;
     int m = p->m;
     // int n          = p->n ;
-    double ret_result = 0.0;
+    double val = 0.0;
+
+    // pointer aliases for lbfgsfloatval_t input and output types
+    double* g_ptr = (double*) new_g;
+    double* result_ptr = (double*) grad_vals;
 
     // Evaluation of objective function
-    ret_result = _bioen_log_posterior_logw((double*)new_g, G, yTilde, YTilde, w, t1, t2, result,
-                                           theta, caching, yTildeT, tmp_n, tmp_m, m, n);
+    val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
+                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // Evaluation of gradient
-    _grad_bioen_log_posterior_logw((double*)new_g, G, yTilde, YTilde, w, t1, t2, result, theta,
-                                   caching, yTildeT, tmp_n, tmp_m, m, n);
-    // fetch new gradient
-    for (size_t i = 0; i < n; i++) {
-        grad_vals[i] = result[i];
-    }
+    _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
+                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
-    return ret_result;
+    return val;
 }
 
 
@@ -554,10 +554,11 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
     double final_result = 0;
 
 #ifdef ENABLE_LBFGS
+    int status = 0;
     params_t* params = NULL;
 
     // Set up arguments in param_t structure
-    posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
     params->g = g;
     params->G = G;
     params->yTilde = yTilde;
