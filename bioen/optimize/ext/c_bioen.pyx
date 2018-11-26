@@ -1,10 +1,8 @@
-"""Cython interface to the C implementations of [grad] log_posterior [forces].
+"""Cython interface to the C implementations of [grad_]log_posterior[_forces].
 """
 
-cimport cython
 import numpy as np
 cimport numpy as np
-import os, sys
 
 
 cdef extern from "c_bioen_kernels_logw.h":
@@ -171,7 +169,7 @@ def library_lbfgs ():
 
 
 def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
-                        np.ndarray yTilde, np.ndarray YTilde, theta, caching=False):
+                             np.ndarray yTilde, np.ndarray YTilde, theta, caching=False):
     """
     Parameters
     ---------
@@ -229,11 +227,12 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                              <double*> tmp_m.data,
                                              <int> m,
                                              <int> n)
+
     return result_local
 
 
 def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
-                             np.ndarray yTilde, np.ndarray YTilde, theta, caching=False):
+                                  np.ndarray yTilde, np.ndarray YTilde, theta, caching=False):
     """
     Parameters
     ---------
@@ -249,8 +248,6 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     -------
     array_like: gradient
     """
-    cdef double val
-
     cdef int m = yTilde.shape[0]
     cdef int n = yTilde.shape[1]
 
@@ -259,7 +256,7 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
 
     cdef int use_cache_flag = 0
     cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
-    if caching == True:
+    if caching:
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
@@ -467,32 +464,32 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
     -------
     min: float
     """
-    cdef int size_cache = 1
-    cdef int lcaching = 0
-    cdef int m
-    cdef int n
+    cdef int m = yTilde.shape[0]
+    cdef int n = yTilde.shape[1]
 
-    m = yTilde.shape[0]
-    n = yTilde.shape[1]
-
-    if caching == True:
-        size_cache = m*n
-        lcaching = 1
-
-    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
-    if caching == True:
+    cdef int use_cache_flag = 0
+    cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
+    if caching:
+        use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
-    cdef val = _bioen_log_posterior_forces(<double*> forces.data ,
-                      <double*>w0.data,    <double*> y.data  ,
-                      <double*>yTilde.data,<double*> YTilde.data ,
-                      NULL,                theta,
-                      <int> lcaching,      <double*> yTildeT.data,
-                      <double*>tmp_n.data, <double*>tmp_m.data,
-                      m ,                  n)
+    cdef double val = _bioen_log_posterior_forces(<double*> forces.data,
+                                                  <double*> w0.data,
+                                                  <double*> y.data,
+                                                  <double*> yTilde.data,
+                                                  <double*> YTilde.data ,
+                                                  NULL,
+                                                  theta,
+                                                  <int> use_cache_flag,
+                                                  <double*> yTildeT.data,
+                                                  <double*> tmp_n.data,
+                                                  <double*>tmp_m.data,
+                                                  <int> m,
+                                                  <int> n)
+
     return  val
 
 
@@ -515,41 +512,40 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
     --------
     array_like: gradient
     """
+    cdef int m = yTilde.shape[0]
+    cdef int n = yTilde.shape[1]
 
-    cdef int size_cache = 1
-    cdef int lcaching = 0
-    cdef int m
-    cdef int n
-
-    m = yTilde.shape[0]
-    n = yTilde.shape[1]
-
-    if caching == True:
-        size_cache = m*n
-        lcaching = 1
-
-    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
-    if caching == True:
+    cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
+    cdef int use_cache_flag = 0
+    if caching:
+        use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
     # result array
     cdef np.ndarray result = np.empty([m], dtype=np.double)
 
-    _grad_bioen_log_posterior_forces(<double*> forces.data ,
-                <double*>w0.data,    <double*> y.data  ,
-                <double*>yTilde.data,<double*> YTilde.data ,
-                <double*>result.data,theta,
-                <int> lcaching,       <double*>yTildeT.data,
-                <double*>tmp_n.data, <double*>tmp_m.data,
-                m ,                  n)
+    _grad_bioen_log_posterior_forces(<double*> forces.data,
+                                     <double*> w0.data,
+                                     <double*> y.data,
+                                     <double*> yTilde.data,
+                                     <double*> YTilde.data,
+                                     <double*> result.data,
+                                     <double> theta,
+                                     <int> use_cache_flag,
+                                     <double*> yTildeT.data,
+                                     <double*> tmp_n.data,
+                                     <double*> tmp_m.data,
+                                     <int> m,
+                                     <int> n)
+
     return result
 
 
-def bioen_opt_bfgs_forces(  np.ndarray forces,  np.ndarray w0,      np.ndarray y_param,
-                            np.ndarray yTilde,  np.ndarray YTilde,  theta, params):
+def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_param,
+                          np.ndarray yTilde,  np.ndarray YTilde,  theta, params):
     """
     Parameters
     ----------
@@ -566,24 +562,16 @@ def bioen_opt_bfgs_forces(  np.ndarray forces,  np.ndarray w0,      np.ndarray y
     x: array_like, minimizing function parameters
     fmin: float, minimum
     """
+    cdef int m = yTilde.shape[0]
+    cdef int n = yTilde.shape[1]
 
-    cdef int size_cache = 1
-    cdef int lcaching = 0
-    cdef int m
-    cdef int n
-
-    m = yTilde.shape[0]
-    n = yTilde.shape[1]
-
-    if params["cache_ytilde_transposed"] == True:
-        size_cache = m*n
-        lcaching = 1
-
-    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
-    if params["cache_ytilde_transposed"] == True:
+    cdef int use_cache_flag = 0
+    cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
+    if params["cache_ytilde_transposed"]:
+        use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
     cdef np.ndarray x = np.empty([m], dtype=np.double)
@@ -598,25 +586,32 @@ def bioen_opt_bfgs_forces(  np.ndarray forces,  np.ndarray w0,      np.ndarray y
     c_params.step_size      = params["params"]["step_size"]
     c_params.max_iterations = params["params"]["max_iterations"]
 
-    c_caching_params.lcaching   = lcaching
-    c_caching_params.yTildeT    = <double*>yTildeT.data
-    c_caching_params.tmp_n      = <double*>tmp_n.data
-    c_caching_params.tmp_m      = <double*>tmp_m.data
+    c_caching_params.lcaching   = use_cache_flag
+    c_caching_params.yTildeT    = <double*> yTildeT.data
+    c_caching_params.tmp_n      = <double*> tmp_n.data
+    c_caching_params.tmp_m      = <double*> tmp_m.data
 
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
 
-    cdef double fmin = _opt_bfgs_forces(<double*> forces.data, <double*> w0.data,     <double*> y_param.data,
-                                        <double*> yTilde.data, <double*> YTilde.data, <double*> x.data,
-                                        <double> theta,        <int> m,               <int> n,
+    cdef double fmin = _opt_bfgs_forces(<double*> forces.data,
+                                        <double*> w0.data,
+                                        <double*> y_param.data,
+                                        <double*> yTilde.data,
+                                        <double*> YTilde.data,
+                                        <double*> x.data,
+                                        <double> theta,
+                                        <int> m,
+                                        <int> n,
                                         <gsl_config_params> c_params,
                                         <caching_params> c_caching_params,
                                         <visual_params> c_visual_params)
+
     return x, fmin
 
 
-def bioen_opt_lbfgs_forces( np.ndarray forces,  np.ndarray w0,      np.ndarray y_param,
-                            np.ndarray yTilde,  np.ndarray YTilde,  theta, params):
+def bioen_opt_lbfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_param,
+                           np.ndarray yTilde,  np.ndarray YTilde,  theta, params):
     """
     Parameters
     ----------
@@ -633,28 +628,20 @@ def bioen_opt_lbfgs_forces( np.ndarray forces,  np.ndarray w0,      np.ndarray y
     x: array_like, minimizing function parameters
     fmin: float, minimum
     """
-    cdef int size_cache = 1
-    cdef int lcaching = 0
-    cdef int m
-    cdef int n
+    cdef int m = yTilde.shape[0]
+    cdef int n = yTilde.shape[1]
 
-    m = yTilde.shape[0]
-    n = yTilde.shape[1]
-
-    if params["cache_ytilde_transposed"] == True:
-        size_cache = m*n
-        lcaching = 1
-
-    cdef np.ndarray yTildeT = np.empty([size_cache], dtype=np.double)
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
 
-    if params["cache_ytilde_transposed"] == True:
+    cdef int use_cache_flag = 0
+    cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
+    if params["cache_ytilde_transposed"]:
+        use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
     cdef np.ndarray x = np.empty([m], dtype=np.double)
 
-    # structures containing adition info.
     cdef lbfgs_config_params c_params
     cdef caching_params c_caching_params
     cdef visual_params c_visual_params
@@ -668,20 +655,25 @@ def bioen_opt_lbfgs_forces( np.ndarray forces,  np.ndarray w0,      np.ndarray y
     c_params.past           = params["params"]["past"]
     c_params.max_linesearch = params["params"]["max_linesearch"]
 
-    c_caching_params.lcaching   = lcaching
-    c_caching_params.yTildeT    = <double*>yTildeT.data
-    c_caching_params.tmp_n      = <double*>tmp_n.data
-    c_caching_params.tmp_m      = <double*>tmp_m.data
+    c_caching_params.lcaching   = use_cache_flag
+    c_caching_params.yTildeT    = <double*> yTildeT.data
+    c_caching_params.tmp_n      = <double*> tmp_n.data
+    c_caching_params.tmp_m      = <double*> tmp_m.data
 
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
 
-    cdef double fmin = _opt_lbfgs_forces(   <double*> forces.data,  <double*> w0.data,
-                    <double*> y_param.data, <double*> yTilde.data,
-                    <double*> YTilde.data,  <double*> x.data,
-                    <double> theta,
-                    <int> m,                <int> n,
-                    <lbfgs_config_params> c_params,
-                    <caching_params> c_caching_params,
-                    <visual_params> c_visual_params)
+    cdef double fmin = _opt_lbfgs_forces(<double*> forces.data,
+                                         <double*> w0.data,
+                                         <double*> y_param.data,
+                                         <double*> yTilde.data,
+                                         <double*> YTilde.data,
+                                         <double*> x.data,
+                                         <double> theta,
+                                         <int> m,
+                                         <int> n,
+                                         <lbfgs_config_params> c_params,
+                                         <caching_params> c_caching_params,
+                                         <visual_params> c_visual_params)
+
     return x, fmin
