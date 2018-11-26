@@ -1,8 +1,7 @@
 #ifndef KERNELS_LOGW_H
 #define KERNELS_LOGW_H
 
-/** C implementations of (grad_)_log_posterior(_forces), header file.
- */
+/** C implementations of the log-weights method. */
 
 #include "c_bioen_common.h"
 

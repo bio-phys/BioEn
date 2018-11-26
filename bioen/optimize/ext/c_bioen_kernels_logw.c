@@ -1,5 +1,4 @@
-/** C implementations of (grad_)_log_posterior(_forces).
- */
+/** C implementations of the log-weights method. */
 
 #include "c_bioen_kernels_logw.h"
 #include "c_bioen_common.h"
@@ -327,23 +326,13 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
     double* tmp_m = p->tmp_m;
     int m = p->m;
     int n = p->n;
-    double ret_result = 0.0;
 
-    int status = 0;
+    double* v_ptr = v->data;
 
-    // Copy new values from vector to g
-    double* new_g = NULL;
-    status += posix_memalign((void**)&new_g, ALIGN_CACHE, sizeof(double) * n);
-
-    for (size_t i = 0; i < n; i++) {
-        new_g[i] = gsl_vector_get(v, i);
-    }
-    ret_result = _bioen_log_posterior_logw(new_g, G, yTilde, YTilde, w, t1, t2, result, theta,
+    double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result, theta,
                                            caching, yTildeT, tmp_n, tmp_m, m, n);
 
-    free(new_g);
-
-    return (ret_result);
+    return val;
 }
 
 // GSL interface to evaluate the gradient
@@ -367,19 +356,15 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     int m = p->m;
     int n = p->n;
 
-    for (size_t i = 0; i < n; i++) {
-        tmp_n[i] = gsl_vector_get(v, i);
-    }
+    double* v_ptr = v->data;
 
-    _grad_bioen_log_posterior_logw(tmp_n, G, yTilde, YTilde, w, t1, t2, result, theta, caching,
+    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result, theta, caching,
                                    yTildeT, tmp_n, tmp_m, m, n);
 
-    // Copy back results to gsl_vector df
+    // copy back results to gsl_vector df; TODO: avoid copy!
     for (size_t i = 0; i < n; i++) {
         gsl_vector_set(df, i, result[i]);
     }
-
-    return;
 }
 
 
