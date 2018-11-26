@@ -13,18 +13,17 @@ double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE reduction(+ : s))
             for (size_t j = 0; j < n; ++j) {
-                tmp_n[j] = exp(g[j]);
-                s += tmp_n[j];
+                s += exp(g[j]);
             }
         }
     } else {
+        // preserve order for summation via scratch array 'tmp_n'
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
             for (size_t j = 0; j < n; ++j) {
                 tmp_n[j] = exp(g[j]);
             }
         }
-
         for (size_t j = 0; j < n; ++j) {
             s += tmp_n[j];
         }
