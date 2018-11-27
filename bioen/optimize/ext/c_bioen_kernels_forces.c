@@ -49,7 +49,7 @@ static lbfgsfloatval_t interface_lbfgs_forces(
 
     double ret_result = 0.0;
 
-    _get_weights_from_forces (w0, yTilde, new_forces, w, caching, yTildeT, tmp_n, m, n);
+    _get_weights_from_forces (w0, yTilde,(double*)new_forces, w, caching, yTildeT, tmp_n, m, n);
     // Evaluation of objective function
     ret_result =
         _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, NULL,
