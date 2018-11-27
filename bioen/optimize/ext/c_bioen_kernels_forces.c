@@ -32,6 +32,7 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     const int num_vars, const lbfgsfloatval_t step) {
     params_t* p = (params_t*)instance;
     double* w0 = p->w0;
+    double* w = p->w;
     double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
@@ -47,11 +48,11 @@ static lbfgsfloatval_t interface_lbfgs_forces(
 
     // Evaluation of objective function
     ret_result =
-        _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, result,
+        _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, result,
                                     theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // Evaluation of gradient
-    _grad_bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, result,
+    _grad_bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, result,
                                      theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // fetch new gradient
@@ -237,24 +238,14 @@ void _get_weights_from_forces(double* w0, double* yTilde, double* forces, double
 // Py:   tmp = theta*np.dot((np.log(w[ind]/w0[ind])).T, w[ind])[0,0]+chiSqr
 
 double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, double* yTilde,
-                                   double* YTilde, double* result, double theta, int caching,
+                                   double* YTilde, double* w, double* result, double theta, int caching,
                                    double* yTildeT, double* tmp_n, double* tmp_m, int m_int,
                                    int n_int) {
 
     double chiSqr = 0.0;
-    double* w = NULL;
-    int status = 0;
     double d = 0.0;
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
-
-    status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
-    if (w == NULL) {
-        printf("ERROR; allocating w\n");
-        exit(-1);
-    }
-
-    _get_weights_from_forces(w0, yTilde, forces, w, caching, yTildeT, tmp_n, m, n);
 
     chiSqr = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
 
@@ -290,8 +281,6 @@ double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, 
         }
     }
 
-    free(w);
-
     return d * theta + chiSqr;
 }
 
@@ -299,26 +288,13 @@ double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, 
 // OUT:  result  [m]
 
 void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_param,
-                                      double* yTilde, double* YTilde, double* result,
+                                      double* yTilde, double* YTilde, double* w, double* result,
                                       double theta, int caching, double* yTildeT, double* tmp_n,
                                       double* tmp_m, int m_int, int n_int) {
-    double* w_local = NULL;
-    int status = 0;
-
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
-    status += posix_memalign((void**)&w_local, ALIGN_CACHE, sizeof(double) * n);
-    if (w_local == NULL) {
-        printf("ERROR; allocating w_local\n");
-        exit(-1);
-    }
-
-    // this function uses tmp_n
-    _get_weights_from_forces(w0, yTilde, forces, w_local, caching, yTildeT, tmp_n, m, n);
-
-    // this function uses tmp_m
-    _getAve(w_local, yTilde, tmp_m, m, n);
+    _getAve(w, yTilde, tmp_m, m, n);
 
     PRAGMA_OMP_PARALLEL(default(shared))
     {
@@ -348,10 +324,10 @@ void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_para
         PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
         for (size_t j = 0; j < n; j++) {
             double d = 1.0;
-            if ((w_local[j] >= dmin) && (w0[j] >= dmin)) {
-                d += log(w_local[j]) - log(w0[j]);
+            if ((w[j] >= dmin) && (w0[j] >= dmin)) {
+                d += log(w[j]) - log(w0[j]);
             }
-            tmp_n[j] = (d * theta + tmp_n[j]) * w_local[j];
+            tmp_n[j] = (d * theta + tmp_n[j]) * w[j];
         }
 
         PRAGMA_OMP_FOR(OMP_SCHEDULE)
@@ -364,8 +340,6 @@ void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_para
             result[i] = d;
         }
     }
-
-    free(w_local);
 
     return;
 }
@@ -384,30 +358,22 @@ double _bioen_log_posterior_forces_interface(const gsl_vector* v, void* params) 
     double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
-    double* result = p->result;
+    double* w = p->w;
     double theta = p->theta;
-    double* yTildeT = p->yTildeT;
     int caching = p->caching;
+    double* yTildeT = p->yTildeT;
     double* tmp_n = p->tmp_n;
     double* tmp_m = p->tmp_m;
     int m = p->m;
     int n = p->n;
 
     double ret_result = 0.0;
-    int status = 0;
+    double* v_ptr = (double*) v->data;
 
-    // Copy new values from vector to g
-    double* new_forces = NULL;
+    _get_weights_from_forces (w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
-    status += posix_memalign((void**)&new_forces, ALIGN_CACHE, sizeof(double) * m);
-    for (size_t i = 0; i < m; i++) {
-        new_forces[i] = gsl_vector_get(v, i);
-    }
-
-    ret_result = _bioen_log_posterior_forces(new_forces, w0, y_param, yTilde, YTilde, result,
+    ret_result = _bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, NULL,
                                              theta, caching, yTildeT, tmp_n, tmp_m, m, n);
-
-    free(new_forces);
 
     return (ret_result);
 }
@@ -424,41 +390,57 @@ void _grad_bioen_log_posterior_forces_interface(const gsl_vector* v, void* param
     double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
-    double* result = p->result;
+    double* w = p->w;
     double theta = p->theta;
-    double* yTildeT = p->yTildeT;
     int caching = p->caching;
+    double* yTildeT = p->yTildeT;
     double* tmp_n = p->tmp_n;
     double* tmp_m = p->tmp_m;
     int m = p->m;
     int n = p->n;
 
-    int status = 0;
 
-    // Copy new values from vector to g
-    double* new_forces = NULL;
-    status += posix_memalign((void**)&new_forces, ALIGN_CACHE, sizeof(double) * m);
-    for (size_t i = 0; i < m; i++) {
-        new_forces[i] = gsl_vector_get(v, i);
-    }
+    double* v_ptr = (double*) v->data;
+    double* result_ptr = (double*) df->data;
 
-    _grad_bioen_log_posterior_forces(new_forces, w0, y_param, yTilde, YTilde, result, theta,
+    _get_weights_from_forces (w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
+
+    _grad_bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, result_ptr, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
-
-    // Copy back results to gsl_vector df
-    for (size_t i = 0; i < m; i++) {
-        gsl_vector_set(df, i, result[i]);
-    }
-
-    free(new_forces);
 
     return;
 }
 
 
 void fdf_forces(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
-    *f = _bioen_log_posterior_forces_interface(x, params);
-    _grad_bioen_log_posterior_forces_interface(x, params, df);
+    params_t* p = (params_t*)params;
+
+    double* w0 = p->w0;
+    double* y_param = p->y_param;
+    double* yTilde = p->yTilde;
+    double* YTilde = p->YTilde;
+    double* w = p->w;
+    double theta = p->theta;
+    int caching = p->caching;
+    double* yTildeT = p->yTildeT;
+    double* tmp_n = p->tmp_n;
+    double* tmp_m = p->tmp_m;
+    int m = p->m;
+    int n = p->n;
+
+    double* v_ptr = (double*) x->data;
+    double* result_ptr = (double*) df->data;
+
+    // 1) compute weights
+    _get_weights_from_forces (w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
+
+    // 2) compute function
+    *f = _bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, NULL,
+                                             theta, caching, yTildeT, tmp_n, tmp_m, m, n);
+    // 3) compute function gradient
+    _grad_bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, result_ptr, theta,
+                                     caching, yTildeT, tmp_n, tmp_m, m, n);
+
 }
 #endif
 
@@ -491,6 +473,16 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     params->tmp_m = caching.tmp_m;
     params->m = m;
     params->n = n;
+
+    double *w;
+    status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+    if (w == NULL) {
+        printf("ERROR; allocating w\n");
+        exit(-1);
+    }
+    params->w = w;
+
+
 
     if (visual.verbose) {
         printf("\t=========================\n");
@@ -620,6 +612,8 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     gsl_vector_free(x0);
     gsl_multimin_fdfminimizer_free(s);
     free(params);
+
+    free(w);
 
 #else
     printf("GSL has not been configured properly\n");

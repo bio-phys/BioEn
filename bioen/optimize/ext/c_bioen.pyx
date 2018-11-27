@@ -63,15 +63,18 @@ cdef extern from "c_bioen_kernels_forces.h":
 
     void   _grad_bioen_log_posterior_forces (   double* , double* , double* ,
                                                 double* , double* , double* ,
-                                                double  ,
+                                                double*  , double  ,
                                                 int     , double* , double* ,
                                                 double* , int     , int)
 
     double _bioen_log_posterior_forces      (   double* , double* , double* ,
                                                 double* , double* , double* ,
-                                                double  ,
+                                                double*  , double  ,
                                                 int     , double* , double* ,
                                                 double* , int     , int)
+
+    void _get_weights_from_forces(double*, double*, double*, double*,
+                              int, double*, double*, size_t, size_t)
 
 
 cdef extern from "c_bioen_common.h":
@@ -487,6 +490,7 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
 
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
 
     cdef int use_cache_flag = 0
     cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
@@ -494,11 +498,26 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
+
+    # 1) compute weights
+    _get_weights_from_forces(   <double*> w0.data,
+                                <double*> yTilde.data,
+                                <double*> forces.data,
+                                <double*> w.data,
+                                <int> use_cache_flag,
+                                <double*> yTildeT.data,
+                                <double*> tmp_n.data,
+                                <int> m,
+                                <int> n)
+
+
+    # 2) compute function
     cdef double val = _bioen_log_posterior_forces(<double*> forces.data,
                                                   <double*> w0.data,
                                                   <double*> y.data,
                                                   <double*> yTilde.data,
                                                   <double*> YTilde.data ,
+                                                  <double*> w.data,
                                                   NULL,
                                                   theta,
                                                   <int> use_cache_flag,
@@ -534,6 +553,7 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
 
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
 
     cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
     cdef int use_cache_flag = 0
@@ -544,11 +564,24 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
     # result array
     cdef np.ndarray result = np.empty([m], dtype=np.double)
 
+    # 1) compute weights
+    _get_weights_from_forces(   <double*> w0.data,
+                                <double*> yTilde.data,
+                                <double*> forces.data,
+                                <double*> w.data,
+                                <int> use_cache_flag,
+                                <double*> yTildeT.data,
+                                <double*> tmp_n.data,
+                                <int> m,
+                                <int> n)
+
+    # 2) compute function gradient
     _grad_bioen_log_posterior_forces(<double*> forces.data,
                                      <double*> w0.data,
                                      <double*> y.data,
                                      <double*> yTilde.data,
                                      <double*> YTilde.data,
+                                     <double*> w.data,
                                      <double*> result.data,
                                      <double> theta,
                                      <int> use_cache_flag,
