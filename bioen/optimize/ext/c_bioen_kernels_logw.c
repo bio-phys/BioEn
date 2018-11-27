@@ -17,7 +17,7 @@ double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
             }
         }
     } else {
-        // preserve order for summation via scratch array 'tmp_n'
+        // preserve order of summation via scratch array 'tmp_n'
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
             for (size_t j = 0; j < n; ++j) {
@@ -110,22 +110,16 @@ double _bioen_log_prior(const double* const w, const double s, const double* con
 
 
 // Objective function for the log_weights method
+// Note: 'w' needs already be filled with values from a previous call to _get_weights()!
 double _bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* YTilde,
                                  double* w, double* t1, double* t2, double* result,
                                  double theta, int caching, double* yTildeT, double* tmp_n,
                                  double* tmp_m, int m_int, int n_int,
-                                 int run_get_weights, double weights_sum) {
-    double s;
+                                 double weights_sum) {
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
-    if (run_get_weights) {
-        s = _get_weights(g, w, n);
-    } else {
-        // 'w' already contains weights from a previous invocation
-        s = weights_sum;
-    }
-
+    double s = weights_sum;
     double val1 = _bioen_log_prior(w, s, g, G, theta, tmp_n, n);
     double val2 = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
     double val = val1 + val2;
@@ -135,17 +129,18 @@ double _bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* Y
 
 
 // Gradient function for the forces method
+// Note: 'w' needs already be filled with values from a previous call to _get_weights()!
 void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* YTilde,
                                     double* w, double* t1, double* t2, double* result,
                                     double theta, int caching, double* yTildeT, double* tmp_n,
                                     double* tmp_m, int m_int, int n_int,
-                                    int run_get_weights, double weights_sum) {
+                                    double weights_sum) {
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
-    if (run_get_weights) {
-        _get_weights(g, w, n);
-    }
+    // if (run_get_weights) {
+    //     _get_weights(g, w, n);
+    // }
 
     double tmp1 = 0.0;
     double tmp2 = 0.0;
@@ -272,13 +267,13 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
 
     double* v_ptr = (double*) v->data;
 
-    // arguments: run get_weights internally
-    const int run_get_weights = 1;
-    const double weights_sum = -1.0;
+    // 1) compute weights
+    const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
+    // 2) compute function
     double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
                                            theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                           run_get_weights, weights_sum);
+                                           weights_sum);
 
     return val;
 }
@@ -307,13 +302,13 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     double* v_ptr = (double*) v->data;
     double* result_ptr = (double*) df->data;
 
-    // arguments: run get_weights internally
-    const int run_get_weights = 1;
-    const double weights_sum = -1.0;
+    // 1) compute weights
+    const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
+    // 2) compute function gradient
     _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   run_get_weights, weights_sum);
+                                   weights_sum);
 }
 
 
@@ -338,17 +333,20 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     double* v_ptr = (double*) x->data;
     double* result_ptr = (double*) df->data;
 
-    // run get_weights only once per invocation of f and grad f
-    const int run_get_weights = 0;
+    // --- run get_weights only once per invocation of f and grad f ---
+
+    // 1) compute weights
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
+    // 2) compute function
     *f = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   run_get_weights, weights_sum);
+                                   weights_sum);
 
+    // 3) compute function gradient
     _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   run_get_weights, weights_sum);
+                                   weights_sum);
 }
 #endif
 
@@ -564,18 +562,17 @@ static lbfgsfloatval_t interface_lbfgs_logw(void* instance,
     double* result_ptr = (double*) grad_vals;
 
     // run get_weights only once
-    const int run_get_weights = 0;
     const double weights_sum = _get_weights(g_ptr, w, (size_t)n);
 
     // Evaluation of objective function
     val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
                                     theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                    run_get_weights, weights_sum);
+                                    weights_sum);
 
     // Evaluation of gradient
     _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   run_get_weights, weights_sum);
+                                   weights_sum);
 
     return val;
 }

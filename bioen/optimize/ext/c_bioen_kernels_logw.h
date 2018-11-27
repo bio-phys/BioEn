@@ -5,6 +5,10 @@
 
 #include "c_bioen_common.h"
 
+double _get_weights(const double* const,
+                    double* const,
+                    const size_t);
+
 double _bioen_log_posterior_logw(double *,
                                  double *,
                                  double *,
@@ -18,7 +22,6 @@ double _bioen_log_posterior_logw(double *,
                                  double *,
                                  double *,
                                  double *,
-                                 int,
                                  int,
                                  int,
                                  double);
@@ -36,7 +39,6 @@ void _grad_bioen_log_posterior_logw(double *,
                                     double *,
                                     double *,
                                     double *,
-                                    int,
                                     int,
                                     int,
                                     double);

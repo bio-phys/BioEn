@@ -7,13 +7,17 @@ cimport numpy as np
 
 cdef extern from "c_bioen_kernels_logw.h":
 
+    double _get_weights(const double* const,
+                        double* const,
+                        const size_t)
+
     double _bioen_log_posterior_logw        (   double* , double* , double* ,
                                                 double* , double* , double* ,
                                                 double* , double* , double  ,
                                                 int,
                                                 double* , double* , double* ,
                                                 int     , int,
-                                                int     , double)
+                                                double)
 
     double _grad_bioen_log_posterior_logw   (   double* , double* , double* ,
                                                 double* , double* , double* ,
@@ -21,7 +25,7 @@ cdef extern from "c_bioen_kernels_logw.h":
                                                 int,
                                                 double* , double* , double* ,
                                                 int     , int,
-                                                int     , double)
+                                                double)
 
     double _opt_bfgs_logw                   (   double* , double* , double* ,
                                                 double* , double* , double* ,
@@ -214,10 +218,13 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     # result array
     cdef np.ndarray result = np.empty([n], dtype=np.double)
 
-    # parameters to run _get_weights() internally
-    cdef int run_get_weights = 1
-    cdef double weights_sum = -1.0
+    # 1) compute weights
+    cdef size_t n_int64 = n
+    cdef double weights_sum = _get_weights(<double*> gPrime.data,
+                                           <double*> w.data,
+                                           <size_t> n_int64)
 
+    # 2) compute function
     cdef double val = _bioen_log_posterior_logw(<double*> gPrime.data,
                                                 <double*> g.data,
                                                 <double*> yTilde.data,
@@ -233,7 +240,6 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                                 <double*> tmp_m.data,
                                                 <int> m,
                                                 <int> n,
-                                                <int> run_get_weights,
                                                 <double> weights_sum)
     return val
 
@@ -275,10 +281,13 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     # result array
     cdef np.ndarray result = np.empty([n], dtype=np.double)
 
-    # parameters to run _get_weights() internally
-    cdef int run_get_weights = 1
-    cdef double weights_sum = -1.0
+    # 1) compute weights
+    cdef size_t n_int64 = n
+    cdef double weights_sum = _get_weights(<double*> gPrime.data,
+                                           <double*> w.data,
+                                           <size_t> n_int64)
 
+    # 2) compute function gradient
     _grad_bioen_log_posterior_logw(<double*> gPrime.data,
                                    <double*> G.data,
                                    <double*> yTilde.data,
@@ -294,7 +303,6 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                    <double*> tmp_m.data,
                                    <int> m,
                                    <int> n,
-                                   <int> run_get_weights,
                                    <double> weights_sum)
     return result
 
