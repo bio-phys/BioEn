@@ -466,6 +466,10 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
 
     // Set up arguments in param_t structure
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    if (status != 0) {
+        printf("xxERROR allocating params %d --\n",status);
+        exit(-1);
+    }
     params->forces = forces;
     params->w0 = w0;
     params->y_param = y_param;
@@ -482,7 +486,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
 
     double *w;
     status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
-    if (w == NULL) {
+    if (status != 0) {
         printf("ERROR; allocating w\n");
         exit(-1);
     }
@@ -643,6 +647,10 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     params_t* params = NULL;
     // Set up arguments in param_t structure
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    if (status != 0) {
+        printf("ERROR; allocating params\n");
+        exit(-1);
+    }
     params->forces = forces;
     params->w0 = w0;
     params->y_param = y_param;
@@ -659,7 +667,7 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
 
     double *w;
     posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
-    if (w == NULL) {
+    if (status != 0) {
         printf("ERROR; allocating w\n");
         exit(-1);
     }

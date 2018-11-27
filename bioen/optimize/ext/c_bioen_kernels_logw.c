@@ -368,6 +368,10 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
 
     // Set up arguments in param_t structure
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    if (status != 0) {
+        printf("ERROR; allocating params\n");
+        exit(-1);
+    }
     params->g = g;
     params->G = G;
     params->yTilde = yTilde;
@@ -609,6 +613,10 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
 
     // Set up arguments in param_t structure
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    if (status != 0) {
+        printf("ERROR; allocating params\n");
+        exit(-1);
+    }
     params->g = g;
     params->G = G;
     params->yTilde = yTilde;
