@@ -13,14 +13,15 @@ const double dmin = DBL_MIN;
 const double dmax = DBL_MAX;
 const double dmax_neg = -DBL_MAX;
 
+
+
+#ifdef ENABLE_LBFGS
 size_t iterations_lbfgs_forces = 0;
 // Global variable to control verbosity for the LibLBFGS version. It is
 // controlled through a global variable to avoid increasing parameters on the
 // functions.
 size_t lbfgs_verbose_forces = 1;
 
-
-#ifdef ENABLE_LBFGS
 // Interface function used by LibLBFGS to perform an interation.
 // The new functions coordinates are provided by LibLBFGS and they are named as
 // new_forces.
@@ -30,25 +31,28 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     const lbfgsfloatval_t* new_forces,  // current values of func.
     lbfgsfloatval_t* grad_vals,         // current grad values of func.
     const int num_vars, const lbfgsfloatval_t step) {
+
     params_t* p = (params_t*)instance;
     double* w0 = p->w0;
-    double* w = p->w;
     double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
+    double* w = p->w;
     double* result = p->result;
     double theta = p->theta;
-    double* yTildeT = p->yTildeT;
     int caching = p->caching;
+    double* yTildeT = p->yTildeT;
     double* tmp_n = p->tmp_n;
     double* tmp_m = p->tmp_m;
     int m = p->m;
     int n = p->n;
+
     double ret_result = 0.0;
 
+    _get_weights_from_forces (w0, yTilde, new_forces, w, caching, yTildeT, tmp_n, m, n);
     // Evaluation of objective function
     ret_result =
-        _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, result,
+        _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, NULL,
                                     theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // Evaluation of gradient
@@ -280,6 +284,8 @@ double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, 
             d += tmp_n[j];
         }
     }
+
+    //free(w);
 
     return d * theta + chiSqr;
 }
@@ -534,6 +540,8 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     }
 
     s = gsl_multimin_fdfminimizer_alloc(T, m);
+
+
     my_func.f = _bioen_log_posterior_forces_interface;
     my_func.df = _grad_bioen_log_posterior_forces_interface;
     my_func.fdf = fdf_forces;
@@ -649,6 +657,15 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     params->m = m;
     params->n = n;
 
+    double *w;
+    posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+    if (w == NULL) {
+        printf("ERROR; allocating w\n");
+        exit(-1);
+    }
+    params->w = w;
+
+
     if (visual.verbose) {
         printf("L-BFGS minimizer\n");
     }
@@ -725,6 +742,7 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
 
     lbfgs_free(x);
     free(params);
+    free(w);
 
 #else
     printf("LibLBFGS has not been configured properly\n");
