@@ -161,9 +161,19 @@ if not on_mac():
             LDFLAGS.append("-lgomp")
 
 
+# check if the libraries are already installed into "~/.local" using `install_dependencies.sh`
+THIRD_PARTY_PREFIX = os.path.join(os.environ['HOME'], ".local")
+
 if 'LBFGS_HOME' in os.environ:
-    CFLAGS.append("-DENABLE_LBFGS")
     LBFGS = os.environ['LBFGS_HOME']
+    CFLAGS.append("-DENABLE_LBFGS")
+    INCLUDE_DIRS.append(os.path.join(LBFGS, "include"))
+    LDFLAGS.append("-L" + os.path.join(LBFGS, "lib"))
+    LDFLAGS.append("-Wl,-rpath," + os.path.join(LBFGS, "lib"))
+    LDFLAGS.append("-llbfgs")
+elif os.path.isfile(os.path.join(THIRD_PARTY_PREFIX, "include/lbfgs.h")):
+    LBFGS = THIRD_PARTY_PREFIX
+    CFLAGS.append("-DENABLE_LBFGS")
     INCLUDE_DIRS.append(os.path.join(LBFGS, "include"))
     LDFLAGS.append("-L" + os.path.join(LBFGS, "lib"))
     LDFLAGS.append("-Wl,-rpath," + os.path.join(LBFGS, "lib"))
@@ -172,12 +182,21 @@ else:
     if BIOEN_USE_DEFAULT_LBFGS:
         CFLAGS.append("-DENABLE_LBFGS")
         LDFLAGS.append("-llbfgs")
+    else:
+        print("Warning: liblbfgs is not used!")
 
 
-# handle non-standard installation locations, e.g. via environment modules
 if 'GSL_HOME' in os.environ:
-    CFLAGS.append("-DENABLE_GSL")
     GSL = os.environ['GSL_HOME']
+    CFLAGS.append("-DENABLE_GSL")
+    INCLUDE_DIRS.append(os.path.join(GSL, "include"))
+    LDFLAGS.append("-L" + os.path.join(GSL, "lib"))
+    LDFLAGS.append("-Wl,-rpath," + os.path.join(GSL, "lib"))
+    LDFLAGS.append("-lgsl")
+    LDFLAGS.append("-lgslcblas")
+elif os.path.isfile(os.path.join(THIRD_PARTY_PREFIX, "include/gsl/gsl_vector.h")):
+    GSL = THIRD_PARTY_PREFIX
+    CFLAGS.append("-DENABLE_GSL")
     INCLUDE_DIRS.append(os.path.join(GSL, "include"))
     LDFLAGS.append("-L" + os.path.join(GSL, "lib"))
     LDFLAGS.append("-Wl,-rpath," + os.path.join(GSL, "lib"))
@@ -188,6 +207,8 @@ else:
         CFLAGS.append("-DENABLE_GSL")
         LDFLAGS.append("-lgsl")
         LDFLAGS.append("-lgslcblas")
+    else:
+        print("Warning: GSL is not used!")
 
 
 ver = get_version()
