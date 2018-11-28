@@ -316,21 +316,15 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     cdef int m = yTilde.shape[0]
     cdef int n = yTilde.shape[1]
 
-    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
-    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
-
     cdef int use_cache_flag = 0
     cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
     if caching:
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
-    # temporary array for weights
     cdef np.ndarray w = np.empty([n], dtype=np.double)
-    # temporary arrays
     cdef np.ndarray t1 = np.empty([m], dtype=np.double)
     cdef np.ndarray t2 = np.empty([n], dtype=np.double)
-    # gradient array
     cdef np.ndarray gradient = np.empty([n], dtype=np.double)
 
     # 1) compute weights
@@ -350,8 +344,8 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                    <double> theta,
                                    <int> use_cache_flag,
                                    <double*> yTildeT.data,
-                                   <double*> tmp_n.data,
-                                   <double*> tmp_m.data,
+                                   <double*> NULL,
+                                   <double*> NULL,
                                    <int> m,
                                    <int> n,
                                    <double> weights_sum)

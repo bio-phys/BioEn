@@ -137,12 +137,12 @@ double _bioen_log_posterior_logw(const double* const g,
                                  const double* const yTilde, 
                                  const double* const YTilde,
                                  const double* const w, 
-                                 const double* const t1, 
-                                 const double* const t2, 
-                                 const double* const dummy,
+                                 const double* const t1,  // unused
+                                 const double* const t2,  // unused
+                                 const double* const dummy,  // unused
                                  const double theta, 
-                                 const int caching, 
-                                 const double* const yTildeT, 
+                                 const int caching,  // unused
+                                 const double* const yTildeT,   // unused
                                  double* const tmp_n,
                                  double* const tmp_m, 
                                  const int m_int, 
@@ -171,8 +171,8 @@ void _grad_bioen_log_posterior_logw(const double* const g,
                                     const double theta,
                                     const int caching,
                                     const double* const yTildeT,
-                                    const double* const tmp_n,
-                                    const double* const tmp_m,
+                                    const double* const tmp_n,  // unused
+                                    const double* const tmp_m,  // unused
                                     const int m_int,
                                     const int n_int,
                                     const double weights_sum) {
