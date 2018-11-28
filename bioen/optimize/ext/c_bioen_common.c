@@ -1,17 +1,31 @@
-/** C implementations of (grad_)_log_posterior(_forces).
- */
+/** C implementations of common functions for the forces and the logw methods. */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+#include <math.h>
+
+#ifdef ENABLE_GSL
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_multimin.h>
+#endif
+
+#ifdef ENABLE_LBFGS
+#include <lbfgs.h>
+#endif
 
 #include "c_bioen_common.h"
-#include <stdlib.h>
-// #define USE_OMP_VECTORS 0
-// #define USE_OMP_THREADS 0
 #include "ompmagic.h"
+
 
 #ifdef ENABLE_GSL
 // GSL bfgs algorithm (default)
 int _gsl_multimin_algorithm = fdfminimizer_vector_bfgs2;
 #endif
-
 
 int _library_gsl() {
 #ifdef ENABLE_GSL

@@ -1,11 +1,28 @@
-/** C implementations of (grad_)_log_posterior(_forces).
- */
+/** C implementations of the forces method. */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+#include <math.h>
+
+#ifdef ENABLE_GSL
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_multimin.h>
+#endif
+
+#ifdef ENABLE_LBFGS
+#include <lbfgs.h>
+#endif
 
 #include "c_bioen_kernels_forces.h"
-#include <float.h>
-#include <stdlib.h>
 #include "c_bioen_common.h"
 #include "ompmagic.h"
+
+
 
 // Alias for minimum double value
 const double dmin = DBL_MIN;
@@ -27,10 +44,11 @@ size_t lbfgs_verbose_forces = 1;
 // new_forces.
 // Executes function and gradient and returns current function evaluation.
 static lbfgsfloatval_t interface_lbfgs_forces(
-    void* instance,
-    const lbfgsfloatval_t* new_forces,  // current values of func.
-    lbfgsfloatval_t* grad_vals,         // current grad values of func.
-    const int num_vars, const lbfgsfloatval_t step) {
+        void* instance,
+        const lbfgsfloatval_t* new_forces,  // current values of func.
+        lbfgsfloatval_t* grad_vals,         // current grad values of func.
+        const int num_vars,
+        const lbfgsfloatval_t step) {
 
     params_t* p = (params_t*)instance;
     double* w0 = p->w0;
@@ -38,7 +56,7 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
-    double* result = p->result;
+    // double* result = p->result;
     double theta = p->theta;
     int caching = p->caching;
     double* yTildeT = p->yTildeT;
@@ -50,19 +68,14 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     double ret_result = 0.0;
 
     _get_weights_from_forces (w0, yTilde,(double*)new_forces, w, caching, yTildeT, tmp_n, m, n);
+
     // Evaluation of objective function
-    ret_result =
-        _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, NULL,
-                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n);
+    ret_result = _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, NULL,
+                                             theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // Evaluation of gradient
-    _grad_bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, result,
+    _grad_bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, (double*)grad_vals,
                                      theta, caching, yTildeT, tmp_n, tmp_m, m, n);
-
-    // fetch new gradient
-    for (size_t i = 0; i < m; i++) {
-        grad_vals[i] = result[i];
-    }
 
     return ret_result;
 }
@@ -97,10 +110,6 @@ double maximum(double a, double b) {
 
 
 // Calculates the average
-// # --- dimension exploration ---
-// IN:  w         [ n ]
-// IN:  yTilde    [ m * n ]
-// OUT: yTildeAve [ m ]
 void _getAve(double* w, double* yTilde, double* yTildeAve, size_t m, size_t n) {
     // IN:  w         [ n ]
     // IN:  yTilde    [ m * n ]
@@ -117,17 +126,15 @@ void _getAve(double* w, double* yTilde, double* yTildeAve, size_t m, size_t n) {
             yTildeAve[i] = tmp;
         }
     }
-    return;
 }
 
-// Get weights from forces
-// IN:  w0:     [Nx1]
-// IN:  forces: [1xM]
-// IN:  yTilde: [MxN]
-// OUT: w       [N]
 
 void _get_weights_from_forces(double* w0, double* yTilde, double* forces, double* w,
                               int caching, double* yTildeT, double* tmp_n, size_t m, size_t n) {
+    // IN:  w0:     [Nx1]
+    // IN:  forces: [1xM]
+    // IN:  yTilde: [MxN]
+    // OUT: w       [N]
     if (_fast_openmp_flag) {
         double x_max = -dmax;
         double s = 0.0;
@@ -231,27 +238,18 @@ void _get_weights_from_forces(double* w0, double* yTilde, double* forces, double
             }
         }
     }
-    return;
 }
 
 // Objective function for the forces method
-// Py:   w=get_weights_from_forces_original(w0, yTilde, forces)
-// Py:   chiSqr = chiSqrTerm_original(w, yTilde, YTilde)
-// Py:   #   selecting non-zero weights because lim_{w->0} w log(w) = 0
-// Py:   ind=np.where(w>0)[0]
-// Py:   tmp = theta*np.dot((np.log(w[ind]/w0[ind])).T, w[ind])[0,0]+chiSqr
-
 double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, double* yTilde,
                                    double* YTilde, double* w, double* result, double theta, int caching,
                                    double* yTildeT, double* tmp_n, double* tmp_m, int m_int,
                                    int n_int) {
-
-    double chiSqr = 0.0;
-    double d = 0.0;
     size_t m = (size_t)m_int;
     size_t n = (size_t)n_int;
 
-    chiSqr = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
+    double d = 0.0;
+    double chiSqr = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
 
     if (_fast_openmp_flag) {
         PRAGMA_OMP_PARALLEL(default(shared))
@@ -285,14 +283,10 @@ double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, 
         }
     }
 
-    //free(w);
-
     return d * theta + chiSqr;
 }
 
 // Gradient function for the forces method
-// OUT:  result  [m]
-
 void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_param,
                                       double* yTilde, double* YTilde, double* w, double* result,
                                       double theta, int caching, double* yTildeT, double* tmp_n,
@@ -346,8 +340,6 @@ void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_para
             result[i] = d;
         }
     }
-
-    return;
 }
 
 
@@ -414,7 +406,6 @@ void _grad_bioen_log_posterior_forces_interface(const gsl_vector* v, void* param
     _grad_bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, result_ptr, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
 
-    return;
 }
 
 
@@ -455,21 +446,19 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
                         double* YTilde, double* result, double theta, int m, int n,
                         struct gsl_config_params config, struct caching_params caching,
                         struct visual_params visual) {
-    double final_val = 0.;
+    double final_val = 0.0;
 
 #ifdef ENABLE_GSL
     int iter;
     int status1 = 0;
     int status2 = 0;
-    params_t* params = NULL;
     int status = 0;
 
-    // Set up arguments in param_t structure
+    double *w = NULL;
+    status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+
+    params_t* params = NULL;
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
-    if (status != 0) {
-        printf("xxERROR allocating params %d --\n",status);
-        exit(-1);
-    }
     params->forces = forces;
     params->w0 = w0;
     params->y_param = y_param;
@@ -483,16 +472,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     params->tmp_m = caching.tmp_m;
     params->m = m;
     params->n = n;
-
-    double *w;
-    status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
-    if (status != 0) {
-        printf("ERROR; allocating w\n");
-        exit(-1);
-    }
     params->w = w;
-
-
 
     if (visual.verbose) {
         printf("\t=========================\n");
@@ -505,8 +485,8 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
         printf("\t=========================\n");
     }
 
-    double start = 0;
-    double end = 0;
+    double start = 0.0;
+    double end = 0.0;
     start = get_wtime();
 
     // User define error handler.
@@ -628,7 +608,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     free(w);
 
 #else
-    printf("GSL has not been configured properly\n");
+    printf("%s\n", message_gsl_unavailable);
 #endif
 
     return final_val;
@@ -640,17 +620,16 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
                          double* YTilde, double* result, double theta, int m, int n,
                          struct lbfgs_config_params config, struct caching_params caching,
                          struct visual_params visual) {
-    double final_result = 0;
+    double final_result = 0.0;
 
 #ifdef ENABLE_LBFGS
     int status = 0;
+
+    double *w = NULL;
+    status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+
     params_t* params = NULL;
-    // Set up arguments in param_t structure
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
-    if (status != 0) {
-        printf("ERROR; allocating params\n");
-        exit(-1);
-    }
     params->forces = forces;
     params->w0 = w0;
     params->y_param = y_param;
@@ -664,15 +643,7 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     params->tmp_m = caching.tmp_m;
     params->m = m;
     params->n = n;
-
-    double *w;
-    posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
-    if (status != 0) {
-        printf("ERROR; allocating w\n");
-        exit(-1);
-    }
     params->w = w;
-
 
     if (visual.verbose) {
         printf("L-BFGS minimizer\n");
@@ -686,12 +657,6 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     lbfgsfloatval_t* x = lbfgs_malloc(m);
     lbfgs_parameter_t param;
 
-    if (x == NULL) {
-        printf("ERROR: Failed to allocate a memory block for variables.\n");
-        return 1;
-    }
-
-    // Initialize the variables.
     for (i = 0; i < m; i++) {
         x[i] = forces[i];
     }
@@ -753,7 +718,7 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     free(w);
 
 #else
-    printf("LibLBFGS has not been configured properly\n");
+    printf("%s\n", message_lbfgs_unavailable);
 #endif
 
     return final_result;

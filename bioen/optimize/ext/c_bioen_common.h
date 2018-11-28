@@ -1,25 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-/** C implementations of  [grad]_log_posterior[_forces/_log_weights], header
- * file.
- */
-
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
-#include <time.h>
-#include <unistd.h>
-
 #ifdef ENABLE_GSL
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_multimin.h> //Multidimensional minimization
-#endif
-
-#ifdef ENABLE_LBFGS
-#include <lbfgs.h>
+#include <gsl/gsl_vector.h>
 #endif
 
 #define ALIGN_CACHE 64
@@ -36,14 +19,14 @@ enum gsl_multimin_algorithm_kinds {
 };
 
 static const char *const gsl_multimin_algorithm_names[5] = {
-    "fdfminimizer_conjugate_fr", "fdfminimizer_conjugate_pr",
+    "fdfminimizer_conjugate_fr",
+    "fdfminimizer_conjugate_pr",
+    "fdfminimizer_vector_bfgs2",
+    "fdfminimizer_vector_bfgs",
+    "fdfminimizer_steepest_descent"
+};
 
-    "fdfminimizer_vector_bfgs2", "fdfminimizer_vector_bfgs",
-
-    "fdfminimizer_steepest_descent"};
-
-int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector *,
-                                                       double);
+int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector *, double);
 #endif
 
 typedef struct params_t {
@@ -107,8 +90,8 @@ extern int _fast_openmp_flag;
 void _set_fast_openmp_flag(int);
 int _get_fast_openmp_flag(void);
 
-// Shared functions
 double get_wtime(void);
+
 double _bioen_chi_squared(const double* const, const double* const,
                           const double* const,       double* const,
                           const size_t, const size_t);
@@ -120,5 +103,8 @@ void handler(const char *, const char *, int, int);
 #ifdef ENABLE_LBFGS
 char *lbfgs_strerror(int);
 #endif
+
+static const char message_gsl_unavailable[] = "BioEN optimize was not compiled with GSL.";
+static const char message_lbfgs_unavailable[] = "BioEN optimize was not compiled with liblbfgs.";
 
 #endif

@@ -1,9 +1,26 @@
 /** C implementations of the log-weights method. */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+#include <math.h>
+
+#ifdef ENABLE_GSL
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_multimin.h>
+#endif
+
+#ifdef ENABLE_LBFGS
+#include <lbfgs.h>
+#endif
+
 #include "c_bioen_kernels_logw.h"
 #include "c_bioen_common.h"
 #include "ompmagic.h"
-#include <stdlib.h>
 
 
 double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
@@ -368,10 +385,7 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
 
     // Set up arguments in param_t structure
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
-    if (status != 0) {
-        printf("ERROR; allocating params\n");
-        exit(-1);
-    }
+
     params->g = g;
     params->G = G;
     params->yTilde = yTilde;
@@ -517,8 +531,7 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
     }
 
 #else
-    printf("GSL has not been configured properly\n");
-
+    printf("%s\n", message_gsl_unavailable);
 #endif
 
     return final_val;
@@ -613,10 +626,7 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
 
     // Set up arguments in param_t structure
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
-    if (status != 0) {
-        printf("ERROR; allocating params\n");
-        exit(-1);
-    }
+
     params->g = g;
     params->G = G;
     params->yTilde = yTilde;
@@ -643,11 +653,6 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
     lbfgsfloatval_t fx;
     lbfgsfloatval_t* x = lbfgs_malloc(n);
     lbfgs_parameter_t lbfgs_param;
-
-    if (x == NULL) {
-        printf("ERROR: Failed to allocate a memory block for variables.\n");
-        return 1;
-    }
 
     // Initialize the variables.
     for (size_t i = 0; i < n; i++) {
@@ -710,7 +715,7 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
     free(params);
 
 #else
-    printf("LibLBFGS has not been configured properly\n");
+    printf("%s\n", message_lbfgs_unavailable);
 #endif // ENABLE_LBFGS
 
     return final_result;
