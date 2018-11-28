@@ -100,12 +100,11 @@ double _bioen_chi_squared(const double* const w,
         }
     }
 
-    val *= 0.5;
-    return val;
+    return (0.5 * val);
 }
 
-#ifdef ENABLE_GSL
 
+#ifdef ENABLE_GSL
 // Error handler for gsl's BFGS algorithm.
 void handler(const char* reason, const char* file, int line, int gsl_errno) {
     printf("----  Error has occured ( %s ) \n", reason);
@@ -143,6 +142,7 @@ int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, doub
     return GSL_CONTINUE;
 }
 #endif
+
 
 #ifdef ENABLE_LBFGS
 // Error values description for the L-BFGS algorithm

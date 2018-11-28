@@ -11,13 +11,22 @@ cdef extern from "c_bioen_kernels_logw.h":
                         double* const,
                         const size_t)
 
-    double _bioen_log_posterior_logw        (   double* , double* , double* ,
-                                                double* , double* , double* ,
-                                                double* , double* , double  ,
-                                                int,
-                                                double* , double* , double* ,
-                                                int     , int,
-                                                double)
+    double _bioen_log_posterior_logw(const double* const, # g,
+                                     const double* const, # G, 
+                                     const double* const, # yTilde, 
+                                     const double* const, # YTilde,
+                                     const double* const, # w, 
+                                     const double* const, # t1, 
+                                     const double* const, # t2, 
+                                     const double* const, # result,
+                                     const double, # theta, 
+                                     const int, # caching, 
+                                     const double* const, # yTildeT, 
+                                     double* const, # tmp_n,
+                                     double* const, # tmp_m, 
+                                     const int, # m_int, 
+                                     const int, # n_int,
+                                     const double) # weights_sum
 
     double _grad_bioen_log_posterior_logw   (   double* , double* , double* ,
                                                 double* , double* , double* ,
@@ -27,60 +36,64 @@ cdef extern from "c_bioen_kernels_logw.h":
                                                 int     , int,
                                                 double)
 
-    double _opt_bfgs_logw                   (   double* , double* , double* ,
-                                                double* , double* , double* ,
-                                                double* , double* , double  ,
-                                                int     , int,
-                                                gsl_config_params,
-                                                caching_params,
-                                                visual_params)
+    double _opt_bfgs_logw(double*, 
+                          double*, 
+                          double*, 
+                          double*, 
+                          double*, 
+                          double*, 
+                          double*, 
+                          double*, 
+                          double, 
+                          int, 
+                          int, 
+                          gsl_config_params, 
+                          caching_params, 
+                          visual_params)
 
-    double _opt_lbfgs_logw                  (   double* , double* , double* ,
-                                                double* , double* , double* ,
-                                                double* , double* , double  ,
-                                                int     , int     ,
-                                                lbfgs_config_params,
-                                                caching_params,
-                                                visual_params)
+    double _opt_lbfgs_logw(double*, 
+                           double*, 
+                           double*,
+                           double*, 
+                           double*, 
+                           double*,
+                           double*, 
+                           double*, 
+                           double,
+                           int, 
+                           int,
+                           lbfgs_config_params,
+                           caching_params,
+                           visual_params)
 
 
 cdef extern from "c_bioen_kernels_forces.h":
 
-    double _opt_bfgs_forces                 (   double* , double* , double* ,
-                                                double* , double* , double* ,
-                                                double  , int     , int,
-                                                gsl_config_params,
-                                                caching_params,
-                                                visual_params)
+    double _opt_bfgs_forces(double*,
+                            double*,
+                            double*,
+                            double*,
+                            double*,
+                            double*,
+                            double,
+                            int,
+                            int,
+                            gsl_config_params,
+                            caching_params,
+                            visual_params)
 
-    double _opt_lbfgs_forces                (   double* , double*   , double* ,
-                                                double* , double*   , double* ,
-                                                double  ,
-                                                int     , int,
-                                                lbfgs_config_params,
-                                                caching_params,
-                                                visual_params)
-
-    void   _grad_bioen_log_posterior_forces (   double* , double* , double* ,
-                                                double* , double* , double* ,
-                                                double*  , double  ,
-                                                int     , double* , double* ,
-                                                double* , int     , int)
-
-    double _bioen_log_posterior_forces(const double* const,  # forces
-                                       const double* const,  # w0
-                                       const double* const,  # y_param
-                                       const double* const,  # yTilde
-                                       const double* const,  # YTilde
-                                       const double* const,  # w
-                                       const double* const,  # result
-                                       const double,  # theta
-                                       const int,  # caching
-                                       const double* const.  # yTildeT
-                                       double* const,  # tmp_n
-                                       double* const,  # tmp_m
-                                       const int,  # m_int
-                                       const int)  # n_int
+    double _opt_lbfgs_forces(double*,
+                             double*,
+                             double*,
+                             double*,
+                             double*,
+                             double*,
+                             double,
+                             int,
+                             int,
+                             lbfgs_config_params,
+                             caching_params,
+                             visual_params)
 
     void _get_weights_from_forces(const double* const,
                                   const double* const,
@@ -91,6 +104,36 @@ cdef extern from "c_bioen_kernels_forces.h":
                                   double* const,
                                   const size_t,
                                   const size_t)
+
+    double _bioen_log_posterior_forces(const double* const,  # forces
+                                       const double* const,  # w0
+                                       const double* const,  # y_param
+                                       const double* const,  # yTilde
+                                       const double* const,  # YTilde
+                                       const double* const,  # w
+                                       const double* const,  # result
+                                       const double,  # theta
+                                       const int,  # caching
+                                       const double* const,  # yTildeT
+                                       double* const,  # tmp_n
+                                       double* const,  # tmp_m
+                                       const int,  # m_int
+                                       const int)  # n_int
+
+    void   _grad_bioen_log_posterior_forces(const double* const,  # forces
+                                            const double* const,  # w0
+                                            const double* const,  # y_param
+                                            const double* const,  # yTilde
+                                            const double* const,  # YTilde
+                                            const double* const,  # w
+                                            double* const,  # gradient
+                                            const double,  # theta
+                                            const int,  # caching
+                                            const double* const,  # yTildeT
+                                            double* const,  # tmp_n
+                                            double* const,  # tmp_m
+                                            const int,  # m_int
+                                            const int)  # n_int
 
 
 cdef extern from "c_bioen_common.h":

@@ -23,13 +23,11 @@
 #include "ompmagic.h"
 
 
-
 // Alias for minimum double value
 const double dmin = DBL_MIN;
 // Alias for maximum double value
 const double dmax = DBL_MAX;
 const double dmax_neg = -DBL_MAX;
-
 
 
 #ifdef ENABLE_LBFGS
@@ -308,12 +306,22 @@ double _bioen_log_posterior_forces(const double* const forces,
 }
 
 // Gradient function for the forces method
-void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_param,
-                                      double* yTilde, double* YTilde, double* w, double* result,
-                                      double theta, int caching, double* yTildeT, double* tmp_n,
-                                      double* tmp_m, int m_int, int n_int) {
-    size_t m = (size_t)m_int;
-    size_t n = (size_t)n_int;
+void _grad_bioen_log_posterior_forces(const double* const forces,
+                                      const double* const w0,
+                                      const double* const y_param,
+                                      const double* const yTilde,
+                                      const double* const YTilde,
+                                      const double* const w,
+                                      double* const gradient,
+                                      const double theta,
+                                      const int caching,
+                                      const double* const yTildeT,
+                                      double* const tmp_n,
+                                      double* const tmp_m,
+                                      const int m_int,
+                                      const int n_int) {
+    const size_t m = (size_t)m_int;
+    const size_t n = (size_t)n_int;
 
     _getAve(w, yTilde, tmp_m, m, n);
 
@@ -358,7 +366,7 @@ void _grad_bioen_log_posterior_forces(double* forces, double* w0, double* y_para
             for (size_t j = 0; j < n; j++) {
                 d += (yTilde[i * n + j] - tmp_m[i]) * tmp_n[j];
             }
-            result[i] = d;
+            gradient[i] = d;
         }
     }
 }
@@ -450,15 +458,14 @@ void fdf_forces(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     double* result_ptr = (double*) df->data;
 
     // 1) compute weights
-    _get_weights_from_forces (w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
+    _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
     // 2) compute function
     *f = _bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, NULL,
-                                             theta, caching, yTildeT, tmp_n, tmp_m, m, n);
+                                     theta, caching, yTildeT, tmp_n, tmp_m, m, n);
     // 3) compute function gradient
-    _grad_bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, result_ptr, theta,
-                                     caching, yTildeT, tmp_n, tmp_m, m, n);
-
+    _grad_bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, result_ptr,
+                                     theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 }
 #endif
 
@@ -545,7 +552,6 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     }
 
     s = gsl_multimin_fdfminimizer_alloc(T, m);
-
 
     my_func.f = _bioen_log_posterior_forces_interface;
     my_func.df = _grad_bioen_log_posterior_forces_interface;

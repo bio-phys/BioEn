@@ -92,8 +92,12 @@ double _get_weights(const double* const g, double* const w, const size_t n) {
 }
 
 
-double _bioen_log_prior(const double* const w, const double s, const double* const g,
-                        const double* const G, const double theta, double* tmp_n,
+double _bioen_log_prior(const double* const w, 
+                        const double s, 
+                        const double* const g,
+                        const double* const G, 
+                        const double theta, 
+                        double* const tmp_n,
                         const size_t n) {
     double val = 0.0;
 
@@ -128,20 +132,29 @@ double _bioen_log_prior(const double* const w, const double s, const double* con
 
 // Objective function for the log_weights method
 // Note: 'w' needs already be filled with values from a previous call to _get_weights()!
-double _bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* YTilde,
-                                 double* w, double* t1, double* t2, double* result,
-                                 double theta, int caching, double* yTildeT, double* tmp_n,
-                                 double* tmp_m, int m_int, int n_int,
-                                 double weights_sum) {
-    size_t m = (size_t)m_int;
-    size_t n = (size_t)n_int;
+double _bioen_log_posterior_logw(const double* const g,
+                                 const double* const G, 
+                                 const double* const yTilde, 
+                                 const double* const YTilde,
+                                 const double* const w, 
+                                 const double* const t1, 
+                                 const double* const t2, 
+                                 const double* const result,
+                                 const double theta, 
+                                 const int caching, 
+                                 const double* const yTildeT, 
+                                 double* const tmp_n,
+                                 double* const tmp_m, 
+                                 const int m_int, 
+                                 const int n_int,
+                                 const double weights_sum) {
+    const size_t m = (size_t)m_int;
+    const size_t n = (size_t)n_int;
 
-    double s = weights_sum;
-    double val1 = _bioen_log_prior(w, s, g, G, theta, tmp_n, n);
-    double val2 = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
-    double val = val1 + val2;
+    const double val1 = _bioen_log_prior(w, weights_sum, g, G, theta, tmp_n, n);
+    const double val2 = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
 
-    return val;
+    return (val1 + val2);
 }
 
 
