@@ -558,15 +558,15 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
                                                   <double*> yTilde.data,
                                                   <double*> YTilde.data ,
                                                   <double*> w.data,
-                                                  NULL,
+                                                  <double*> NULL,
                                                   theta,
-                                                  <int> use_cache_flag,
-                                                  <double*> yTildeT.data,
+                                                  <int> 0,
+                                                  <double*> NULL,
                                                   <double*> tmp_n.data,
-                                                  <double*>tmp_m.data,
+                                                  <double*> tmp_m.data,
                                                   <int> m,
                                                   <int> n)
-    return  val
+    return val
 
 
 def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,

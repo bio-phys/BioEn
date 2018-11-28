@@ -250,16 +250,16 @@ void _get_weights_from_forces(const double* const w0,
 }
 
 // Objective function for the forces method
-double _bioen_log_posterior_forces(const double* const forces,
+double _bioen_log_posterior_forces(const double* const forces,  // unused
                                    const double* const w0,
-                                   const double* const y_param,
+                                   const double* const y_param, // usused
                                    const double* const yTilde,
                                    const double* const YTilde,
                                    const double* const w,
-                                   const double* const result,
+                                   const double* const dummy,  // unused
                                    const double theta,
                                    const int caching,
-                                   const double* const yTildeT,
+                                   const double* const yTildeT,  // unused
                                    double* const tmp_n,
                                    double* const tmp_m,
                                    const int m_int,
