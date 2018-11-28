@@ -189,7 +189,7 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
     yTilde: array_like, MxN matrix
     YTilde: array_like, vector with M components
-    theta: float, confidene parameter
+    theta: float, confidence parameter
     caching: performance optimization; local transposed copy of yTilde (default = False)
 
     Returns
@@ -222,10 +222,9 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     cdef np.ndarray result = np.empty([n], dtype=np.double)
 
     # 1) compute weights
-    cdef size_t n_int64 = n
     cdef double weights_sum = _get_weights(<double*> gPrime.data,
                                            <double*> w.data,
-                                           <size_t> n_int64)
+                                           <size_t> n)
 
     # 2) compute function
     cdef double val = _bioen_log_posterior_logw(<double*> gPrime.data,
@@ -281,14 +280,13 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     # temporary arrays
     cdef np.ndarray t1 = np.empty([m], dtype=np.double)
     cdef np.ndarray t2 = np.empty([n], dtype=np.double)
-    # result array
-    cdef np.ndarray result = np.empty([n], dtype=np.double)
+    # gradient array
+    cdef np.ndarray gradient = np.empty([n], dtype=np.double)
 
     # 1) compute weights
-    cdef size_t n_int64 = n
     cdef double weights_sum = _get_weights(<double*> gPrime.data,
                                            <double*> w.data,
-                                           <size_t> n_int64)
+                                           <size_t> n)
 
     # 2) compute function gradient
     _grad_bioen_log_posterior_logw(<double*> gPrime.data,
@@ -298,7 +296,7 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                    <double*> w.data,
                                    <double*> t1.data,
                                    <double*> t2.data,
-                                   <double*> result.data,
+                                   <double*> gradient.data,
                                    <double> theta,
                                    <int> use_cache_flag,
                                    <double*> yTildeT.data,
@@ -307,7 +305,7 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                    <int> m,
                                    <int> n,
                                    <double> weights_sum)
-    return result
+    return gradient
 
 
 def bioen_opt_bfgs_logw(np.ndarray g,
@@ -498,18 +496,16 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
-
     # 1) compute weights
-    _get_weights_from_forces(   <double*> w0.data,
-                                <double*> yTilde.data,
-                                <double*> forces.data,
-                                <double*> w.data,
-                                <int> use_cache_flag,
-                                <double*> yTildeT.data,
-                                <double*> tmp_n.data,
-                                <int> m,
-                                <int> n)
-
+    _get_weights_from_forces(<double*> w0.data,
+                             <double*> yTilde.data,
+                             <double*> forces.data,
+                             <double*> w.data,
+                             <int> use_cache_flag,
+                             <double*> yTildeT.data,
+                             <double*> tmp_n.data,
+                             <size_t> m,
+                             <size_t> n)
 
     # 2) compute function
     cdef double val = _bioen_log_posterior_forces(<double*> forces.data,
@@ -561,19 +557,18 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
-    # result array
-    cdef np.ndarray result = np.empty([m], dtype=np.double)
+    cdef np.ndarray gradient = np.empty([m], dtype=np.double)
 
     # 1) compute weights
-    _get_weights_from_forces(   <double*> w0.data,
-                                <double*> yTilde.data,
-                                <double*> forces.data,
-                                <double*> w.data,
-                                <int> use_cache_flag,
-                                <double*> yTildeT.data,
-                                <double*> tmp_n.data,
-                                <int> m,
-                                <int> n)
+    _get_weights_from_forces(<double*> w0.data,
+                             <double*> yTilde.data,
+                             <double*> forces.data,
+                             <double*> w.data,
+                             <int> use_cache_flag,
+                             <double*> yTildeT.data,
+                             <double*> tmp_n.data,
+                             <size_t> m,
+                             <size_t> n)
 
     # 2) compute function gradient
     _grad_bioen_log_posterior_forces(<double*> forces.data,
@@ -582,7 +577,7 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
                                      <double*> yTilde.data,
                                      <double*> YTilde.data,
                                      <double*> w.data,
-                                     <double*> result.data,
+                                     <double*> gradient.data,
                                      <double> theta,
                                      <int> use_cache_flag,
                                      <double*> yTildeT.data,
@@ -590,7 +585,7 @@ def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
                                      <double*> tmp_m.data,
                                      <int> m,
                                      <int> n)
-    return result
+    return gradient
 
 
 def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_param,
@@ -625,7 +620,6 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_p
 
     cdef np.ndarray x = np.empty([m], dtype=np.double)
 
-    # structures containing adition info.
     cdef gsl_config_params c_params
     cdef caching_params c_caching_params
     cdef visual_params c_visual_params
@@ -635,10 +629,10 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_p
     c_params.step_size      = params["params"]["step_size"]
     c_params.max_iterations = params["params"]["max_iterations"]
 
-    c_caching_params.lcaching   = use_cache_flag
-    c_caching_params.yTildeT    = <double*> yTildeT.data
-    c_caching_params.tmp_n      = <double*> tmp_n.data
-    c_caching_params.tmp_m      = <double*> tmp_m.data
+    c_caching_params.lcaching = use_cache_flag
+    c_caching_params.yTildeT  = <double*> yTildeT.data
+    c_caching_params.tmp_n    = <double*> tmp_n.data
+    c_caching_params.tmp_m    = <double*> tmp_m.data
 
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
