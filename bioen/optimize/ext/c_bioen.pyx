@@ -18,7 +18,7 @@ cdef extern from "c_bioen_kernels_logw.h":
                                      const double* const, # w, 
                                      const double* const, # t1, 
                                      const double* const, # t2, 
-                                     const double* const, # result,
+                                     const double* const, # dummy,
                                      const double, # theta, 
                                      const int, # caching, 
                                      const double* const, # yTildeT, 
@@ -28,13 +28,22 @@ cdef extern from "c_bioen_kernels_logw.h":
                                      const int, # n_int,
                                      const double) # weights_sum
 
-    double _grad_bioen_log_posterior_logw   (   double* , double* , double* ,
-                                                double* , double* , double* ,
-                                                double* , double* , double  ,
-                                                int,
-                                                double* , double* , double* ,
-                                                int     , int,
-                                                double)
+    double _grad_bioen_log_posterior_logw(const double* const, # g,
+                                          const double* const, # G,
+                                          const double* const, # yTilde,
+                                          const double* const, # YTilde,
+                                          const double* const, # w,
+                                          double* const, # t1,
+                                          double* const, # t2,
+                                          double* const, # gradient,
+                                          const double, # theta,
+                                          const int, # caching,
+                                          const double* const, # yTildeT,
+                                          const double* const, # tmp_n,
+                                          const double* const, # tmp_m,
+                                          const int, # m_int,
+                                          const int, # n_int,
+                                          const double) # weights_sum)
 
     double _opt_bfgs_logw(double*, 
                           double*, 

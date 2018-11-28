@@ -139,7 +139,7 @@ double _bioen_log_posterior_logw(const double* const g,
                                  const double* const w, 
                                  const double* const t1, 
                                  const double* const t2, 
-                                 const double* const result,
+                                 const double* const dummy,
                                  const double theta, 
                                  const int caching, 
                                  const double* const yTildeT, 
@@ -160,17 +160,24 @@ double _bioen_log_posterior_logw(const double* const g,
 
 // Gradient function for the forces method
 // Note: 'w' needs already be filled with values from a previous call to _get_weights()!
-void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double* YTilde,
-                                    double* w, double* t1, double* t2, double* result,
-                                    double theta, int caching, double* yTildeT, double* tmp_n,
-                                    double* tmp_m, int m_int, int n_int,
-                                    double weights_sum) {
-    size_t m = (size_t)m_int;
-    size_t n = (size_t)n_int;
-
-    // if (run_get_weights) {
-    //     _get_weights(g, w, n);
-    // }
+void _grad_bioen_log_posterior_logw(const double* const g,
+                                    const double* const G,
+                                    const double* const yTilde,
+                                    const double* const YTilde,
+                                    const double* const w,
+                                    double* const t1,
+                                    double* const t2,
+                                    double* const gradient,
+                                    const double theta,
+                                    const int caching,
+                                    const double* const yTildeT,
+                                    const double* const tmp_n,
+                                    const double* const tmp_m,
+                                    const int m_int,
+                                    const int n_int,
+                                    const double weights_sum) {
+    const size_t m = (size_t)m_int;
+    const size_t n = (size_t)n_int;
 
     double tmp1 = 0.0;
     double tmp2 = 0.0;
@@ -219,7 +226,7 @@ void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double
 
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
             for (size_t j = 0; j < n; j++) {
-                result[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
+                gradient[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
             }
         }  // END PRAGMA_OMP_PARALLEL()
     } else {
@@ -267,7 +274,7 @@ void _grad_bioen_log_posterior_logw(double* g, double* G, double* yTilde, double
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
             for (size_t j = 0; j < n; j++) {
-                result[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
+                gradient[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
             }
         }  // END PRAGMA_OMP_PARALLEL()
     }
