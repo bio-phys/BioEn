@@ -269,25 +269,7 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
 
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
-
-    # use a dummy array in case caching is not used
-    cdef int use_cache_flag = 0
-    cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
-    if caching:
-        use_cache_flag = 1
-        yTildeT = yTilde.T.copy()
-
-    # temporary array for weights
     cdef np.ndarray w = np.empty([n], dtype=np.double)
-
-    # The correspondence of number of parameters between func. and grad. must
-    # be preserved when running the optimizer.
-    # The temporary arrays t1 and t2 are used on the gradient function.
-    # Allocation is done at python level
-    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
-    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
-    # result array
-    cdef np.ndarray result = np.empty([n], dtype=np.double)
 
     # 1) compute weights
     cdef double weights_sum = _get_weights(<double*> gPrime.data,
@@ -300,12 +282,12 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                                 <double*> yTilde.data,
                                                 <double*> YTilde.data,
                                                 <double*> w.data,
-                                                <double*> t1.data,
-                                                <double*> t2.data,
-                                                <double*> result.data,
+                                                <double*> NULL,
+                                                <double*> NULL,
+                                                <double*> NULL,
                                                 <double> theta,
-                                                <int> use_cache_flag,
-                                                <double*> yTildeT.data,
+                                                <int> 0,
+                                                <double*> NULL,
                                                 <double*> tmp_n.data,
                                                 <double*> tmp_m.data,
                                                 <int> m,
