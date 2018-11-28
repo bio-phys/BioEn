@@ -368,8 +368,6 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
     double final_val = 0.;
 
 #if ENABLE_GSL
-
-    int iter;
     int status1 = 0;
     int status2 = 0;
     params_t* params = NULL;
@@ -405,20 +403,18 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
         printf("\t=========================\n");
     }
 
-    double start = 0;
-    double end = 0;
-    start = get_wtime();
+    double start = get_wtime();
 
     // User define error handler.
     gsl_set_error_handler(handler);
 
     // Allocate independant variables array
-    gsl_vector* x0 = NULL;
-    x0 = gsl_vector_alloc(n);
+    gsl_vector* x0 = gsl_vector_alloc(n);
 
-    for (size_t i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         gsl_vector_set(x0, i, g[i]);
     }
+
     // Set up optimizer parameters
     const gsl_multimin_fdfminimizer_type* T = NULL;
     gsl_multimin_fdfminimizer* s;
@@ -453,7 +449,7 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
     gsl_multimin_fdfminimizer_set(s, &my_func, x0, config.step_size, config.tol);
 
     // Main loop
-    iter = 0;
+    int iter = 0;
     do {
         if (visual.verbose)
             if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
@@ -473,14 +469,13 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
     } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
 
     // Get the final minimizing function parameters
-    const gsl_vector* x = NULL;
-    x = gsl_multimin_fdfminimizer_x(s);
+    gsl_vector* x = gsl_multimin_fdfminimizer_x(s);
 
     // Get minimum value
     final_val = gsl_multimin_fdfminimizer_minimum(s);
 
     // Copy back the result.
-    for (size_t i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         result[i] = gsl_vector_get(x, i);
     }
 
@@ -506,11 +501,11 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
         }
     }
 
+    double end = get_wtime();
+
     free(params);
     gsl_vector_free(x0);
     gsl_multimin_fdfminimizer_free(s);
-
-    end = get_wtime();
 
     // Print profile info
     if (visual.verbose) {
@@ -633,15 +628,12 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
         printf("L-BFGS minimizer\n");
     }
 
-    double start = 0;
-    double end = 0;
-
     lbfgsfloatval_t fx;
     lbfgsfloatval_t* x = lbfgs_malloc(n);
     lbfgs_parameter_t lbfgs_param;
 
     // Initialize the variables.
-    for (size_t i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         x[i] = g[i];
     }
 
@@ -672,15 +664,12 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
         printf("\t=========================\n");
     }
 
-    //    Start the L-BFGS optimization; this will invoke the callback functions
-    //    evaluate() and progress() when necessary.
-
     iterations_lbfgs_logw = 0;
 
-    start = get_wtime();
+    double start = get_wtime();
     int return_value =
         lbfgs(n, x, &fx, interface_lbfgs_logw, progress_logw, params, &lbfgs_param);
-    end = get_wtime();
+    double end = get_wtime();
 
     if (visual.verbose) {
         printf("\t%s\n", lbfgs_strerror(return_value));
@@ -693,7 +682,7 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
 
     final_result = fx;
 
-    for (size_t i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         result[i] = x[i];
     }
 

@@ -59,21 +59,20 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     int m = p->m;
     int n = p->n;
 
-    double ret_result = 0.0;
+    double val = 0.0;
 
     _get_weights_from_forces(w0, yTilde, (double*)new_forces, w, caching, yTildeT, tmp_n, m, n);
 
     // Evaluation of objective function
-    ret_result =
-        _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, NULL,
-                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n);
+    val = _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, NULL,
+                                      theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // Evaluation of gradient
     _grad_bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w,
                                      (double*)grad_vals, theta, caching, yTildeT, tmp_n, tmp_m,
                                      m, n);
 
-    return ret_result;
+    return val;
 }
 
 static int progress_forces(void* instance, const lbfgsfloatval_t* x, const lbfgsfloatval_t* g,
@@ -89,20 +88,6 @@ static int progress_forces(void* instance, const lbfgsfloatval_t* x, const lbfgs
     return 0;
 }
 #endif
-
-/**
- * Maximum function for OpenMP reduction.
- */
-double maximum(double a, double b) {
-    if (a > b) {
-        return a;
-    } else {
-        return b;
-    }
-}
-// Declare our custom maximum reduction because this was only added in OpenMP 3.1 (2011).
-// #pragma omp declare reduction(maximum : double : omp_out=maximum(omp_out, omp_in))
-// initializer(omp_priv=dmax_neg)
 
 // Calculates the average
 void _getAve(const double* const w, const double* const yTilde, double* const yTildeAve,
@@ -363,15 +348,14 @@ double _bioen_log_posterior_forces_interface(const gsl_vector* v, void* params) 
     int m = p->m;
     int n = p->n;
 
-    double ret_result = 0.0;
     double* v_ptr = (double*)v->data;
 
     _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
-    ret_result = _bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, NULL, theta,
-                                             caching, yTildeT, tmp_n, tmp_m, m, n);
+    const double val = _bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, NULL,
+                                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
-    return (ret_result);
+    return val;
 }
 
 // GSL interface to evaluate the gradient
@@ -441,7 +425,6 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     double final_val = 0.0;
 
 #ifdef ENABLE_GSL
-    int iter;
     int status1 = 0;
     int status2 = 0;
     int status = 0;
@@ -477,18 +460,13 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
         printf("\t=========================\n");
     }
 
-    double start = 0.0;
-    double end = 0.0;
-    start = get_wtime();
+    double start = get_wtime();
 
-    // User define error handler.
     gsl_set_error_handler(handler);
 
-    // Allocate independant variables array
-    gsl_vector* x0 = NULL;
-    x0 = gsl_vector_alloc(m);
+    gsl_vector* x0 = gsl_vector_alloc(m);
 
-    for (size_t i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++) {
         gsl_vector_set(x0, i, forces[i]);
     }
 
@@ -527,7 +505,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     gsl_multimin_fdfminimizer_set(s, &my_func, x0, config.step_size, config.tol);
 
     // Main loop
-    iter = 0;
+    int iter = 0;
     do {
         if (visual.verbose)
             if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
@@ -543,18 +521,16 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
         status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
 
         iter++;
-
     } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
 
     // Get the final minimizing function parameters
-    const gsl_vector* x = NULL;
-    x = gsl_multimin_fdfminimizer_x(s);
+    gsl_vector* x = gsl_multimin_fdfminimizer_x(s);
 
     // Get minimum value
     final_val = gsl_multimin_fdfminimizer_minimum(s);
 
     // Copy back the result.
-    for (size_t i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++) {
         result[i] = gsl_vector_get(x, i);
     }
 
@@ -580,7 +556,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
         }
     }
 
-    end = get_wtime();
+    double end = get_wtime();
 
     // Print profile info
     if (visual.verbose) {
@@ -595,7 +571,6 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     gsl_vector_free(x0);
     gsl_multimin_fdfminimizer_free(s);
     free(params);
-
     free(w);
 
 #else
@@ -639,15 +614,11 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
         printf("L-BFGS minimizer\n");
     }
 
-    double start = 0;
-    double end = 0;
-    int i;
-
     lbfgsfloatval_t fx = 0;
     lbfgsfloatval_t* x = lbfgs_malloc(m);
     lbfgs_parameter_t param;
 
-    for (i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++) {
         x[i] = forces[i];
     }
 
@@ -683,10 +654,10 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
 
     iterations_lbfgs_forces = 0;
 
-    start = get_wtime();
+    double start = get_wtime();
     int return_value =
         lbfgs(m, x, &fx, interface_lbfgs_forces, progress_forces, params, &param);
-    end = get_wtime();
+    double end = get_wtime();
 
     if (visual.verbose) {
         printf("\t%s\n", lbfgs_strerror(return_value));
@@ -699,7 +670,7 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
 
     final_result = fx;
 
-    for (i = 0; i < m; i++) {
+    for (int i = 0; i < m; i++) {
         result[i] = x[i];
     }
 

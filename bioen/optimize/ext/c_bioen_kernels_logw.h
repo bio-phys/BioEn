@@ -27,6 +27,7 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
 double _opt_bfgs_logw(double*, double*, double*, double*, double*, double*, double*, double*,
                       double, int, int, struct gsl_config_params, struct caching_params,
                       struct visual_params);
+
 double _opt_lbfgs_logw(double*, double*, double*, double*, double*, double*, double*, double*,
                        double, int, int, struct lbfgs_config_params, struct caching_params,
                        struct visual_params);
