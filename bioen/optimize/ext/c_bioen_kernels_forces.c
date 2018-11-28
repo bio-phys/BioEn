@@ -110,7 +110,11 @@ double maximum(double a, double b) {
 
 
 // Calculates the average
-void _getAve(double* w, double* yTilde, double* yTildeAve, size_t m, size_t n) {
+void _getAve(const double* const w,
+             const double* const yTilde,
+             double* const yTildeAve,
+             const size_t m,
+             const size_t n) {
     // IN:  w         [ n ]
     // IN:  yTilde    [ m * n ]
     // OUT: yTildeAve [ m ]
@@ -129,8 +133,15 @@ void _getAve(double* w, double* yTilde, double* yTildeAve, size_t m, size_t n) {
 }
 
 
-void _get_weights_from_forces(double* w0, double* yTilde, double* forces, double* w,
-                              int caching, double* yTildeT, double* tmp_n, size_t m, size_t n) {
+void _get_weights_from_forces(const double* const w0,
+                              const double* const yTilde,
+                              const double* const forces,
+                              double* const w,
+                              const int caching,
+                              const double* const yTildeT,
+                              double* const tmp_n,
+                              const size_t m,
+                              const size_t n) {
     // IN:  w0:     [Nx1]
     // IN:  forces: [1xM]
     // IN:  yTilde: [MxN]

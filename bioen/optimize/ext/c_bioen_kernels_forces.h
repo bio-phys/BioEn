@@ -21,6 +21,14 @@ double _opt_lbfgs_forces(double *, double *, double *, double *, double *,
                          double *, double, int, int, struct lbfgs_config_params,
                          struct caching_params, struct visual_params);
 
-void _get_weights_from_forces(double*, double*, double*, double*,
-                              int, double*, double*, size_t, size_t);
+void _get_weights_from_forces(const double* const,
+                              const double* const,
+                              const double* const,
+                              double* const,
+                              const int,
+                              const double* const,
+                              double* const,
+                              const size_t,
+                              const size_t);
+
 #endif
