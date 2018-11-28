@@ -1,17 +1,17 @@
 /** C implementations of common functions for the forces and the logw methods. */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include <math.h>
 
 #ifdef ENABLE_GSL
-#include <gsl/gsl_vector.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_multimin.h>
+#include <gsl/gsl_vector.h>
 #endif
 
 #ifdef ENABLE_LBFGS
@@ -20,7 +20,6 @@
 
 #include "c_bioen_common.h"
 #include "ompmagic.h"
-
 
 #ifdef ENABLE_GSL
 // GSL bfgs algorithm (default)
@@ -44,13 +43,9 @@ int _library_lbfgs() {
 // flag to toggle aggressive OpenMP parallelization, default: 0 == off
 int _fast_openmp_flag = 0;
 
-void _set_fast_openmp_flag(int flag) {
-    _fast_openmp_flag = flag;
-};
+void _set_fast_openmp_flag(int flag) { _fast_openmp_flag = flag; };
 
-int _get_fast_openmp_flag() {
-    return _fast_openmp_flag;
-};
+int _get_fast_openmp_flag() { return _fast_openmp_flag; };
 
 // get the time since the epoch in microseconds
 double get_wtime(void) {
@@ -59,12 +54,8 @@ double get_wtime(void) {
     return (double)time_mark.tv_sec + ((double)time_mark.tv_usec) * 1.e-6;
 }
 
-
-double _bioen_chi_squared(const double* const w,
-                          const double* const yTilde,
-                          const double* const YTilde,
-                          double* const tmp_m,
-                          const size_t m,
+double _bioen_chi_squared(const double* const w, const double* const yTilde,
+                          const double* const YTilde, double* const tmp_m, const size_t m,
                           const size_t n) {
     double val = 0.0;
 
@@ -102,7 +93,6 @@ double _bioen_chi_squared(const double* const w,
 
     return (0.5 * val);
 }
-
 
 #ifdef ENABLE_GSL
 // Error handler for gsl's BFGS algorithm.
@@ -142,7 +132,6 @@ int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, doub
     return GSL_CONTINUE;
 }
 #endif
-
 
 #ifdef ENABLE_LBFGS
 // Error values description for the L-BFGS algorithm

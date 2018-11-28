@@ -1,27 +1,26 @@
 /** C implementations of the log-weights method. */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include <math.h>
 
 #ifdef ENABLE_GSL
-#include <gsl/gsl_vector.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_multimin.h>
+#include <gsl/gsl_vector.h>
 #endif
 
 #ifdef ENABLE_LBFGS
 #include <lbfgs.h>
 #endif
 
-#include "c_bioen_kernels_logw.h"
 #include "c_bioen_common.h"
+#include "c_bioen_kernels_logw.h"
 #include "ompmagic.h"
-
 
 double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
     double s = 0.0;
@@ -48,7 +47,6 @@ double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
 
     return s;
 }
-
 
 double _get_weights(const double* const g, double* const w, const size_t n) {
     double s = 0.0;
@@ -91,13 +89,8 @@ double _get_weights(const double* const g, double* const w, const size_t n) {
     return s;
 }
 
-
-double _bioen_log_prior(const double* const w, 
-                        const double s, 
-                        const double* const g,
-                        const double* const G, 
-                        const double theta, 
-                        double* const tmp_n,
+double _bioen_log_prior(const double* const w, const double s, const double* const g,
+                        const double* const G, const double theta, double* const tmp_n,
                         const size_t n) {
     double val = 0.0;
 
@@ -129,25 +122,19 @@ double _bioen_log_prior(const double* const w,
     return val;
 }
 
-
 // Objective function for the log_weights method
 // Note: 'w' needs already be filled with values from a previous call to _get_weights()!
-double _bioen_log_posterior_logw(const double* const g,
-                                 const double* const G, 
-                                 const double* const yTilde, 
-                                 const double* const YTilde,
-                                 const double* const w, 
-                                 const double* const t1,  // unused
-                                 const double* const t2,  // unused
+double _bioen_log_posterior_logw(const double* const g, const double* const G,
+                                 const double* const yTilde, const double* const YTilde,
+                                 const double* const w,
+                                 const double* const t1,     // unused
+                                 const double* const t2,     // unused
                                  const double* const dummy,  // unused
-                                 const double theta, 
-                                 const int caching,  // unused
-                                 const double* const yTildeT,   // unused
-                                 double* const tmp_n,
-                                 double* const tmp_m, 
-                                 const int m_int, 
-                                 const int n_int,
-                                 const double weights_sum) {
+                                 const double theta,
+                                 const int caching,            // unused
+                                 const double* const yTildeT,  // unused
+                                 double* const tmp_n, double* const tmp_m, const int m_int,
+                                 const int n_int, const double weights_sum) {
     const size_t m = (size_t)m_int;
     const size_t n = (size_t)n_int;
 
@@ -157,24 +144,16 @@ double _bioen_log_posterior_logw(const double* const g,
     return (val1 + val2);
 }
 
-
 // Gradient function for the forces method
 // Note: 'w' needs already be filled with values from a previous call to _get_weights()!
-void _grad_bioen_log_posterior_logw(const double* const g,
-                                    const double* const G,
-                                    const double* const yTilde,
-                                    const double* const YTilde,
-                                    const double* const w,
-                                    double* const t1,
-                                    double* const t2,
-                                    double* const gradient,
-                                    const double theta,
-                                    const int caching,
-                                    const double* const yTildeT,
+void _grad_bioen_log_posterior_logw(const double* const g, const double* const G,
+                                    const double* const yTilde, const double* const YTilde,
+                                    const double* const w, double* const t1, double* const t2,
+                                    double* const gradient, const double theta,
+                                    const int caching, const double* const yTildeT,
                                     const double* const tmp_n,  // unused
                                     const double* const tmp_m,  // unused
-                                    const int m_int,
-                                    const int n_int,
+                                    const int m_int, const int n_int,
                                     const double weights_sum) {
     const size_t m = (size_t)m_int;
     const size_t n = (size_t)n_int;
@@ -280,7 +259,6 @@ void _grad_bioen_log_posterior_logw(const double* const g,
     }
 }
 
-
 #ifdef ENABLE_GSL
 // GSL interface to evaluate the function.
 // The new coordinates are obtained from the gsl_vector v.
@@ -302,15 +280,14 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
     int m = p->m;
     int n = p->n;
 
-    double* v_ptr = (double*) v->data;
+    double* v_ptr = (double*)v->data;
 
     // 1) compute weights
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
     // 2) compute function
-    double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
-                                           theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                           weights_sum);
+    double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL, theta,
+                                           caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     return val;
 }
@@ -336,18 +313,16 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     int m = p->m;
     int n = p->n;
 
-    double* v_ptr = (double*) v->data;
-    double* result_ptr = (double*) df->data;
+    double* v_ptr = (double*)v->data;
+    double* result_ptr = (double*)df->data;
 
     // 1) compute weights
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
     // 2) compute function gradient
-    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
-                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   weights_sum);
+    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr, theta,
+                                   caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 }
-
 
 // GSL interface, for objective and gradient, to evaluate an iteration.
 void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
@@ -367,8 +342,8 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     int m = p->m;
     int n = p->n;
 
-    double* v_ptr = (double*) x->data;
-    double* result_ptr = (double*) df->data;
+    double* v_ptr = (double*)x->data;
+    double* result_ptr = (double*)df->data;
 
     // --- run get_weights only once per invocation of f and grad f ---
 
@@ -376,17 +351,14 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
     // 2) compute function
-    *f = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
-                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   weights_sum);
+    *f = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL, theta, caching,
+                                   yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     // 3) compute function gradient
-    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
-                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   weights_sum);
+    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr, theta,
+                                   caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 }
 #endif
-
 
 // GSL optimization interface
 double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, double* w,
@@ -557,8 +529,6 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
     return final_val;
 }
 
-
-
 #ifdef ENABLE_LBFGS
 // Global variable to count the number of iterations required to converge for
 // the libLBFGS version
@@ -572,11 +542,11 @@ size_t lbfgs_verbose_logw = 1;
 // The new functions coordinates are provided by LibLBFGS and they are named as
 // new_gs.
 // Executes function and gradient and returns current function evaluation.
-static lbfgsfloatval_t interface_lbfgs_logw(void* instance,
-                                            const lbfgsfloatval_t* new_g,  // current values of func.
-                                            lbfgsfloatval_t* grad_vals,    // current grad values of func.
-                                            const int n,
-                                            const lbfgsfloatval_t step) {
+static lbfgsfloatval_t interface_lbfgs_logw(
+    void* instance,
+    const lbfgsfloatval_t* new_g,  // current values of func.
+    lbfgsfloatval_t* grad_vals,    // current grad values of func.
+    const int n, const lbfgsfloatval_t step) {
     params_t* p = (params_t*)instance;
     double* G = p->G;
     double* yTilde = p->yTilde;
@@ -584,7 +554,7 @@ static lbfgsfloatval_t interface_lbfgs_logw(void* instance,
     double* w = p->w;
     double* t1 = p->t1;
     double* t2 = p->t2;
-    //double* result = p->result;
+    // double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
@@ -595,25 +565,22 @@ static lbfgsfloatval_t interface_lbfgs_logw(void* instance,
     double val = 0.0;
 
     // pointer aliases for lbfgsfloatval_t input and output types
-    double* g_ptr = (double*) new_g;
-    double* result_ptr = (double*) grad_vals;
+    double* g_ptr = (double*)new_g;
+    double* result_ptr = (double*)grad_vals;
 
     // run get_weights only once
     const double weights_sum = _get_weights(g_ptr, w, (size_t)n);
 
     // Evaluation of objective function
-    val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, NULL,
-                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                    weights_sum);
+    val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, NULL, theta, caching,
+                                    yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     // Evaluation of gradient
-    _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr,
-                                   theta, caching, yTildeT, tmp_n, tmp_m, m, n,
-                                   weights_sum);
+    _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr, theta,
+                                   caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     return val;
 }
-
 
 // Function that controls the progress of the LBFGS execution.
 // Counts iterations and prints progress after 1000 iterations
@@ -630,7 +597,6 @@ static int progress_logw(void* instance, const lbfgsfloatval_t* x, const lbfgsfl
     return 0;
 }
 #endif  // ENABLE_LBFGS
-
 
 // LibLBFGS optimization interface
 
@@ -736,7 +702,7 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
 
 #else
     printf("%s\n", message_lbfgs_unavailable);
-#endif // ENABLE_LBFGS
+#endif  // ENABLE_LBFGS
 
     return final_result;
 }

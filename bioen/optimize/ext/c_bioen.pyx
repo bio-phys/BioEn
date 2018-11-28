@@ -508,9 +508,12 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     return x, fmin
 
 
-def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
-                               np.ndarray y,      np.ndarray yTilde,
-                               np.ndarray YTilde, theta,
+def bioen_log_posterior_forces(np.ndarray forces,
+                               np.ndarray w0,
+                               np.ndarray y,      
+                               np.ndarray yTilde,
+                               np.ndarray YTilde, 
+                               theta,
                                caching=False):
     """
     Parameters
@@ -569,9 +572,12 @@ def bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
     return val
 
 
-def grad_bioen_log_posterior_forces(np.ndarray forces, np.ndarray w0,
-                                    np.ndarray y,      np.ndarray yTilde,
-                                    np.ndarray YTilde, theta,
+def grad_bioen_log_posterior_forces(np.ndarray forces,
+                                    np.ndarray w0,
+                                    np.ndarray y,      
+                                    np.ndarray yTilde,
+                                    np.ndarray YTilde, 
+                                    theta,
                                     caching=False):
     """
     Parameters

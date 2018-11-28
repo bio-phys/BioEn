@@ -38,8 +38,8 @@
 // handle mixed cases of OpenMP threading and simd
 #if USE_OMP_THREADS == 1 && USE_OMP_VECTORS == 1
 #define OMP_Q omp
-#define FOR_SIMD for                                                           \
-  simd
+#define FOR_SIMD for \
+    simd
 #else
 #if USE_OMP_THREADS == 1
 #define OMP_Q omp
@@ -58,7 +58,7 @@
 
 #define PRAGMA_OMP_PARALLEL(...) _Pragma(STR(JOIN(OMP_P parallel, __VA_ARGS__)))
 
-#define PRAGMA_OMP_FOR(...)                                                    \
+#define PRAGMA_OMP_FOR(...) \
    _Pragma( STR( JOIN(OMP_P for, __VA_ARGS__) ) )
 
 #define PRAGMA_OMP_SIMD(...) _Pragma(STR(JOIN(OMP_S simd, __VA_ARGS__)))
