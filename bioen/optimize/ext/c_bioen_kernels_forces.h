@@ -7,9 +7,21 @@
 
 #include "c_bioen_common.h"
 
-double _bioen_log_posterior_forces(double *, double *, double *, double *,
-                                   double *, double *, double*, double, int, double *,
-                                   double *, double *, int, int);
+double _bioen_log_posterior_forces(const double* const forces,
+                                   const double* const w0,
+                                   const double* const y_param,
+                                   const double* const yTilde,
+                                   const double* const YTilde,
+                                   const double* const w,
+                                   const double* const result,
+                                   const double theta,
+                                   const int caching,
+                                   const double* const yTildeT,
+                                   double* const tmp_n,
+                                   double* const tmp_m,
+                                   const int m_int,
+                                   const int n_int);
+
 void _grad_bioen_log_posterior_forces(double *, double *, double *, double *,
                                       double *, double *, double *, double, int, double *,
                                       double *, double *, int, int);

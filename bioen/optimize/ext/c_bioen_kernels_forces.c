@@ -252,15 +252,25 @@ void _get_weights_from_forces(const double* const w0,
 }
 
 // Objective function for the forces method
-double _bioen_log_posterior_forces(double* forces, double* w0, double* y_param, double* yTilde,
-                                   double* YTilde, double* w, double* result, double theta, int caching,
-                                   double* yTildeT, double* tmp_n, double* tmp_m, int m_int,
-                                   int n_int) {
-    size_t m = (size_t)m_int;
-    size_t n = (size_t)n_int;
+double _bioen_log_posterior_forces(const double* const forces,
+                                   const double* const w0,
+                                   const double* const y_param,
+                                   const double* const yTilde,
+                                   const double* const YTilde,
+                                   const double* const w,
+                                   const double* const result,
+                                   const double theta,
+                                   const int caching,
+                                   const double* const yTildeT,
+                                   double* const tmp_n,
+                                   double* const tmp_m,
+                                   const int m_int,
+                                   const int n_int) {
+    const size_t m = (size_t)m_int;
+    const size_t n = (size_t)n_int;
 
     double d = 0.0;
-    double chiSqr = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
+    const double chiSqr = _bioen_chi_squared(w, yTilde, YTilde, tmp_m, m, n);
 
     if (_fast_openmp_flag) {
         PRAGMA_OMP_PARALLEL(default(shared))
