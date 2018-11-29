@@ -33,8 +33,9 @@ Dependencies and Software Requirements
 
 * Python 2.7
 * Python packages: sys, numpy, scipy, MDAnalysis, pandas
-* GSL (>= 2.1)
 * GCC (>= 4.9)
+* GSL (>= 2.1)
+* LIBLBFGS (>= 1.10)
 
 To run Jupyter notebooks ``*.ipynb`` in ./examples/ you need additionally
 
@@ -45,9 +46,28 @@ To run Jupyter notebooks ``*.ipynb`` in ./examples/ you need additionally
 Installation
 ============
 
+Dependencies
+---------------------
+In addition to the multidimensional minimizers from SciPy, BioEN supports the
+minimizers provided by the GSL library and by the LIBLBFGS library which may
+increase the performance significantly.
+
+Copies of the source codes of GSL and LIBLBFGS including a script to build
+and install them are provided in the directory 'third-party'. The
+installations are placed into the '~/.local' directory where BioEN's
+'setup.py' will find and use them.
+
+Alternatively, you may install GSL and LIBLBFGS to the default location using
+the package manager of your operating system.
+
+Finally, on some HPC systems, GSL and LIBLBFGS may already be provided via
+environment modules. In this case, load the respective modules before
+installing BioEN.
+
+
 Installation
 ---------------------
-After loading the dependencies, install the package with::
+Once the dependencies are available, install the package with::
 
 	BIOEN_OPENMP=1 python setup.py install
 
