@@ -3,10 +3,12 @@
 set -x
 set -e
 
-# Installation location: our default is "~/.local" which would be the same as
-# for the Python package when installed with
-# `python setup.py install --user`
-PREFIX=${HOME}/.local
+# Installation location:
+# * The default is "~/.local" which would be the same as for the Python package
+#   when installed with `python setup.py install --user`
+# * To specify another location, set PREFIX in the environment, e.g. by running
+#   PREFIX=/some/path ./install_dependencies.sh
+PREFIX=${PREFIX:=${HOME}/.local}
 mkdir -p ${PREFIX}
 
 for DIR in gsl-2.5 liblbfgs-1.10
