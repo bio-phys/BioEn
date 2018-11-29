@@ -40,7 +40,4 @@ void bioen_manage_error(int section, int value) {
             break;
     }
 
-    printf("BEFORE THE JUMP\n");
-    longjmp(*ctx,8081);
-
 }
