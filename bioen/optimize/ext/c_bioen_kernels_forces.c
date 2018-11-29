@@ -472,8 +472,6 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
 
     // Set up optimizer parameters
     const gsl_multimin_fdfminimizer_type* T = NULL;
-    gsl_multimin_fdfminimizer* s;
-    gsl_multimin_function_fdf my_func;
 
     switch (config.algorithm) {
         case (fdfminimizer_conjugate_fr):
@@ -493,11 +491,13 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
             break;
     }
 
+    gsl_multimin_fdfminimizer* s;
     s = gsl_multimin_fdfminimizer_alloc(T, m);
 
-    my_func.f = _bioen_log_posterior_forces_interface;
-    my_func.df = _grad_bioen_log_posterior_forces_interface;
-    my_func.fdf = fdf_forces;
+    gsl_multimin_function_fdf my_func;
+    my_func.f = &_bioen_log_posterior_forces_interface;
+    my_func.df = &_grad_bioen_log_posterior_forces_interface;
+    my_func.fdf = &fdf_forces;
     my_func.n = m;
     my_func.params = params;
 

@@ -18,6 +18,7 @@
 #include <lbfgs.h>
 #endif
 
+// #define VERBOSE_DEBUG
 #include "c_bioen_common.h"
 #include "c_bioen_kernels_logw.h"
 #include "ompmagic.h"
@@ -282,6 +283,8 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
 
     double* v_ptr = (double*)v->data;
 
+    DEBUG_CHECKPOINT();
+
     // 1) compute weights
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
@@ -316,6 +319,8 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     double* v_ptr = (double*)v->data;
     double* result_ptr = (double*)df->data;
 
+    DEBUG_CHECKPOINT();
+
     // 1) compute weights
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
@@ -345,7 +350,7 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     double* v_ptr = (double*)x->data;
     double* result_ptr = (double*)df->data;
 
-    // --- run get_weights only once per invocation of f and grad f ---
+    DEBUG_CHECKPOINT();
 
     // 1) compute weights
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
@@ -417,8 +422,6 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
 
     // Set up optimizer parameters
     const gsl_multimin_fdfminimizer_type* T = NULL;
-    gsl_multimin_fdfminimizer* s;
-    gsl_multimin_function_fdf my_func;
 
     switch (config.algorithm) {
         case (fdfminimizer_conjugate_fr):
@@ -438,15 +441,20 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
             break;
     }
 
+    gsl_multimin_fdfminimizer* s;
     s = gsl_multimin_fdfminimizer_alloc(T, n);
-    my_func.f = _bioen_log_posterior_interface;
-    my_func.df = _grad_bioen_log_posterior_interface;
-    my_func.fdf = fdf;
+
+    gsl_multimin_function_fdf my_func;
+    my_func.f = &_bioen_log_posterior_interface;
+    my_func.df = &_grad_bioen_log_posterior_interface;
+    my_func.fdf = &fdf;
     my_func.n = n;
     my_func.params = params;
 
     // Initialize the optimizer
     gsl_multimin_fdfminimizer_set(s, &my_func, x0, config.step_size, config.tol);
+
+    DEBUG_PRINT("begin");
 
     // Main loop
     int iter = 0;
@@ -467,6 +475,8 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
         iter++;
 
     } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
+
+    DEBUG_PRINT("end");
 
     // Get the final minimizing function parameters
     gsl_vector* x = gsl_multimin_fdfminimizer_x(s);
@@ -562,6 +572,8 @@ static lbfgsfloatval_t interface_lbfgs_logw(
     // pointer aliases for lbfgsfloatval_t input and output types
     double* g_ptr = (double*)new_g;
     double* result_ptr = (double*)grad_vals;
+
+    DEBUG_CHECKPOINT();
 
     // run get_weights only once
     const double weights_sum = _get_weights(g_ptr, w, (size_t)n);
@@ -666,10 +678,14 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
 
     iterations_lbfgs_logw = 0;
 
+    DEBUG_PRINT("begin");
+
     double start = get_wtime();
     int return_value =
         lbfgs(n, x, &fx, interface_lbfgs_logw, progress_logw, params, &lbfgs_param);
     double end = get_wtime();
+
+    DEBUG_PRINT("end");
 
     if (visual.verbose) {
         printf("\t%s\n", lbfgs_strerror(return_value));

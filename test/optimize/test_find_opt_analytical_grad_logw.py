@@ -40,8 +40,22 @@ def available_tests():
     else:
         exp_list_base = [['scipy_py', 'scipy_py', 'scipy_py', 'scipy_c', 'scipy_c', 'scipy_c'],
                          ['bfgs', 'lbfgs', 'cg', 'bfgs', 'lbfgs', 'cg']]
+
+        #exp_list_base = [[],
+        #                 []]
+
         exp_list_gsl = [['GSL', 'GSL', 'GSL', 'GSL', 'GSL'],
                         ['conjugate_fr', 'conjugate_pr', 'bfgs2', 'bfgs', 'steepest_descent']]
+
+        #exp_list_gsl = [['GSL', 'GSL'],
+        #                ['bfgs2', 'bfgs']]
+
+        #exp_list_gsl = [['GSL', 'GSL'],
+        #                ['conjugate_fr', 'conjugate_pr']]
+
+        #exp_list_gsl = [['GSL'],
+        #                ['steepest_descent']]
+
         exp_list_lbfgs = [['LBFGS'],
                           ['lbfgs']]
 

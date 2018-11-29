@@ -5,7 +5,24 @@
 #include <gsl/gsl_vector.h>
 #endif
 
+
 #define ALIGN_CACHE 64
+
+
+#ifdef VERBOSE_DEBUG
+#define DEBUG_PRINT(STR) \
+    printf("%s():%d %s\n", __func__, __LINE__, STR);
+#else
+#define DEBUG_PRINT(STR)
+#endif
+
+#ifdef VERBOSE_DEBUG
+#define DEBUG_CHECKPOINT() \
+    printf("%s():%d\n", __func__, __LINE__);
+#else
+#define DEBUG_CHECKPOINT()
+#endif
+
 
 #ifdef ENABLE_GSL
 extern int _gsl_multimin_algorithm;
