@@ -62,7 +62,9 @@ the package manager of your operating system.
 
 Finally, on some HPC systems, GSL and LIBLBFGS may already be provided via
 environment modules. In this case, load the respective modules before
-installing BioEN.
+installing BioEN. In particular, the environment variables 'GSL_HOME' and
+'LIBLBFGS_HOME' are evaluated by 'setup.py' and assumed to contain the
+path to a valid installation of GSL or LIBLBFGS.
 
 
 Installation
