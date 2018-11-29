@@ -20,6 +20,7 @@
 
 #include "c_bioen_common.h"
 #include "c_bioen_kernels_forces.h"
+#include "c_bioen_error.h"
 #include "ompmagic.h"
 
 // Alias for minimum double value
@@ -430,10 +431,13 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
     int status = 0;
 
     double* w = NULL;
-    status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+    status = posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+    bioen_manage_error(POSIX, status);
 
     params_t* params = NULL;
-    status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    status = posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    bioen_manage_error(POSIX, status);
+
     params->forces = forces;
     params->w0 = w0;
     params->y_param = y_param;
@@ -511,6 +515,8 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
             if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
 
         status1 = gsl_multimin_fdfminimizer_iterate(s);
+        bioen_manage_error(GSL, status1);
+
         if (status1 != 0) {
             // if (status1 != GSL_ENOPROG)
             // gsl_error("At fdfminimizer_iterate",__FILE__,__LINE__,status1 );
@@ -591,7 +597,8 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     int status = 0;
 
     double* w = NULL;
-    status += posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+    status = posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
+    bioen_manage_error(POSIX, status);
 
     params_t* params = NULL;
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));

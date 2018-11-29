@@ -106,6 +106,7 @@ SRC.append("bioen/optimize/ext/c_bioen.pyx")
 SRC.append("bioen/optimize/ext/c_bioen_common.c")
 SRC.append("bioen/optimize/ext/c_bioen_kernels_logw.c")
 SRC.append("bioen/optimize/ext/c_bioen_kernels_forces.c")
+SRC.append("bioen/optimize/ext/c_bioen_error.c")
 
 INCLUDE_DIRS = []
 INCLUDE_DIRS.append(numpy.get_include())

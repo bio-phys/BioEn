@@ -4,6 +4,16 @@
 import numpy as np
 cimport numpy as np
 
+from libc.setjmp cimport *
+
+
+
+cdef extern from "c_bioen_error.h":
+
+    void bioen_manage_error(int,
+                            int)
+    void _set_ctx(jmp_buf)
+
 
 cdef extern from "c_bioen_kernels_logw.h":
 
@@ -45,31 +55,31 @@ cdef extern from "c_bioen_kernels_logw.h":
                                           const int, # n_int,
                                           const double) # weights_sum)
 
-    double _opt_bfgs_logw(double*, 
-                          double*, 
-                          double*, 
-                          double*, 
-                          double*, 
-                          double*, 
-                          double*, 
-                          double*, 
-                          double, 
-                          int, 
-                          int, 
-                          gsl_config_params, 
-                          caching_params, 
+    double _opt_bfgs_logw(double*,
+                          double*,
+                          double*,
+                          double*,
+                          double*,
+                          double*,
+                          double*,
+                          double*,
+                          double,
+                          int,
+                          int,
+                          gsl_config_params,
+                          caching_params,
                           visual_params)
 
-    double _opt_lbfgs_logw(double*, 
-                           double*, 
+    double _opt_lbfgs_logw(double*,
                            double*,
-                           double*, 
-                           double*, 
                            double*,
-                           double*, 
-                           double*, 
+                           double*,
+                           double*,
+                           double*,
+                           double*,
+                           double*,
                            double,
-                           int, 
+                           int,
                            int,
                            lbfgs_config_params,
                            caching_params,
@@ -687,18 +697,30 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_p
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
 
-    cdef double fmin = _opt_bfgs_forces(<double*> forces.data,
-                                        <double*> w0.data,
-                                        <double*> y_param.data,
-                                        <double*> yTilde.data,
-                                        <double*> YTilde.data,
-                                        <double*> x.data,
-                                        <double> theta,
-                                        <int> m,
-                                        <int> n,
-                                        <gsl_config_params> c_params,
-                                        <caching_params> c_caching_params,
-                                        <visual_params> c_visual_params)
+    print("TRY and CATCH TEST")
+
+    cdef jmp_buf ctx
+    _set_ctx(ctx)
+    error = setjmp(ctx)
+
+    if error == 0:
+        fmin = _opt_bfgs_forces(<double*> forces.data,
+                                <double*> w0.data,
+                                <double*> y_param.data,
+                                <double*> yTilde.data,
+                                <double*> YTilde.data,
+                                <double*> x.data,
+                                <double> theta,
+                                <int> m,
+                                <int> n,
+                                <gsl_config_params> c_params,
+                                <caching_params> c_caching_params,
+                                <visual_params> c_visual_params)
+
+    else:
+        raise ValueError("Error _opt_bfgs_forces " + str(error))
+
+
     return x, fmin
 
 
