@@ -288,10 +288,9 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     ## Should not be called into a function
     ## otherwise setjmp will fail
 
-    #cdef jmp_buf ctx
-    #_set_ctx(ctx)
-    #error = setjmp(ctx)
-    error = 0
+    cdef jmp_buf ctx
+    _set_ctx(&ctx)
+    error = setjmp(ctx)
 
     if error == 0:
         # 1) compute weights
@@ -355,10 +354,9 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
 
     cdef double weights_sum
 
-    #cdef jmp_buf ctx
-    #_set_ctx(ctx)
-    #error = setjmp(ctx)
-    error = 0
+    cdef jmp_buf ctx
+    _set_ctx(&ctx)
+    error = setjmp(ctx)
 
     if error == 0:
         # 1) compute weights
@@ -451,10 +449,9 @@ def bioen_opt_bfgs_logw(np.ndarray g,
 
     cdef double fmin
 
-    #cdef jmp_buf ctx
-    #_set_ctx(ctx)
-    #error = setjmp(ctx)
-    error = 0
+    cdef jmp_buf ctx
+    _set_ctx(&ctx)
+    error = setjmp(ctx)
 
     if error == 0:
         fmin = _opt_bfgs_logw(<double*> g.data,
@@ -542,10 +539,9 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
 
     cdef double fmin
 
-    #cdef jmp_buf ctx
-    #_set_ctx(ctx)
-    #error = setjmp(ctx)
-    error = 0
+    cdef jmp_buf ctx
+    _set_ctx(&ctx)
+    error = setjmp(ctx)
 
     if error == 0:
         fmin = _opt_lbfgs_logw(<double*> g.data,
@@ -604,10 +600,9 @@ def bioen_log_posterior_forces(np.ndarray forces,
 
     cdef double val
 
-    #cdef jmp_buf ctx
-    #_set_ctx(ctx)
-    #error = setjmp(ctx)
-    error = 0
+    cdef jmp_buf ctx
+    _set_ctx(&ctx)
+    error = setjmp(ctx)
 
     if error == 0:
         # 1) compute weights
@@ -679,10 +674,9 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
     cdef np.ndarray gradient = np.empty([m], dtype=np.double)
 
 
-    #cdef jmp_buf ctx
-    #_set_ctx(ctx)
-    #error = setjmp(ctx)
-    error = 0
+    cdef jmp_buf ctx
+    _set_ctx(&ctx)
+    error = setjmp(ctx)
 
     if error == 0:
         # 1) compute weights
@@ -768,7 +762,6 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_p
 
     cdef double fmin
 
-    print ("HERE I AM")
     cdef jmp_buf ctx
     _set_ctx(&ctx)
     error = setjmp(ctx)
@@ -849,10 +842,9 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,     np.ndarray y_pa
 
     cdef double fmin
 
-    #cdef jmp_buf ctx
-    #_set_ctx(ctx)
-    #error = setjmp(ctx)
-    error = 0
+    cdef jmp_buf ctx
+    _set_ctx(&ctx)
+    error = setjmp(ctx)
 
     if error == 0:
         fmin = _opt_lbfgs_forces(<double*> forces.data,
