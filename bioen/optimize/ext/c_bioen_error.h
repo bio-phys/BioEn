@@ -5,7 +5,7 @@
 
 enum sections { POSIX , GSL , LLBFGS };
 
-void _set_ctx(jmp_buf ctx);
+void _set_ctx(jmp_buf*);
 void bioen_manage_error(int, int);
 
 
