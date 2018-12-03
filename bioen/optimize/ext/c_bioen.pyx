@@ -82,7 +82,6 @@ cdef extern from "c_bioen_kernels_forces.h":
 
     double _opt_bfgs_forces(double*, # forces
                             double*, # w0
-                            double*, # y_param
                             double*, # yTilde
                             double*, # YTilde
                             double*, # result
@@ -95,7 +94,6 @@ cdef extern from "c_bioen_kernels_forces.h":
 
     double _opt_lbfgs_forces(double*, # forces
                              double*, # w0
-                             double*, # y_param
                              double*, # yTilde
                              double*, # YTilde
                              double*, # result
@@ -118,7 +116,6 @@ cdef extern from "c_bioen_kernels_forces.h":
 
     double _bioen_log_posterior_forces(const double* const, # forces
                                        const double* const, # w0
-                                       const double* const, # y_param
                                        const double* const, # yTilde
                                        const double* const, # YTilde
                                        const double* const, # w
@@ -133,7 +130,6 @@ cdef extern from "c_bioen_kernels_forces.h":
 
     void   _grad_bioen_log_posterior_forces(const double* const, # forces
                                             const double* const, # w0
-                                            const double* const, # y_param
                                             const double* const, # yTilde
                                             const double* const, # YTilde
                                             const double* const, # w
@@ -544,7 +540,6 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
 
 def bioen_log_posterior_forces(np.ndarray forces,
                                np.ndarray w0,
-                               np.ndarray y,
                                np.ndarray yTilde,
                                np.ndarray YTilde,
                                theta,
@@ -554,7 +549,6 @@ def bioen_log_posterior_forces(np.ndarray forces,
     ----------
     forcesInit: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter
@@ -598,7 +592,6 @@ def bioen_log_posterior_forces(np.ndarray forces,
         # 2) compute function
         val = _bioen_log_posterior_forces(<double*> forces.data,
                                           <double*> w0.data,
-                                          <double*> y.data,
                                           <double*> yTilde.data,
                                           <double*> YTilde.data ,
                                           <double*> w.data,
@@ -617,7 +610,6 @@ def bioen_log_posterior_forces(np.ndarray forces,
 
 def grad_bioen_log_posterior_forces(np.ndarray forces,
                                     np.ndarray w0,
-                                    np.ndarray y,
                                     np.ndarray yTilde,
                                     np.ndarray YTilde,
                                     theta,
@@ -627,7 +619,6 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
     ----------
     forcesInit: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter
@@ -672,7 +663,6 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
         # 2) compute function gradient
         _grad_bioen_log_posterior_forces(<double*> forces.data,
                                          <double*> w0.data,
-                                         <double*> y.data,
                                          <double*> yTilde.data,
                                          <double*> YTilde.data,
                                          <double*> w.data,
@@ -690,14 +680,13 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
     return gradient
 
 
-def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_param,
+def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
                           np.ndarray yTilde,  np.ndarray YTilde,  theta, params):
     """
     Parameters
     ----------
     forces: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter
@@ -748,7 +737,6 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_p
     if error == 0:
         fmin = _opt_bfgs_forces(<double*> forces.data,
                                 <double*> w0.data,
-                                <double*> y_param.data,
                                 <double*> yTilde.data,
                                 <double*> YTilde.data,
                                 <double*> x.data,
@@ -766,14 +754,13 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,      np.ndarray y_p
     return x, fmin
 
 
-def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,     np.ndarray y_param,
+def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
                            np.ndarray yTilde, np.ndarray YTilde, theta, params):
     """
     Parameters
     ----------
     forces: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter
@@ -828,7 +815,6 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,     np.ndarray y_pa
     if error == 0:
         fmin = _opt_lbfgs_forces(<double*> forces.data,
                                  <double*> w0.data,
-                                 <double*> y_param.data,
                                  <double*> yTilde.data,
                                  <double*> YTilde.data,
                                  <double*> x.data,

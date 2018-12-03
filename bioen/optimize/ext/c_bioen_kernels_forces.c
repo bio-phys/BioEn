@@ -47,7 +47,6 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     const int num_vars, const lbfgsfloatval_t step) {
     params_t* p = (params_t*)instance;
     double* w0 = p->w0;
-    double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
@@ -65,11 +64,11 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     _get_weights_from_forces(w0, yTilde, (double*)new_forces, w, caching, yTildeT, tmp_n, m, n);
 
     // Evaluation of objective function
-    val = _bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w, NULL,
+    val = _bioen_log_posterior_forces((double*)new_forces, w0, yTilde, YTilde, w, NULL,
                                       theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // Evaluation of gradient
-    _grad_bioen_log_posterior_forces((double*)new_forces, w0, y_param, yTilde, YTilde, w,
+    _grad_bioen_log_posterior_forces((double*)new_forces, w0, yTilde, YTilde, w,
                                      (double*)grad_vals, theta, caching, yTildeT, tmp_n, tmp_m,
                                      m, n);
 
@@ -227,7 +226,6 @@ void _get_weights_from_forces(const double* const w0,
 // Objective function for the forces method
 double _bioen_log_posterior_forces(const double* const forces,  // unused
                                    const double* const w0,
-                                   const double* const y_param,  // usused
                                    const double* const yTilde,
                                    const double* const YTilde,
                                    const double* const w,
@@ -282,7 +280,6 @@ double _bioen_log_posterior_forces(const double* const forces,  // unused
 // Gradient function for the forces method
 void _grad_bioen_log_posterior_forces(const double* const forces, // unused
                                       const double* const w0,
-                                      const double* const y_param, // unused
                                       const double* const yTilde,
                                       const double* const YTilde,
                                       const double* const w,
@@ -354,7 +351,6 @@ double _bioen_log_posterior_forces_interface(const gsl_vector* v, void* params) 
 
     // double *forces = p->forces;
     double* w0 = p->w0;
-    double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
@@ -370,7 +366,7 @@ double _bioen_log_posterior_forces_interface(const gsl_vector* v, void* params) 
 
     _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
-    const double val = _bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, NULL,
+    const double val = _bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, NULL,
                                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     return val;
@@ -384,7 +380,6 @@ void _grad_bioen_log_posterior_forces_interface(const gsl_vector* v, void* param
     params_t* p = (params_t*)params;
 
     double* w0 = p->w0;
-    double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
@@ -401,7 +396,7 @@ void _grad_bioen_log_posterior_forces_interface(const gsl_vector* v, void* param
 
     _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
-    _grad_bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, result_ptr, theta,
+    _grad_bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, result_ptr, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
 }
 
@@ -409,7 +404,6 @@ void fdf_forces(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     params_t* p = (params_t*)params;
 
     double* w0 = p->w0;
-    double* y_param = p->y_param;
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
@@ -428,15 +422,15 @@ void fdf_forces(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
     // 2) compute function
-    *f = _bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, NULL, theta,
+    *f = _bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, NULL, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
     // 3) compute function gradient
-    _grad_bioen_log_posterior_forces(v_ptr, w0, y_param, yTilde, YTilde, w, result_ptr, theta,
+    _grad_bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, result_ptr, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
 }
 #endif
 
-double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTilde,
+double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
                         double* YTilde, double* result, double theta, int m, int n,
                         struct gsl_config_params config, struct caching_params caching,
                         struct visual_params visual) {
@@ -457,7 +451,6 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
 
     params->forces = forces;
     params->w0 = w0;
-    params->y_param = y_param;
     params->YTilde = YTilde;
     params->yTilde = yTilde;
     params->result = result;
@@ -601,7 +594,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
 }
 
 // LibLBFGS optimization interface
-double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yTilde,
+double _opt_lbfgs_forces(double* forces, double* w0, double* yTilde,
                          double* YTilde, double* result, double theta, int m, int n,
                          struct lbfgs_config_params config, struct caching_params caching,
                          struct visual_params visual) {
@@ -618,7 +611,6 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* y_param, double* yT
     status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
     params->forces = forces;
     params->w0 = w0;
-    params->y_param = y_param;
     params->YTilde = YTilde;
     params->yTilde = yTilde;
     params->result = result;
