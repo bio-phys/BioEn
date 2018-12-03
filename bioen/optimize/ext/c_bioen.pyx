@@ -114,8 +114,7 @@ cdef extern from "c_bioen_kernels_forces.h":
                                   const size_t, # m
                                   const size_t) # n
 
-    double _bioen_log_posterior_forces(const double* const, # forces
-                                       const double* const, # w0
+    double _bioen_log_posterior_forces(const double* const, # w0
                                        const double* const, # yTilde
                                        const double* const, # YTilde
                                        const double* const, # w
@@ -128,8 +127,7 @@ cdef extern from "c_bioen_kernels_forces.h":
                                        const int,  # m_int
                                        const int)  # n_int
 
-    void   _grad_bioen_log_posterior_forces(const double* const, # forces
-                                            const double* const, # w0
+    void   _grad_bioen_log_posterior_forces(const double* const, # w0
                                             const double* const, # yTilde
                                             const double* const, # YTilde
                                             const double* const, # w
@@ -590,8 +588,7 @@ def bioen_log_posterior_forces(np.ndarray forces,
                                  <size_t> n)
 
         # 2) compute function
-        val = _bioen_log_posterior_forces(<double*> forces.data,
-                                          <double*> w0.data,
+        val = _bioen_log_posterior_forces(<double*> w0.data,
                                           <double*> yTilde.data,
                                           <double*> YTilde.data ,
                                           <double*> w.data,
@@ -661,8 +658,7 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
                                  <size_t> n)
 
         # 2) compute function gradient
-        _grad_bioen_log_posterior_forces(<double*> forces.data,
-                                         <double*> w0.data,
+        _grad_bioen_log_posterior_forces(<double*> w0.data,
                                          <double*> yTilde.data,
                                          <double*> YTilde.data,
                                          <double*> w.data,

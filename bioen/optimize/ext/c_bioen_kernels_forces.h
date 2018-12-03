@@ -17,8 +17,7 @@ void _get_weights_from_forces(const double* const w0,
                               const size_t m,
                               const size_t n);
 
-double _bioen_log_posterior_forces(const double* const forces,
-                                   const double* const w0,
+double _bioen_log_posterior_forces(const double* const w0,
                                    const double* const yTilde,
                                    const double* const YTilde,
                                    const double* const w,
@@ -31,8 +30,7 @@ double _bioen_log_posterior_forces(const double* const forces,
                                    const int m_int,
                                    const int n_int);
 
-void _grad_bioen_log_posterior_forces(const double* const forces,
-                                      const double* const w0,
+void _grad_bioen_log_posterior_forces(const double* const w0,
                                       const double* const yTilde,
                                       const double* const YTilde,
                                       const double* const w,

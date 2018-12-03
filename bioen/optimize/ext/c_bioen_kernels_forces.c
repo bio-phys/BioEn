@@ -64,11 +64,11 @@ static lbfgsfloatval_t interface_lbfgs_forces(
     _get_weights_from_forces(w0, yTilde, (double*)new_forces, w, caching, yTildeT, tmp_n, m, n);
 
     // Evaluation of objective function
-    val = _bioen_log_posterior_forces((double*)new_forces, w0, yTilde, YTilde, w, NULL,
+    val = _bioen_log_posterior_forces(w0, yTilde, YTilde, w, NULL,
                                       theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     // Evaluation of gradient
-    _grad_bioen_log_posterior_forces((double*)new_forces, w0, yTilde, YTilde, w,
+    _grad_bioen_log_posterior_forces(w0, yTilde, YTilde, w,
                                      (double*)grad_vals, theta, caching, yTildeT, tmp_n, tmp_m,
                                      m, n);
 
@@ -224,8 +224,7 @@ void _get_weights_from_forces(const double* const w0,
 }
 
 // Objective function for the forces method
-double _bioen_log_posterior_forces(const double* const forces,  // unused
-                                   const double* const w0,
+double _bioen_log_posterior_forces(const double* const w0,
                                    const double* const yTilde,
                                    const double* const YTilde,
                                    const double* const w,
@@ -278,8 +277,7 @@ double _bioen_log_posterior_forces(const double* const forces,  // unused
 }
 
 // Gradient function for the forces method
-void _grad_bioen_log_posterior_forces(const double* const forces, // unused
-                                      const double* const w0,
+void _grad_bioen_log_posterior_forces(const double* const w0,
                                       const double* const yTilde,
                                       const double* const YTilde,
                                       const double* const w,
@@ -366,7 +364,7 @@ double _bioen_log_posterior_forces_interface(const gsl_vector* v, void* params) 
 
     _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
-    const double val = _bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, NULL,
+    const double val = _bioen_log_posterior_forces(w0, yTilde, YTilde, w, NULL,
                                                    theta, caching, yTildeT, tmp_n, tmp_m, m, n);
 
     return val;
@@ -396,7 +394,7 @@ void _grad_bioen_log_posterior_forces_interface(const gsl_vector* v, void* param
 
     _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
-    _grad_bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, result_ptr, theta,
+    _grad_bioen_log_posterior_forces(w0, yTilde, YTilde, w, result_ptr, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
 }
 
@@ -422,10 +420,10 @@ void fdf_forces(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     _get_weights_from_forces(w0, yTilde, v_ptr, w, caching, yTildeT, tmp_n, m, n);
 
     // 2) compute function
-    *f = _bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, NULL, theta,
+    *f = _bioen_log_posterior_forces(w0, yTilde, YTilde, w, NULL, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
     // 3) compute function gradient
-    _grad_bioen_log_posterior_forces(v_ptr, w0, yTilde, YTilde, w, result_ptr, theta,
+    _grad_bioen_log_posterior_forces(w0, yTilde, YTilde, w, result_ptr, theta,
                                      caching, yTildeT, tmp_n, tmp_m, m, n);
 }
 #endif
