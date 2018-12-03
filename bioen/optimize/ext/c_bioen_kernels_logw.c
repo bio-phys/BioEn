@@ -129,12 +129,10 @@ double _bioen_log_prior(const double* const w, const double s, const double* con
 double _bioen_log_posterior_logw(const double* const g, const double* const G,
                                  const double* const yTilde, const double* const YTilde,
                                  const double* const w,
-//                                 const double* const t1,     // unused
-//                                 const double* const t2,     // unused
-                                 const double* const dummy,  // unused
+                                 const double* const gradient, // unused
                                  const double theta,
-                                 const int caching,            // unused
-                                 const double* const yTildeT,  // unused
+                                 const int caching, // unused
+                                 const double* const yTildeT, // unused
                                  double* const tmp_n, double* const tmp_m, const int m_int,
                                  const int n_int, const double weights_sum) {
     const size_t m = (size_t)m_int;
@@ -153,10 +151,11 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
                                     const double* const w,
                                     double* const gradient, const double theta,
                                     const int caching, const double* const yTildeT,
-                                    double* const tmp_n,  // replacement of t1 and t2
-                                    double* const tmp_m,  // replacement of t1 and t2
+                                    double* const tmp_n,
+                                    double* const tmp_m,
                                     const int m_int, const int n_int,
-                                    const double weights_sum) {
+                                    const double weights_sum) // unused
+                                    {
     const size_t m = (size_t)m_int;
     const size_t n = (size_t)n_int;
 
@@ -288,7 +287,7 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
 
     // 2) compute function
     double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, NULL, theta,
-                                           caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
+                                           NULL, NULL, tmp_n, tmp_m, m, n, weights_sum);
 
     return val;
 }
@@ -321,7 +320,7 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
 
     // 2) compute function gradient
     _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, result_ptr, theta,
-                                   caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
+                                   caching, yTildeT, tmp_n, tmp_m, m, n, NULL);
 }
 
 // GSL interface, for objective and gradient, to evaluate an iteration.
@@ -353,7 +352,7 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
 
     // 3) compute function gradient
     _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, result_ptr, theta,
-                                   caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
+                                   caching, yTildeT, tmp_n, tmp_m, m, n, NULL);
 }
 #endif
 
@@ -570,7 +569,7 @@ static lbfgsfloatval_t interface_lbfgs_logw(
 
     // Evaluation of gradient
     _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, result_ptr, theta,
-                                   caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
+                                   caching, yTildeT, tmp_n, tmp_m, m, n, NULL);
 
     return val;
 }
