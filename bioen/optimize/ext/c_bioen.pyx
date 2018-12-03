@@ -17,24 +17,22 @@ cdef extern from "c_bioen_error.h":
 
 cdef extern from "c_bioen_kernels_logw.h":
 
-    double _get_weights(const double* const,
-                        double* const,
-                        const size_t)
+    double _get_weights(const double* const, # g
+                        double* const, # w
+                        const size_t) # n
 
     double _bioen_log_posterior_logw(const double* const, # g,
-                                     const double* const, # G, 
-                                     const double* const, # yTilde, 
+                                     const double* const, # G,
+                                     const double* const, # yTilde,
                                      const double* const, # YTilde,
-                                     const double* const, # w, 
-                                     const double* const, # t1, 
-                                     const double* const, # t2, 
+                                     const double* const, # w,
                                      const double* const, # dummy,
-                                     const double, # theta, 
-                                     const int, # caching, 
-                                     const double* const, # yTildeT, 
-                                     double* const, # tmp_n,
-                                     double* const, # tmp_m, 
-                                     const int, # m_int, 
+                                     const double, # theta,
+                                     const int, # caching,
+                                     const double* const, # yTildeT,
+                                     double*, # tmp_n,
+                                     double*, # tmp_m,
+                                     const int, # m_int,
                                      const int, # n_int,
                                      const double) # weights_sum
 
@@ -43,94 +41,88 @@ cdef extern from "c_bioen_kernels_logw.h":
                                           const double* const, # yTilde,
                                           const double* const, # YTilde,
                                           const double* const, # w,
-                                          double* const, # t1,
-                                          double* const, # t2,
                                           double* const, # gradient,
                                           const double, # theta,
                                           const int, # caching,
                                           const double* const, # yTildeT,
-                                          const double* const, # tmp_n,
-                                          const double* const, # tmp_m,
+                                          double*, # tmp_n,
+                                          double*, # tmp_m,
                                           const int, # m_int,
                                           const int, # n_int,
                                           const double) # weights_sum)
 
-    double _opt_bfgs_logw(double*,
-                          double*,
-                          double*,
-                          double*,
-                          double*,
-                          double*,
-                          double*,
-                          double*,
-                          double,
-                          int,
-                          int,
-                          gsl_config_params,
-                          caching_params,
-                          visual_params)
+    double _opt_bfgs_logw(double*, # g
+                          double*, # G
+                          double*, # yTIlde
+                          double*, # YTilde
+                          double*, # w
+                          double*, # result
+                          double, # theta
+                          int, # m
+                          int, # n
+                          gsl_config_params, # config
+                          caching_params, # caching
+                          visual_params) # visual
 
-    double _opt_lbfgs_logw(double*,
-                           double*,
-                           double*,
-                           double*,
-                           double*,
-                           double*,
-                           double*,
-                           double*,
-                           double,
-                           int,
-                           int,
-                           lbfgs_config_params,
-                           caching_params,
-                           visual_params)
+    double _opt_lbfgs_logw(double*, # g
+                           double*, # G
+                           double*, # yTilde
+                           double*, # YTilde
+                           double*, # w
+                           double*, # result
+                           double, # theta
+                           int, # m
+                           int, # n
+                           lbfgs_config_params, # config
+                           caching_params, # caching
+                           visual_params)  # visual
 
 
 cdef extern from "c_bioen_kernels_forces.h":
 
-    double _opt_bfgs_forces(double*,
-                            double*,
-                            double*,
-                            double*,
-                            double*,
-                            double*,
-                            double,
-                            int,
-                            int,
-                            gsl_config_params,
-                            caching_params,
-                            visual_params)
+    double _opt_bfgs_forces(double*, # forces
+                            double*, # w0
+                            double*, # y_param
+                            double*, # yTilde
+                            double*, # YTilde
+                            double*, # result
+                            double, # theta
+                            int, # m
+                            int, # n
+                            gsl_config_params, # config
+                            caching_params, # caching
+                            visual_params) # visual_params visual
 
-    double _opt_lbfgs_forces(double*,
-                             double*,
-                             double*,
-                             double*,
-                             double*,
-                             double*,
-                             double,
-                             int,
-                             int,
-                             lbfgs_config_params,
-                             caching_params,
-                             visual_params)
+    double _opt_lbfgs_forces(double*, # forces
+                             double*, # w0
+                             double*, # y_param
+                             double*, # yTilde
+                             double*, # YTilde
+                             double*, # result
+                             double, # theta
+                             int, # m
+                             int, # n
+                             lbfgs_config_params, # config
+                             caching_params, # caching
+                             visual_params) # visual
 
-    void _get_weights_from_forces(const double* const,
-                                  const double* const,
-                                  const double* const,
-                                  double* const,
-                                  const int,
-                                  const double* const,
-                                  double* const,
-                                  const size_t,
-                                  const size_t)
+    void _get_weights_from_forces(const double* const, # w0
+                                  const double* const, # yTilde
+                                  const double* const, # forces
+                                  double* const, # w
+                                  const int, # caching
+                                  const double* const, # yTildeT
+                                  double* const, # tmp_n
+                                  const size_t, # m
+                                  const size_t) # n
 
-    double _bioen_log_posterior_forces(const double* const,  # forces
-                                       const double* const,  # w0
-                                       const double* const,  # y_param
-                                       const double* const,  # yTilde
-                                       const double* const,  # YTilde
-                                       const double* const,  # w
-                                       const double* const,  # result
+    double _bioen_log_posterior_forces(const double* const, # forces
+                                       const double* const, # w0
+                                       const double* const, # y_param
+                                       const double* const, # yTilde
+                                       const double* const, # YTilde
+                                       const double* const, # w
+                                       const double* const, # result
                                        const double,  # theta
                                        const int,  # caching
                                        const double* const,  # yTildeT
@@ -139,20 +131,20 @@ cdef extern from "c_bioen_kernels_forces.h":
                                        const int,  # m_int
                                        const int)  # n_int
 
-    void   _grad_bioen_log_posterior_forces(const double* const,  # forces
-                                            const double* const,  # w0
-                                            const double* const,  # y_param
-                                            const double* const,  # yTilde
-                                            const double* const,  # YTilde
-                                            const double* const,  # w
-                                            double* const,  # gradient
-                                            const double,  # theta
-                                            const int,  # caching
-                                            const double* const,  # yTildeT
-                                            double* const,  # tmp_n
-                                            double* const,  # tmp_m
-                                            const int,  # m_int
-                                            const int)  # n_int
+    void   _grad_bioen_log_posterior_forces(const double* const, # forces
+                                            const double* const, # w0
+                                            const double* const, # y_param
+                                            const double* const, # yTilde
+                                            const double* const, # YTilde
+                                            const double* const, # w
+                                            double* const, # gradient
+                                            const double, # theta
+                                            const int, # caching
+                                            const double* const, # yTildeT
+                                            double* const, # tmp_n
+                                            double* const, # tmp_m
+                                            const int, # m_int
+                                            const int) # n_int
 
 
 cdef extern from "c_bioen_common.h":
@@ -305,8 +297,6 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                         <double*> YTilde.data,
                                         <double*> w.data,
                                         <double*> NULL,
-                                        <double*> NULL,
-                                        <double*> NULL,
                                         <double> theta,
                                         <int> 0,
                                         <double*> NULL,
@@ -348,8 +338,8 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
         yTildeT = yTilde.T.copy()
 
     cdef np.ndarray w = np.empty([n], dtype=np.double)
-    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
-    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
+    cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
     cdef np.ndarray gradient = np.empty([n], dtype=np.double)
 
     cdef double weights_sum
@@ -370,14 +360,12 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                        <double*> yTilde.data,
                                        <double*> YTilde.data,
                                        <double*> w.data,
-                                       <double*> t1.data,
-                                       <double*> t2.data,
                                        <double*> gradient.data,
                                        <double> theta,
                                        <int> use_cache_flag,
                                        <double*> yTildeT.data,
-                                       <double*> NULL,
-                                       <double*> NULL,
+                                       <double*> tmp_n.data,
+                                       <double*> tmp_m.data,
                                        <int> m,
                                        <int> n,
                                        <double> weights_sum)
@@ -423,9 +411,6 @@ def bioen_opt_bfgs_logw(np.ndarray g,
 
     # temporary array for the weights
     cdef np.ndarray w = np.empty([n], dtype=np.double)
-    # temporary arrays
-    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
-    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
     # x array
     cdef np.ndarray x = np.empty([n], dtype=np.double)
 
@@ -459,8 +444,6 @@ def bioen_opt_bfgs_logw(np.ndarray g,
                               <double*> yTilde.data,
                               <double*> YTilde.data,
                               <double*> w.data,
-                              <double*> t1.data,
-                              <double*> t2.data,
                               <double*> x.data,
                               <double> theta,
                               <int> m,
@@ -511,8 +494,6 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     # temporary array for the weights
     cdef np.ndarray w = np.empty([n], dtype=np.double)
     # temporary arrays
-    cdef np.ndarray t1 = np.empty([m], dtype=np.double)
-    cdef np.ndarray t2 = np.empty([n], dtype=np.double)
     # x array
     cdef np.ndarray x = np.empty([n], dtype=np.double)
 
@@ -549,8 +530,6 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
                                <double*> yTilde.data,
                                <double*> YTilde.data,
                                <double*> w.data,
-                               <double*> t1.data,
-                               <double*> t2.data,
                                <double*> x.data,
                                <double>  theta,
                                <int> m,

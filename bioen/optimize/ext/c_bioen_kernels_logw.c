@@ -21,6 +21,7 @@
 // #define VERBOSE_DEBUG
 #include "c_bioen_common.h"
 #include "c_bioen_kernels_logw.h"
+#include "c_bioen_error.h"
 #include "ompmagic.h"
 
 double _get_weights_sum(const double* const g, double* tmp_n, const size_t n) {
@@ -128,8 +129,8 @@ double _bioen_log_prior(const double* const w, const double s, const double* con
 double _bioen_log_posterior_logw(const double* const g, const double* const G,
                                  const double* const yTilde, const double* const YTilde,
                                  const double* const w,
-                                 const double* const t1,     // unused
-                                 const double* const t2,     // unused
+//                                 const double* const t1,     // unused
+//                                 const double* const t2,     // unused
                                  const double* const dummy,  // unused
                                  const double theta,
                                  const int caching,            // unused
@@ -149,11 +150,11 @@ double _bioen_log_posterior_logw(const double* const g, const double* const G,
 // Note: 'w' needs already be filled with values from a previous call to _get_weights()!
 void _grad_bioen_log_posterior_logw(const double* const g, const double* const G,
                                     const double* const yTilde, const double* const YTilde,
-                                    const double* const w, double* const t1, double* const t2,
+                                    const double* const w,
                                     double* const gradient, const double theta,
                                     const int caching, const double* const yTildeT,
-                                    const double* const tmp_n,  // unused
-                                    const double* const tmp_m,  // unused
+                                    double* const tmp_n,  // replacement of t1 and t2
+                                    double* const tmp_m,  // replacement of t1 and t2
                                     const int m_int, const int n_int,
                                     const double weights_sum) {
     const size_t m = (size_t)m_int;
@@ -163,7 +164,7 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
     double tmp2 = 0.0;
 
     if (_fast_openmp_flag) {
-        // printf("FAST_OPENMP\n");
+        //printf("FAST_OPENMP\n");
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR(OMP_SCHEDULE)
             for (size_t i = 0; i < m; i++) {
@@ -172,7 +173,7 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
                 for (size_t j = 0; j < n; j++) {
                     tmp += yTilde[i * n + j] * w[j];
                 }
-                t1[i] = tmp;
+                tmp_m[i] = tmp;
             }
 
             if (caching) {
@@ -182,18 +183,18 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
                     double tmp = 0.0;
                     PRAGMA_OMP_SIMD(reduction(+ : tmp))
                     for (size_t i = 0; i < m; i++) {
-                        tmp += (t1[i] - YTilde[i]) * (yTildeT[j * m + i] - t1[i]);
+                        tmp += (tmp_m[i] - YTilde[i]) * (yTildeT[j * m + i] - tmp_m[i]);
                     }
-                    t2[j] = w[j] * tmp;
+                    tmp_n[j] = w[j] * tmp;
                 }
             } else {
                 PRAGMA_OMP_FOR(OMP_SCHEDULE)
                 for (size_t j = 0; j < n; j++) {
                     double tmp = 0.0;
                     for (size_t i = 0; i < m; i++) {
-                        tmp += (t1[i] - YTilde[i]) * (yTilde[i * n + j] - t1[i]);
+                        tmp += (tmp_m[i] - YTilde[i]) * (yTilde[i * n + j] - tmp_m[i]);
                     }
-                    t2[j] = w[j] * tmp;
+                    tmp_n[j] = w[j] * tmp;
                 }
             }
 
@@ -206,11 +207,11 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
 
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
             for (size_t j = 0; j < n; j++) {
-                gradient[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
+                gradient[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + tmp_n[j];
             }
         }  // END PRAGMA_OMP_PARALLEL()
     } else {
-        // printf("SLOW_OPENMP\n");
+        //printf("SLOW_OPENMP\n");
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR(OMP_SCHEDULE)
             for (size_t i = 0; i < m; i++) {
@@ -219,7 +220,7 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
                 for (size_t j = 0; j < n; j++) {
                     tmp += yTilde[i * n + j] * w[j];
                 }
-                t1[i] = tmp;
+                tmp_m[i] = tmp;
             }
 
             if (caching) {
@@ -229,18 +230,18 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
                     double tmp = 0.0;
                     PRAGMA_OMP_SIMD(reduction(+ : tmp))
                     for (size_t i = 0; i < m; i++) {
-                        tmp += (t1[i] - YTilde[i]) * (yTildeT[j * m + i] - t1[i]);
+                        tmp += (tmp_m[i] - YTilde[i]) * (yTildeT[j * m + i] - tmp_m[i]);
                     }
-                    t2[j] = w[j] * tmp;
+                    tmp_n[j] = w[j] * tmp;
                 }
             } else {
                 PRAGMA_OMP_FOR(OMP_SCHEDULE)
                 for (size_t j = 0; j < n; j++) {
                     double tmp = 0.0;
                     for (size_t i = 0; i < m; i++) {
-                        tmp += (t1[i] - YTilde[i]) * (yTilde[i * n + j] - t1[i]);
+                        tmp += (tmp_m[i] - YTilde[i]) * (yTilde[i * n + j] - tmp_m[i]);
                     }
-                    t2[j] = w[j] * tmp;
+                    tmp_n[j] = w[j] * tmp;
                 }
             }
         }  // END PRAGMA_OMP_PARALLEL()
@@ -254,7 +255,7 @@ void _grad_bioen_log_posterior_logw(const double* const g, const double* const G
         PRAGMA_OMP_PARALLEL(default(shared)) {
             PRAGMA_OMP_FOR_SIMD(OMP_SCHEDULE)
             for (size_t j = 0; j < n; j++) {
-                gradient[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + t2[j];
+                gradient[j] = w[j] * theta * (g[j] - tmp1 - G[j] + tmp2) + tmp_n[j];
             }
         }  // END PRAGMA_OMP_PARALLEL()
     }
@@ -270,9 +271,6 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
-    double* t1 = p->t1;
-    double* t2 = p->t2;
-    // double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
@@ -289,7 +287,7 @@ double _bioen_log_posterior_interface(const gsl_vector* v, void* params) {
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
     // 2) compute function
-    double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL, theta,
+    double val = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, NULL, theta,
                                            caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     return val;
@@ -305,9 +303,6 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
-    double* t1 = p->t1;
-    double* t2 = p->t2;
-    // double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
@@ -325,7 +320,7 @@ void _grad_bioen_log_posterior_interface(const gsl_vector* v, void* params, gsl_
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
     // 2) compute function gradient
-    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr, theta,
+    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, result_ptr, theta,
                                    caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 }
 
@@ -336,9 +331,6 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
-    double* t1 = p->t1;
-    double* t2 = p->t2;
-    // double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
@@ -356,18 +348,18 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
     const double weights_sum = _get_weights(v_ptr, w, (size_t)n);
 
     // 2) compute function
-    *f = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, NULL, theta, caching,
+    *f = _bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, NULL, theta, caching,
                                    yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     // 3) compute function gradient
-    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr, theta,
+    _grad_bioen_log_posterior_logw(v_ptr, G, yTilde, YTilde, w, result_ptr, theta,
                                    caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 }
 #endif
 
 // GSL optimization interface
 double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, double* w,
-                      double* t1, double* t2, double* result, double theta, int m, int n,
+                      double* result, double theta, int m, int n,
                       struct gsl_config_params config, struct caching_params caching,
                       struct visual_params visual) {
     double final_val = 0.;
@@ -379,15 +371,14 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
     int status = 0;
 
     // Set up arguments in param_t structure
-    status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    status = posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    bioen_manage_error(POSIX, status);
 
     params->g = g;
     params->G = G;
     params->yTilde = yTilde;
     params->YTilde = YTilde;
     params->w = w;
-    params->t1 = t1;
-    params->t2 = t2;
     params->result = result;
     params->theta = theta;
     params->yTildeT = caching.yTildeT;
@@ -463,14 +454,13 @@ double _opt_bfgs_logw(double* g, double* G, double* yTilde, double* YTilde, doub
             if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
 
         status1 = gsl_multimin_fdfminimizer_iterate(s);
-        if (status1 != 0) {
-            // if (status1 != GSL_ENOPROG)
-            //     gsl_error("At fdfminimizer_iterate",__FILE__,__LINE__,status1
-            //     );
-            break;
-        }
+        // if error, message and break
+        bioen_manage_error(GSL, status1);
+        if (status1) break;
 
         status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
+        // if error, show message only. Condition won't be meet
+        bioen_manage_error(GSL, status1);
 
         iter++;
 
@@ -557,16 +547,12 @@ static lbfgsfloatval_t interface_lbfgs_logw(
     double* yTilde = p->yTilde;
     double* YTilde = p->YTilde;
     double* w = p->w;
-    double* t1 = p->t1;
-    double* t2 = p->t2;
-    // double* result = p->result;
     double theta = p->theta;
     double* yTildeT = p->yTildeT;
     int caching = p->caching;
     double* tmp_n = p->tmp_n;
     double* tmp_m = p->tmp_m;
     int m = p->m;
-    // int n          = p->n ;
     double val = 0.0;
 
     // pointer aliases for lbfgsfloatval_t input and output types
@@ -579,11 +565,11 @@ static lbfgsfloatval_t interface_lbfgs_logw(
     const double weights_sum = _get_weights(g_ptr, w, (size_t)n);
 
     // Evaluation of objective function
-    val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, NULL, theta, caching,
+    val = _bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, NULL, theta, caching,
                                     yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     // Evaluation of gradient
-    _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, t1, t2, result_ptr, theta,
+    _grad_bioen_log_posterior_logw(g_ptr, G, yTilde, YTilde, w, result_ptr, theta,
                                    caching, yTildeT, tmp_n, tmp_m, m, n, weights_sum);
 
     return val;
@@ -608,7 +594,8 @@ static int progress_logw(void* instance, const lbfgsfloatval_t* x, const lbfgsfl
 // LibLBFGS optimization interface
 
 double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, double* w,
-                       double* t1, double* t2, double* result, double theta, int m, int n,
+//                       double* t1, double* t2,
+                       double* result, double theta, int m, int n,
                        struct lbfgs_config_params config, struct caching_params caching,
                        struct visual_params visual) {
     double final_result = 0;
@@ -618,15 +605,14 @@ double _opt_lbfgs_logw(double* g, double* G, double* yTilde, double* YTilde, dou
     params_t* params = NULL;
 
     // Set up arguments in param_t structure
-    status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    status = posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
+    bioen_manage_error(POSIX, status);
 
     params->g = g;
     params->G = G;
     params->yTilde = yTilde;
     params->YTilde = YTilde;
     params->w = w;
-    params->t1 = t1;
-    params->t2 = t2;
     params->result = result;
     params->theta = theta;
     params->yTildeT = caching.yTildeT;

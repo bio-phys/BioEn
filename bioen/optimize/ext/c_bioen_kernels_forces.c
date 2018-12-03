@@ -109,9 +109,14 @@ void _getAve(const double* const w, const double* const yTilde, double* const yT
     }
 }
 
-void _get_weights_from_forces(const double* const w0, const double* const yTilde,
-                              const double* const forces, double* const w, const int caching,
-                              const double* const yTildeT, double* const tmp_n, const size_t m,
+void _get_weights_from_forces(const double* const w0,
+                              const double* const yTilde,
+                              const double* const forces,
+                              double* const w,
+                              const int caching,
+                              const double* const yTildeT,
+                              double* const tmp_n,
+                              const size_t m,
                               const size_t n) {
     // IN:  w0:     [Nx1]
     // IN:  forces: [1xM]
@@ -223,13 +228,18 @@ void _get_weights_from_forces(const double* const w0, const double* const yTilde
 double _bioen_log_posterior_forces(const double* const forces,  // unused
                                    const double* const w0,
                                    const double* const y_param,  // usused
-                                   const double* const yTilde, const double* const YTilde,
+                                   const double* const yTilde,
+                                   const double* const YTilde,
                                    const double* const w,
-                                   const double* const dummy,  // unused
-                                   const double theta, const int caching,
+                                   const double* const gradient,  // unused
+                                   const double theta,
+                                   const int caching,
                                    const double* const yTildeT,  // unused
-                                   double* const tmp_n, double* const tmp_m, const int m_int,
+                                   double* const tmp_n,
+                                   double* const tmp_m,
+                                   const int m_int,
                                    const int n_int) {
+
     const size_t m = (size_t)m_int;
     const size_t n = (size_t)n_int;
 
@@ -270,12 +280,19 @@ double _bioen_log_posterior_forces(const double* const forces,  // unused
 }
 
 // Gradient function for the forces method
-void _grad_bioen_log_posterior_forces(const double* const forces, const double* const w0,
-                                      const double* const y_param, const double* const yTilde,
-                                      const double* const YTilde, const double* const w,
-                                      double* const gradient, const double theta,
-                                      const int caching, const double* const yTildeT,
-                                      double* const tmp_n, double* const tmp_m, const int m_int,
+void _grad_bioen_log_posterior_forces(const double* const forces, // unused
+                                      const double* const w0,
+                                      const double* const y_param, // unused
+                                      const double* const yTilde,
+                                      const double* const YTilde,
+                                      const double* const w,
+                                      double* const gradient,
+                                      const double theta,
+                                      const int caching,
+                                      const double* const yTildeT,
+                                      double* const tmp_n,
+                                      double* const tmp_m,
+                                      const int m_int,
                                       const int n_int) {
     const size_t m = (size_t)m_int;
     const size_t n = (size_t)n_int;
@@ -515,16 +532,13 @@ double _opt_bfgs_forces(double* forces, double* w0, double* y_param, double* yTi
             if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
 
         status1 = gsl_multimin_fdfminimizer_iterate(s);
+        // if error, message and break
         bioen_manage_error(GSL, status1);
+        if (status1) break;
 
-        if (status1 != 0) {
-            // if (status1 != GSL_ENOPROG)
-            // gsl_error("At fdfminimizer_iterate",__FILE__,__LINE__,status1 );
-            break;
-        }
-
-        // status2 = gsl_multimin_test_gradient(s->gradient, _g_tol);
         status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
+        // if error, show message only. Condition won't be meet
+        bioen_manage_error(GSL, status1);
 
         iter++;
     } while (status2 == GSL_CONTINUE && iter < config.max_iterations);

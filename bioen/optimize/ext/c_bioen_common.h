@@ -108,16 +108,4 @@ double get_wtime(void);
 double _bioen_chi_squared(const double *const, const double *const, const double *const,
                           double *const, const size_t, const size_t);
 
-#ifdef ENABLE_GSL
-void handler(const char *, const char *, int, int);
-#endif
-
-#ifdef ENABLE_LBFGS
-char *lbfgs_strerror(int);
-#endif
-
-static const char message_gsl_unavailable[] = "BioEN optimize was not compiled with GSL.";
-static const char message_lbfgs_unavailable[] =
-    "BioEN optimize was not compiled with liblbfgs.";
-
 #endif
