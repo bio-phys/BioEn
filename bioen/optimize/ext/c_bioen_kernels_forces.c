@@ -529,7 +529,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
 
         status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
         // if error, show message only. Condition won't be meet
-        bioen_manage_error(GSL, status1);
+        bioen_manage_error(GSL, status2);
 
         iter++;
     } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
