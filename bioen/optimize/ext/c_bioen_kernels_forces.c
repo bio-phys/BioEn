@@ -428,42 +428,22 @@ void fdf_forces(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
 }
 #endif
 
-double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
-                        double* YTilde, double* result, double theta, int m, int n,
-                        struct gsl_config_params config, struct caching_params caching,
+double _opt_bfgs_forces(struct params_t func_params,
+                        struct gsl_config_params config,
                         struct visual_params visual) {
     double final_val = 0.0;
 
 #ifdef ENABLE_GSL
+
+    int m = func_params.m;
+    int n = func_params.n;
+
     int status1 = 0;
     int status2 = 0;
-    int status = 0;
-
-    double* w = NULL;
-    status = posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
-    bioen_manage_error(POSIX, status);
-
-    params_t* params = NULL;
-    status = posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
-    bioen_manage_error(POSIX, status);
-
-    params->forces = forces;
-    params->w0 = w0;
-    params->YTilde = YTilde;
-    params->yTilde = yTilde;
-    params->result = result;
-    params->theta = theta;
-    params->yTildeT = caching.yTildeT;
-    params->caching = caching.lcaching;
-    params->tmp_n = caching.tmp_n;
-    params->tmp_m = caching.tmp_m;
-    params->m = m;
-    params->n = n;
-    params->w = w;
 
     if (visual.verbose) {
         printf("\t=========================\n");
-        printf("\tcaching_yTilde_tranposed : %s\n", caching.lcaching ? "enabled" : "disabled");
+        printf("\tcaching_yTilde_tranposed : %s\n",  func_params.caching ? "enabled" : "disabled");
         printf("\tGSL minimizer            : %s\n",
                gsl_multimin_algorithm_names[config.algorithm]);
         printf("\ttol                      : %f\n", config.tol);
@@ -479,7 +459,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
     gsl_vector* x0 = gsl_vector_alloc(m);
 
     for (int i = 0; i < m; i++) {
-        gsl_vector_set(x0, i, forces[i]);
+        gsl_vector_set(x0, i, func_params.forces[i]);
     }
 
     // Set up optimizer parameters
@@ -511,7 +491,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
     my_func.df = &_grad_bioen_log_posterior_forces_interface;
     my_func.fdf = &fdf_forces;
     my_func.n = m;
-    my_func.params = params;
+    my_func.params = &func_params;
 
     // Initialize the optimizer
     gsl_multimin_fdfminimizer_set(s, &my_func, x0, config.step_size, config.tol);
@@ -529,7 +509,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
 
         status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
         // if error, show message only. Condition won't be meet
-        bioen_manage_error(GSL, status1);
+        bioen_manage_error(GSL, status2);
 
         iter++;
     } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
@@ -542,7 +522,7 @@ double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
 
     // Copy back the result.
     for (int i = 0; i < m; i++) {
-        result[i] = gsl_vector_get(x, i);
+        func_params.result[i] = gsl_vector_get(x, i);
     }
 
     if (visual.verbose) {
@@ -581,8 +561,6 @@ double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
 
     gsl_vector_free(x0);
     gsl_multimin_fdfminimizer_free(s);
-    free(params);
-    free(w);
 
 #else
     printf("%s\n", message_gsl_unavailable);
@@ -591,35 +569,18 @@ double _opt_bfgs_forces(double* forces, double* w0, double* yTilde,
     return final_val;
 }
 
+
 // LibLBFGS optimization interface
-double _opt_lbfgs_forces(double* forces, double* w0, double* yTilde,
-                         double* YTilde, double* result, double theta, int m, int n,
-                         struct lbfgs_config_params config, struct caching_params caching,
+double _opt_lbfgs_forces(
+                         struct params_t func_params,
+                         struct lbfgs_config_params config,
                          struct visual_params visual) {
+
     double final_result = 0.0;
 
 #ifdef ENABLE_LBFGS
-    int status = 0;
-
-    double* w = NULL;
-    status = posix_memalign((void**)&w, ALIGN_CACHE, sizeof(double) * n);
-    bioen_manage_error(POSIX, status);
-
-    params_t* params = NULL;
-    status += posix_memalign((void**)&params, ALIGN_CACHE, sizeof(params_t));
-    params->forces = forces;
-    params->w0 = w0;
-    params->YTilde = YTilde;
-    params->yTilde = yTilde;
-    params->result = result;
-    params->theta = theta;
-    params->yTildeT = caching.yTildeT;
-    params->caching = caching.lcaching;
-    params->tmp_n = caching.tmp_n;
-    params->tmp_m = caching.tmp_m;
-    params->m = m;
-    params->n = n;
-    params->w = w;
+    int m = func_params.m;
+    int n = func_params.n;
 
     if (visual.verbose) {
         printf("L-BFGS minimizer\n");
@@ -627,36 +588,36 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* yTilde,
 
     lbfgsfloatval_t fx = 0;
     lbfgsfloatval_t* x = lbfgs_malloc(m);
-    lbfgs_parameter_t param;
+    lbfgs_parameter_t opt_param;
 
     for (int i = 0; i < m; i++) {
-        x[i] = forces[i];
+        x[i] = func_params.forces[i];
     }
 
     // Initialize the parameters for the L-BFGS optimization.
-    lbfgs_parameter_init(&param);
+    lbfgs_parameter_init(&opt_param);
 
-    param.linesearch = config.linesearch;
-    param.max_iterations = config.max_iterations;
-    param.delta = config.delta;      // default: 0?
-    param.epsilon = config.epsilon;  // default: 1e5
-    param.ftol = config.ftol;        // default: 1e-4
-    param.gtol = config.gtol;
-    param.past = config.past;
-    param.max_linesearch = config.max_linesearch;  // default: 20
+    opt_param.linesearch        = config.linesearch;
+    opt_param.max_iterations    = config.max_iterations;
+    opt_param.delta             = config.delta;      // default: 0?
+    opt_param.epsilon           = config.epsilon;  // default: 1e5
+    opt_param.ftol              = config.ftol;        // default: 1e-4
+    opt_param.gtol              = config.gtol;
+    opt_param.past              = config.past;
+    opt_param.max_linesearch    = config.max_linesearch;  // default: 20
 
     lbfgs_verbose_forces = visual.verbose;
     if (visual.verbose) {
         printf("\t=========================\n");
-        printf("\tcaching_yTilde_tranposed : %s\n", caching.lcaching ? "enabled" : "disabled");
-        printf("\tlinesearch               : %d\n", param.linesearch);
-        printf("\tmax_iterations           : %d\n", param.max_iterations);
-        printf("\tdelta                    : %lf\n", param.delta);
-        printf("\tepsilon                  : %lf\n", param.epsilon);
-        printf("\tftol                     : %lf\n", param.ftol);
-        printf("\tgtol                     : %lf\n", param.gtol);
-        printf("\tpast                     : %d\n", param.past);
-        printf("\tmax_linesearch           : %d\n", param.max_linesearch);
+        printf("\tcaching_yTilde_tranposed : %s\n",  func_params.caching ? "enabled" : "disabled");
+        printf("\tlinesearch               : %d\n",  opt_param.linesearch);
+        printf("\tmax_iterations           : %d\n",  opt_param.max_iterations);
+        printf("\tdelta                    : %lf\n", opt_param.delta);
+        printf("\tepsilon                  : %lf\n", opt_param.epsilon);
+        printf("\tftol                     : %lf\n", opt_param.ftol);
+        printf("\tgtol                     : %lf\n", opt_param.gtol);
+        printf("\tpast                     : %d\n",  opt_param.past);
+        printf("\tmax_linesearch           : %d\n",  opt_param.max_linesearch);
         printf("\t=========================\n");
     }
 
@@ -667,7 +628,7 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* yTilde,
 
     double start = get_wtime();
     int return_value =
-        lbfgs(m, x, &fx, interface_lbfgs_forces, progress_forces, params, &param);
+        lbfgs(m, x, &fx, interface_lbfgs_forces, progress_forces, &func_params, &opt_param);
     double end = get_wtime();
 
     if (visual.verbose) {
@@ -682,12 +643,10 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* yTilde,
     final_result = fx;
 
     for (int i = 0; i < m; i++) {
-        result[i] = x[i];
+        func_params.result[i] = x[i];
     }
 
     lbfgs_free(x);
-    free(params);
-    free(w);
 
 #else
     printf("%s\n", message_lbfgs_unavailable);
@@ -695,3 +654,4 @@ double _opt_lbfgs_forces(double* forces, double* w0, double* yTilde,
 
     return final_result;
 }
+

@@ -43,27 +43,16 @@ void _grad_bioen_log_posterior_forces(const double* const w0,
                                       const int m_int,
                                       const int n_int);
 
-double _opt_bfgs_forces(double* forces,
-                        double* w0,
-                        double* yTilde,
-                        double* YTilde,
-                        double* result,
-                        double theta,
-                        int m,
-                        int n,
-                        struct gsl_config_params config,
-                        struct caching_params caching,
-                        struct visual_params visual);
 
-double _opt_lbfgs_forces(double* forces,
-                         double* w0,
-                         double* yTilde,
-                         double* YTilde,
-                         double* result,
-                         double theta,
-                         int m,
-                         int n,
-                         struct lbfgs_config_params config,
-                         struct caching_params caching,
-                         struct visual_params visual);
+double _opt_bfgs_forces(params_t,
+                        gsl_config_params,
+                        visual_params);
+
+
+double _opt_lbfgs_forces(params_t,
+                         lbfgs_config_params,
+                         visual_params);
+
+
+
 #endif

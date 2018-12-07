@@ -45,14 +45,11 @@ int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector *, doubl
 typedef struct params_t {
     double *forces;
     double *w0;
-    double *y_param;
     double *g;
     double *G;
     double *yTilde;
     double *YTilde;
     double *w;
-    double *t1;
-    double *t2;
     double *result;
     double theta;
     double *yTildeT;
