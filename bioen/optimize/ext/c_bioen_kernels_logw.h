@@ -39,31 +39,11 @@ void _grad_bioen_log_posterior_logw(const double* const g,
                                     const int n_int,
                                     const double weights_sum);
 
-double _opt_bfgs_logw(double* g,
-                      double* G,
-                      double* yTilde,
-                      double* YTilde,
-                      double* w,
-                      double* result,
-                      double theta,
-                      int m,
-                      int n,
+double _opt_bfgs_logw(struct params_t,
                       struct gsl_config_params config,
-                      struct caching_params caching,
                       struct visual_params visual);
 
-
-double _opt_lbfgs_logw(double* g,
-                    double* G,
-                    double* yTilde,
-                    double* YTilde,
-                    double* w,
-                    double* result,
-                    double theta,
-                    int m,
-                    int n,
-                    struct lbfgs_config_params config,
-                    struct caching_params caching,
-                    struct visual_params visual);
-
+double _opt_lbfgs_logw(struct params_t,
+                       struct lbfgs_config_params config,
+                       struct visual_params visual);
 #endif

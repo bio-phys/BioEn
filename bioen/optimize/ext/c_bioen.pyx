@@ -51,57 +51,27 @@ cdef extern from "c_bioen_kernels_logw.h":
                                           const int, # n_int,
                                           const double) # weights_sum)
 
-    double _opt_bfgs_logw(double*, # g
-                          double*, # G
-                          double*, # yTIlde
-                          double*, # YTilde
-                          double*, # w
-                          double*, # result
-                          double, # theta
-                          int, # m
-                          int, # n
-                          gsl_config_params, # config
-                          caching_params, # caching
-                          visual_params) # visual
+    double _opt_bfgs_logw(params_t,          # func_params
+                          gsl_config_params, # c_params
+                          visual_params,     # c_visual_params
+                         )
 
-    double _opt_lbfgs_logw(double*, # g
-                           double*, # G
-                           double*, # yTilde
-                           double*, # YTilde
-                           double*, # w
-                           double*, # result
-                           double, # theta
-                           int, # m
-                           int, # n
-                           lbfgs_config_params, # config
-                           caching_params, # caching
-                           visual_params)  # visual
+    double _opt_lbfgs_logw(params_t,            #func_params
+                           lbfgs_config_params, #c_params
+                           visual_params        #c_visual_params
+                          )
+
 
 
 cdef extern from "c_bioen_kernels_forces.h":
 
-    double _opt_bfgs_forces(double*, # forces
-                            double*, # w0
-                            double*, # yTilde
-                            double*, # YTilde
-                            double*, # result
-                            double, # theta
-                            int, # m
-                            int, # n
+
+    double _opt_bfgs_forces(params_t, # packed params
                             gsl_config_params, # config
-                            caching_params, # caching
                             visual_params) # visual_params visual
 
-    double _opt_lbfgs_forces(double*, # forces
-                             double*, # w0
-                             double*, # yTilde
-                             double*, # YTilde
-                             double*, # result
-                             double, # theta
-                             int, # m
-                             int, # n
+    double _opt_lbfgs_forces(params_t, # packed params
                              lbfgs_config_params, # config
-                             caching_params, # caching
                              visual_params) # visual
 
     void _get_weights_from_forces(const double* const, # w0
@@ -173,6 +143,24 @@ cdef extern from "c_bioen_common.h":
     struct visual_params  "visual_params":
         size_t debug            "debug"
         size_t verbose          "verbose"
+
+
+    struct params_t     "params_t":
+        double *forces  "forces"
+        double *w0      "w0"
+        double *g       "g"
+        double *G       "G"
+        double *yTilde  "yTilde"
+        double *YTilde  "YTilde"
+        double *w       "w"
+        double *result  "result"
+        double theta    "theta"
+        double *yTildeT "yTildeT"
+        int caching     "caching"
+        double *tmp_n   "tmp_n"
+        double *tmp_m   "tmp_m"
+        int m           "m"
+        int n           "n"
 
 
 
@@ -271,7 +259,12 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     cdef double weights_sum
     cdef double val
 
-    ## Should not be called into a function
+    # Try-catch mechanism on plain C is not explicitely defined.
+    # Setjmp saves the processor's context (pc, stack and other registers)
+    # When an error occurs we safely exit from C via longjmp to the saved 
+    # context (at the setjmp call). 
+    # The returned value is checked to raise a python exception.
+    ## It should not be called into a function
     ## otherwise setjmp will fail
 
     cdef jmp_buf ctx
@@ -405,50 +398,50 @@ def bioen_opt_bfgs_logw(np.ndarray g,
 
     # temporary array for the weights
     cdef np.ndarray w = np.empty([n], dtype=np.double)
-    # x array
-    cdef np.ndarray x = np.empty([n], dtype=np.double)
+    cdef np.ndarray result = np.empty([n], dtype=np.double)
+
+    cdef double fmin
 
     # structures containing additional information
     cdef gsl_config_params c_params
-    cdef caching_params c_caching_params
-    cdef visual_params c_visual_params
-
     c_params.algorithm      = get_gsl_method(params["algorithm"])
     c_params.tol            = params["params"]["tol"]
     c_params.step_size      = params["params"]["step_size"]
     c_params.max_iterations = params["params"]["max_iterations"]
 
-    c_caching_params.lcaching   = use_cache_flag
-    c_caching_params.yTildeT    = <double*> yTildeT.data
-    c_caching_params.tmp_n      = <double*> tmp_n.data
-    c_caching_params.tmp_m      = <double*> tmp_m.data
-
+    cdef visual_params c_visual_params
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
 
-    cdef double fmin
+
+    cdef params_t  func_params
+    func_params.g       = <double*> g.data
+    func_params.G       = <double*> G.data
+    func_params.yTilde  = <double*> yTilde.data
+    func_params.YTilde  = <double*> YTilde.data
+    func_params.w       = <double*> w.data
+    func_params.result  = <double*> result.data
+    func_params.theta   = <double>  theta
+    func_params.yTildeT = <double*> yTildeT.data
+    func_params.caching = <int>     use_cache_flag
+    func_params.tmp_n   = <double*> tmp_n.data
+    func_params.tmp_m   = <double*> tmp_m.data
+    func_params.m       = <int>     m
+    func_params.n       = <int>     n
+
 
     cdef jmp_buf ctx
     _set_ctx(&ctx)
     error = setjmp(ctx)
 
     if error == 0:
-        fmin = _opt_bfgs_logw(<double*> g.data,
-                              <double*> G.data,
-                              <double*> yTilde.data,
-                              <double*> YTilde.data,
-                              <double*> w.data,
-                              <double*> x.data,
-                              <double> theta,
-                              <int> m,
-                              <int> n,
+        fmin = _opt_bfgs_logw(<params_t> func_params,
                               <gsl_config_params> c_params,
-                              <caching_params> c_caching_params,
                               <visual_params> c_visual_params)
     else:
         raise ValueError("Error bioen_opt_bfgs_logw " + str(error))
 
-    return x, fmin
+    return result, fmin
 
 
 def bioen_opt_lbfgs_logw(np.ndarray g,
@@ -488,13 +481,10 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     # temporary array for the weights
     cdef np.ndarray w = np.empty([n], dtype=np.double)
     # temporary arrays
-    # x array
-    cdef np.ndarray x = np.empty([n], dtype=np.double)
+    cdef np.ndarray result = np.empty([n], dtype=np.double)
+
 
     cdef lbfgs_config_params c_params
-    cdef caching_params c_caching_params
-    cdef visual_params c_visual_params
-
     c_params.linesearch     = params["params"]["linesearch"]
     c_params.max_iterations = params["params"]["max_iterations"]
     c_params.delta          = params["params"]["delta"]
@@ -504,13 +494,25 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     c_params.past           = params["params"]["past"]
     c_params.max_linesearch = params["params"]["max_linesearch"]
 
-    c_caching_params.lcaching   = use_cache_flag
-    c_caching_params.yTildeT    = <double*> yTildeT.data
-    c_caching_params.tmp_n      = <double*> tmp_n.data
-    c_caching_params.tmp_m      = <double*> tmp_m.data
 
+    cdef visual_params c_visual_params
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
+
+    cdef params_t  func_params
+    func_params.g       = <double*> g.data
+    func_params.G       = <double*> G.data
+    func_params.yTilde  = <double*> yTilde.data
+    func_params.YTilde  = <double*> YTilde.data
+    func_params.w       = <double*> w.data
+    func_params.result  = <double*> result.data
+    func_params.theta   = <double>  theta
+    func_params.yTildeT = <double*> yTildeT.data
+    func_params.caching = <int>     use_cache_flag
+    func_params.tmp_n   = <double*> tmp_n.data
+    func_params.tmp_m   = <double*> tmp_m.data
+    func_params.m       = <int>     m
+    func_params.n       = <int>     n
 
     cdef double fmin
 
@@ -519,21 +521,12 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     error = setjmp(ctx)
 
     if error == 0:
-        fmin = _opt_lbfgs_logw(<double*> g.data,
-                               <double*> G.data,
-                               <double*> yTilde.data,
-                               <double*> YTilde.data,
-                               <double*> w.data,
-                               <double*> x.data,
-                               <double>  theta,
-                               <int> m,
-                               <int> n,
+        fmin = _opt_lbfgs_logw(<params_t> func_params,
                                <lbfgs_config_params> c_params,
-                               <caching_params> c_caching_params,
                                <visual_params> c_visual_params)
     else:
         raise ValueError("Error bioen_opt_lbfgs_logw " + str(error))
-    return x, fmin
+    return result, fmin
 
 
 def bioen_log_posterior_forces(np.ndarray forces,
@@ -698,6 +691,7 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
 
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
 
     cdef int use_cache_flag = 0
     cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
@@ -705,24 +699,33 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
-    cdef np.ndarray x = np.empty([m], dtype=np.double)
+    cdef np.ndarray result = np.empty([m], dtype=np.double)
 
     cdef gsl_config_params c_params
-    cdef caching_params c_caching_params
-    cdef visual_params c_visual_params
-
     c_params.algorithm      = get_gsl_method(params["algorithm"])
     c_params.tol            = params["params"]["tol"]
     c_params.step_size      = params["params"]["step_size"]
     c_params.max_iterations = params["params"]["max_iterations"]
 
-    c_caching_params.lcaching = use_cache_flag
-    c_caching_params.yTildeT  = <double*> yTildeT.data
-    c_caching_params.tmp_n    = <double*> tmp_n.data
-    c_caching_params.tmp_m    = <double*> tmp_m.data
-
+    cdef visual_params c_visual_params
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
+
+
+    cdef params_t  func_params
+    func_params.forces  = <double*> forces.data
+    func_params.w0      = <double*> w0.data
+    func_params.yTilde  = <double*> yTilde.data
+    func_params.YTilde  = <double*> YTilde.data
+    func_params.result  = <double*> result.data
+    func_params.w       = <double*> w.data
+    func_params.theta   = <double>  theta
+    func_params.yTildeT = <double*> yTildeT.data
+    func_params.caching = <int>     use_cache_flag
+    func_params.tmp_n   = <double*> tmp_n.data
+    func_params.tmp_m   = <double*> tmp_m.data
+    func_params.m       = <int>     m
+    func_params.n       = <int>     n
 
     cdef double fmin
 
@@ -731,23 +734,15 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
     error = setjmp(ctx)
 
     if error == 0:
-        fmin = _opt_bfgs_forces(<double*> forces.data,
-                                <double*> w0.data,
-                                <double*> yTilde.data,
-                                <double*> YTilde.data,
-                                <double*> x.data,
-                                <double> theta,
-                                <int> m,
-                                <int> n,
-                                <gsl_config_params> c_params,
-                                <caching_params> c_caching_params,
-                                <visual_params> c_visual_params)
+        fmin = _opt_bfgs_forces(<params_t>             func_params,
+                                <gsl_config_params>     c_params,
+                                <visual_params>         c_visual_params)
 
     else:
         raise ValueError("Error bioen_opt_bfgs_forces " + str(error))
 
 
-    return x, fmin
+    return result, fmin
 
 
 def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
@@ -772,6 +767,7 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
 
     cdef np.ndarray tmp_n = np.empty([n], dtype=np.double)
     cdef np.ndarray tmp_m = np.empty([m], dtype=np.double)
+    cdef np.ndarray w = np.empty([n], dtype=np.double)
 
     cdef int use_cache_flag = 0
     cdef np.ndarray yTildeT = np.empty([1], dtype=np.double)
@@ -779,48 +775,50 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
-    cdef np.ndarray x = np.empty([m], dtype=np.double)
+    cdef np.ndarray result = np.empty([m], dtype=np.double)
 
-    cdef lbfgs_config_params c_params
-    cdef caching_params c_caching_params
+
+    cdef lbfgs_config_params c_conf_params
+    c_conf_params.linesearch     = params["params"]["linesearch"]
+    c_conf_params.max_iterations = params["params"]["max_iterations"]
+    c_conf_params.delta          = params["params"]["delta"]
+    c_conf_params.epsilon        = params["params"]["epsilon"]
+    c_conf_params.ftol           = params["params"]["ftol"]
+    c_conf_params.gtol           = params["params"]["gtol"]
+    c_conf_params.past           = params["params"]["past"]
+    c_conf_params.max_linesearch = params["params"]["max_linesearch"]
+
     cdef visual_params c_visual_params
-
-    c_params.linesearch     = params["params"]["linesearch"]
-    c_params.max_iterations = params["params"]["max_iterations"]
-    c_params.delta          = params["params"]["delta"]
-    c_params.epsilon        = params["params"]["epsilon"]
-    c_params.ftol           = params["params"]["ftol"]
-    c_params.gtol           = params["params"]["gtol"]
-    c_params.past           = params["params"]["past"]
-    c_params.max_linesearch = params["params"]["max_linesearch"]
-
-    c_caching_params.lcaching = use_cache_flag
-    c_caching_params.yTildeT  = <double*> yTildeT.data
-    c_caching_params.tmp_n    = <double*> tmp_n.data
-    c_caching_params.tmp_m    = <double*> tmp_m.data
-
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
 
-    cdef double fmin
+    cdef params_t  func_params
+    func_params.forces  = <double*> forces.data
+    func_params.w0      = <double*> w0.data
+    func_params.yTilde  = <double*> yTilde.data
+    func_params.YTilde  = <double*> YTilde.data
+    func_params.result  = <double*> result.data
+    func_params.w       = <double*> w.data
+    func_params.theta   = <double>  theta
+    func_params.yTildeT = <double*> yTildeT.data
+    func_params.caching = <int>     use_cache_flag
+    func_params.tmp_n   = <double*> tmp_n.data
+    func_params.tmp_m   = <double*> tmp_m.data
+    func_params.m       = <int>     m
+    func_params.n       = <int>     n
+
+    cdef double fmin = 0.0
 
     cdef jmp_buf ctx
     _set_ctx(&ctx)
     error = setjmp(ctx)
 
     if error == 0:
-        fmin = _opt_lbfgs_forces(<double*> forces.data,
-                                 <double*> w0.data,
-                                 <double*> yTilde.data,
-                                 <double*> YTilde.data,
-                                 <double*> x.data,
-                                 <double> theta,
-                                 <int> m,
-                                 <int> n,
-                                 <lbfgs_config_params> c_params,
-                                 <caching_params> c_caching_params,
-                                 <visual_params> c_visual_params)
+
+        fmin = _opt_lbfgs_forces(<params_t>             func_params,
+                                 <lbfgs_config_params>  c_conf_params,
+                                 <visual_params>        c_visual_params)
     else:
         raise ValueError("Error bioen_opt_lbfgs_forces " + str(error))
 
-    return x, fmin
+    return result, fmin

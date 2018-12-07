@@ -33,7 +33,7 @@ void bioen_manage_error(int section, int value) {
         // Management of GSL errors
         case GSL:
             if (value != GSL_SUCCESS) {
-                printf ("Warning code!  %s\n", gsl_strerror(value));
+                //printf ("Warning code!  %s\n", gsl_strerror(value));
                 // Should break execution?
                 //longjmp(*ctx,value);
             }
