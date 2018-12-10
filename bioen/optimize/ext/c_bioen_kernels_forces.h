@@ -46,12 +46,14 @@ void _grad_bioen_log_posterior_forces(const double* const w0,
 
 double _opt_bfgs_forces(params_t,
                         gsl_config_params,
-                        visual_params);
+                        visual_params,
+                        int*);
 
 
 double _opt_lbfgs_forces(params_t,
                          lbfgs_config_params,
-                         visual_params);
+                         visual_params,
+                         int*);
 
 
 

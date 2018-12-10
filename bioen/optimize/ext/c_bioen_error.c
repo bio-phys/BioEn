@@ -11,61 +11,20 @@
 #include <lbfgs.h>
 #endif
 
-//jmp_buf ctx;
-jmp_buf *ctx;
+char* lbfgs_strerror(int error);
 
-void _set_ctx(jmp_buf* param_ctx) {
-    ctx = param_ctx;
+const char* bioen_gsl_error(int gsl_errno){
+    return gsl_strerror(gsl_errno);
 }
 
-
-void bioen_manage_error(int section, int value) {
-
-    switch (section) {
-        // Management of POSIX errors
-        case POSIX:
-            if (value != 0 ) {
-                printf ("POSIX_mem_alloc,  Error Value %d\n", value);
-                longjmp(*ctx,value);
-            }
-            break;
-        #ifdef ENABLE_GSL
-        // Management of GSL errors
-        case GSL:
-            if (value != GSL_SUCCESS) {
-                //printf ("Warning code!  %s\n", gsl_strerror(value));
-                // Should break execution?
-                //longjmp(*ctx,value);
-            }
-            break;
-        #endif
-        // Management of LibLBFGS  errors
-        #ifdef ENABLE_LBFGS
-        case LLBFGS:
-            if (value != LBFGS_CONVERGENCE ) {
-                lbfgs_strerror(value);
-                // Should break execution?
-                //longjmp(*ctx,value);
-            }
-        #endif
-        default:
-            break;
-    }
-
-}
 
 #ifdef ENABLE_GSL
-// Error handler for gsl's BFGS algorithm.
-void handler(const char* reason, const char* file, int line, int gsl_errno) {
-    printf("GSL; error has occured\n");
-    printf("----  %s\n", reason);
-    printf("----  ErrNo   : %d\n", gsl_errno);
-    printf("----  ErrDesc :\"%s\"\n", gsl_strerror(gsl_errno));
-    longjmp(*ctx,gsl_errno);
-    return;
-}
-// Implementation of the norm as it is used by the SciPy minimizer,
-// see vecnorm() in optimize.py.
+
+// Error enum from -2 to 32
+// Success = 0
+// failure = -1
+// continue = -2
+
 int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, double epsabs) {
     double norm;
     double temp;
@@ -98,23 +57,23 @@ int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, doub
 #ifdef ENABLE_LBFGS
 // Error values description for the L-BFGS algorithm
 char* lbfgs_strerror(int error) {
+
     switch (error) {
-            //        case LBFGS_SUCCESS                     :  return
-            //        "LBFGS_SUCCESS";  // 0
-        case LBFGS_CONVERGENCE:
-            // return "Success: reached convergence (gtol)";    // 0
-            return "LBFGS_CONVERGENCE";  // 0
-        case LBFGS_STOP:
+            // case LBFGS_SUCCESS: // 0
+        case LBFGS_CONVERGENCE:                                 // 0
+            // return "Success: reached convergence (gtol)";
+            return "LBFGS_CONVERGENCE";
+        case LBFGS_STOP:                                        // 1
             // return "Success: met stopping criteria (ftol).";
             return "LBFGS_STOP";
-        case LBFGS_ALREADY_MINIMIZED:
+        case LBFGS_ALREADY_MINIMIZED:                           // 2
             return "The initial variables already minimize the objective "
                    "function.";
-        case LBFGSERR_UNKNOWNERROR:
+        case LBFGSERR_UNKNOWNERROR:                             // -1024
             return "Unknown error.";
-        case LBFGSERR_LOGICERROR:
+        case LBFGSERR_LOGICERROR:                               // -1023
             return "Logic error.";
-        case LBFGSERR_OUTOFMEMORY:
+        case LBFGSERR_OUTOFMEMORY:                              // -1022
             return "Insufficient memory.";
         case LBFGSERR_CANCELED:
             return "The minimization process has been canceled.";
@@ -184,7 +143,7 @@ char* lbfgs_strerror(int error) {
                    "lbfgs_parameter_t::xtol.";
         case LBFGSERR_INVALIDPARAMETERS:
             return "A logic error (negative line-search step) occurred.";
-        case LBFGSERR_INCREASEGRADIENT:
+        case LBFGSERR_INCREASEGRADIENT:                             // -994
             return "The current search direction increases the objective "
                    "function value.";
         default:

@@ -8,6 +8,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <stdint.h>
+
 #ifdef ENABLE_GSL
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_multimin.h>
@@ -364,10 +366,13 @@ void fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
 // GSL optimization interface
 double _opt_bfgs_logw(struct params_t func_params,
                       struct gsl_config_params config,
-                      struct visual_params visual) {
+                      struct visual_params visual,
+                      int* error) {
     double final_val = 0.;
 
 #if ENABLE_GSL
+    *error = 0;
+
     int n = func_params.n;
     int m = func_params.m;
 
@@ -387,11 +392,10 @@ double _opt_bfgs_logw(struct params_t func_params,
 
     double start = get_wtime();
 
-    // User define error handler.
-    gsl_set_error_handler(handler);
+    gsl_set_error_handler_off();
 
     // Allocate independant variables array
-    gsl_vector* x0 = gsl_vector_alloc(n);
+    gsl_vector* x0 = gsl_vector_alloc((size_t)n);
 
     for (int i = 0; i < n; i++) {
         gsl_vector_set(x0, i, func_params.g[i]);
@@ -439,15 +443,12 @@ double _opt_bfgs_logw(struct params_t func_params,
         if (visual.verbose)
             if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
 
-
         status1 = gsl_multimin_fdfminimizer_iterate(s);
-        // if error, message and break
-        bioen_manage_error(GSL, status1);
+        *error = status1;
         if (status1) break;
 
         status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
-        // if error, show message only. Condition won't be meet
-        bioen_manage_error(GSL, status1);
+        *error = status2;
 
         iter++;
 
@@ -581,10 +582,12 @@ static int progress_logw(void* instance, const lbfgsfloatval_t* x, const lbfgsfl
 // LibLBFGS optimization interface
 double _opt_lbfgs_logw(struct params_t func_params,
                        struct lbfgs_config_params config,
-                       struct visual_params visual) {
+                       struct visual_params visual,
+                       int* error) {
     double final_result = 0;
 
 #ifdef ENABLE_LBFGS
+    *error = 0;
 
     int m = func_params.m;
     int n = func_params.n;

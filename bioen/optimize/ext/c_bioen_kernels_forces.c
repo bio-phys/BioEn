@@ -430,10 +430,13 @@ void fdf_forces(const gsl_vector* x, void* params, double* f, gsl_vector* df) {
 
 double _opt_bfgs_forces(struct params_t func_params,
                         struct gsl_config_params config,
-                        struct visual_params visual) {
+                        struct visual_params visual,
+                        int *error) {
+
     double final_val = 0.0;
 
 #ifdef ENABLE_GSL
+    *error = 0;
 
     int m = func_params.m;
     int n = func_params.n;
@@ -454,7 +457,7 @@ double _opt_bfgs_forces(struct params_t func_params,
 
     double start = get_wtime();
 
-    gsl_set_error_handler(handler);
+    gsl_set_error_handler_off();
 
     gsl_vector* x0 = gsl_vector_alloc(m);
 
@@ -504,12 +507,11 @@ double _opt_bfgs_forces(struct params_t func_params,
 
         status1 = gsl_multimin_fdfminimizer_iterate(s);
         // if error, message and break
-        bioen_manage_error(GSL, status1);
+        *error = status1;
         if (status1) break;
 
         status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
-        // if error, show message only. Condition won't be meet
-        bioen_manage_error(GSL, status2);
+        *error = status2;
 
         iter++;
     } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
@@ -574,11 +576,14 @@ double _opt_bfgs_forces(struct params_t func_params,
 double _opt_lbfgs_forces(
                          struct params_t func_params,
                          struct lbfgs_config_params config,
-                         struct visual_params visual) {
+                         struct visual_params visual,
+                         int *error) {
 
     double final_result = 0.0;
 
 #ifdef ENABLE_LBFGS
+    *error = 0;
+
     int m = func_params.m;
     int n = func_params.n;
 

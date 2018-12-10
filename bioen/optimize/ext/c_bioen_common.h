@@ -5,9 +5,7 @@
 #include <gsl/gsl_vector.h>
 #endif
 
-
 #define ALIGN_CACHE 64
-
 
 #ifdef VERBOSE_DEBUG
 #define DEBUG_PRINT(STR) \
@@ -41,6 +39,7 @@ static const char *const gsl_multimin_algorithm_names[5] = {
 
 int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector *, double);
 #endif
+
 
 typedef struct params_t {
     double *forces;
@@ -84,6 +83,7 @@ typedef struct caching_params {
     double *tmp_n;
     double *tmp_m;
 } caching_params;
+
 
 typedef struct visual_params {
     size_t debug;
