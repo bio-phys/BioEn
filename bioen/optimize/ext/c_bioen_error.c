@@ -21,9 +21,8 @@ const char* bioen_gsl_error(int gsl_errno){
 #ifdef ENABLE_GSL
 
 // Error enum from -2 to 32
-// Success = 0
-// failure = -1
-// continue = -2
+// Continue/Failure/Success = -2 to 0
+// 1 to 32 : error codes
 
 int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, double epsabs) {
     double norm;
