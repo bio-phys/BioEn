@@ -23,9 +23,14 @@ For a detailed description of the procedures and the algorithm, we refer to [Hum
 BioEn spin-label rotamer refinement
 -----------------------------------
 
-Link to **Precision DEER Distances from Spin-Label Ensemble Refinement**
+Link to 
 
-https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA
+BioEn has been used to resolve precise distance from DEER experiments with flexbile spin lables as described in a recent paper  `"Precision DEER Distances from Spin-Label Ensemble Refinement" 
+<http://www.python.org/>`_.  
+
+Notebooks for spin-label refinement can be found in the `examples folder <https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA/>`_. 
+
+
 
 
 Dependencies and Software Requirements
