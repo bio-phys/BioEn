@@ -27,8 +27,19 @@ filenames = [
 
 def available_tests():
     exp_list_base = ""
-    if (optimize.util.library_gsl() and optimize.util.library_lbfgs()):
-        exp_list_base = [['GSL','LBFGS'], ['bfgs','lbfgs']]
+    exp_list_gsl = [['GSL'],
+                    ['bfgs2']]
+    exp_list_lbfgs = [['LBFGS'],
+                      ['lbfgs']]
+    if (not optimize.util.library_gsl()):
+        exp_list_base = exp_list_gsl
+
+    if (optimize.util.library_lbfgs()):
+        if exp_list_base != "" :
+            exp_list_base = np.hstack((exp_list_base, exp_list_lbfgs))
+        else:
+            exp_list_base = exp_list_lbfgs
+
     return exp_list_base
 
 
@@ -74,20 +85,15 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
             params['use_c_functions'] = use_c_functions
             params['algorithm'] = algorithm
             params['verbose'] = verbose
-            # CAA
-            params['verbose'] = True
 
             if params['minimizer'] == "gsl":
-
-            #  Force an error by defining a wrong parameter
+                #  Force an error by defining a wrong parameter
                 params['params']['step_size'] = -1.00001
                 print (params['params'])
 
             if params['minimizer'] == "lbfgs":
-
-            #  Force an error by defining a wrong parameter
+                #  Force an error by defining a wrong parameter
                 params['params']['delta'] = -1.
-                print (params['params'])
 
             if verbose:
                 print("-" * 80)
