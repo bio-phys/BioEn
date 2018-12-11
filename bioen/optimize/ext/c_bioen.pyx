@@ -4,15 +4,12 @@
 import numpy as np
 cimport numpy as np
 
-from libc.setjmp cimport *
-
-
 
 cdef extern from "c_bioen_error.h":
 
-    void bioen_manage_error(int,
-                            int)
-    void _set_ctx(jmp_buf*)
+    char* bioen_gsl_error(int)
+
+    char* lbfgs_strerror(int)
 
 
 cdef extern from "c_bioen_kernels_logw.h":
@@ -54,11 +51,13 @@ cdef extern from "c_bioen_kernels_logw.h":
     double _opt_bfgs_logw(params_t,          # func_params
                           gsl_config_params, # c_params
                           visual_params,     # c_visual_params
+                          int *
                          )
 
     double _opt_lbfgs_logw(params_t,            #func_params
                            lbfgs_config_params, #c_params
-                           visual_params        #c_visual_params
+                           visual_params,        #c_visual_params
+                           int *
                           )
 
 
@@ -68,11 +67,13 @@ cdef extern from "c_bioen_kernels_forces.h":
 
     double _opt_bfgs_forces(params_t, # packed params
                             gsl_config_params, # config
-                            visual_params) # visual_params visual
+                            visual_params, # visual
+                            int *) # error
 
     double _opt_lbfgs_forces(params_t, # packed params
                              lbfgs_config_params, # config
-                             visual_params) # visual
+                             visual_params, # visual
+                             int *) # error
 
     void _get_weights_from_forces(const double* const, # w0
                                   const double* const, # yTilde
@@ -143,6 +144,7 @@ cdef extern from "c_bioen_common.h":
     struct visual_params  "visual_params":
         size_t debug            "debug"
         size_t verbose          "verbose"
+
 
 
     struct params_t     "params_t":
@@ -259,42 +261,26 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
     cdef double weights_sum
     cdef double val
 
-    # Try-catch mechanism on plain C is not explicitely defined.
-    # Setjmp saves the processor's context (pc, stack and other registers)
-    # When an error occurs we safely exit from C via longjmp to the saved 
-    # context (at the setjmp call). 
-    # The returned value is checked to raise a python exception.
-    ## It should not be called into a function
-    ## otherwise setjmp will fail
+    # 1) compute weights
+    weights_sum = _get_weights(<double*> gPrime.data,
+                               <double*> w.data,
+                               <size_t> n)
+    # 2) compute function
+    val = _bioen_log_posterior_logw(<double*> gPrime.data,
+                                    <double*> g.data,
+                                    <double*> yTilde.data,
+                                    <double*> YTilde.data,
+                                    <double*> w.data,
+                                    <double*> NULL,
+                                    <double> theta,
+                                    <int> 0,
+                                    <double*> NULL,
+                                    <double*> tmp_n.data,
+                                    <double*> tmp_m.data,
+                                    <int> m,
+                                    <int> n,
+                                    <double> weights_sum)
 
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
-
-    if error == 0:
-        # 1) compute weights
-        weights_sum = _get_weights(<double*> gPrime.data,
-                                   <double*> w.data,
-                                   <size_t> n)
-
-        # 2) compute function
-        val = _bioen_log_posterior_logw(<double*> gPrime.data,
-                                        <double*> g.data,
-                                        <double*> yTilde.data,
-                                        <double*> YTilde.data,
-                                        <double*> w.data,
-                                        <double*> NULL,
-                                        <double> theta,
-                                        <int> 0,
-                                        <double*> NULL,
-                                        <double*> tmp_n.data,
-                                        <double*> tmp_m.data,
-                                        <int> m,
-                                        <int> n,
-                                        <double> weights_sum)
-
-    else:
-        raise ValueError("Error bioen_log_posterior_logw " + str(error))
     return val
 
 
@@ -331,34 +317,27 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
 
     cdef double weights_sum
 
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
 
-    if error == 0:
-        # 1) compute weights
-        weights_sum = _get_weights(<double*> gPrime.data,
+    # 1) compute weights
+    weights_sum = _get_weights(<double*> gPrime.data,
+                               <double*> w.data,
+                               <size_t> n)
+
+    # 2) compute function gradient
+    _grad_bioen_log_posterior_logw(<double*> gPrime.data,
+                                   <double*> G.data,
+                                   <double*> yTilde.data,
+                                   <double*> YTilde.data,
                                    <double*> w.data,
-                                   <size_t> n)
-
-        # 2) compute function gradient
-        _grad_bioen_log_posterior_logw(<double*> gPrime.data,
-                                       <double*> G.data,
-                                       <double*> yTilde.data,
-                                       <double*> YTilde.data,
-                                       <double*> w.data,
-                                       <double*> gradient.data,
-                                       <double> theta,
-                                       <int> use_cache_flag,
-                                       <double*> yTildeT.data,
-                                       <double*> tmp_n.data,
-                                       <double*> tmp_m.data,
-                                       <int> m,
-                                       <int> n,
-                                       <double> weights_sum)
-    else:
-        raise ValueError("Error grad_bioen_log_posterior_logw " + str(error))
-
+                                   <double*> gradient.data,
+                                   <double> theta,
+                                   <int> use_cache_flag,
+                                   <double*> yTildeT.data,
+                                   <double*> tmp_n.data,
+                                   <double*> tmp_m.data,
+                                   <int> m,
+                                   <int> n,
+                                   <double> weights_sum)
 
     return gradient
 
@@ -400,8 +379,6 @@ def bioen_opt_bfgs_logw(np.ndarray g,
     cdef np.ndarray w = np.empty([n], dtype=np.double)
     cdef np.ndarray result = np.empty([n], dtype=np.double)
 
-    cdef double fmin
-
     # structures containing additional information
     cdef gsl_config_params c_params
     c_params.algorithm      = get_gsl_method(params["algorithm"])
@@ -430,16 +407,18 @@ def bioen_opt_bfgs_logw(np.ndarray g,
     func_params.n       = <int>     n
 
 
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
+    cdef int error
+    cdef double fmin
+    fmin = _opt_bfgs_logw(<params_t> func_params,
+                          <gsl_config_params> c_params,
+                          <visual_params> c_visual_params,
+                          <int*> &error)
 
-    if error == 0:
-        fmin = _opt_bfgs_logw(<params_t> func_params,
-                              <gsl_config_params> c_params,
-                              <visual_params> c_visual_params)
+    if (error < -2 or error > 0) :
+        raise ValueError("Error bioen_opt_bfgs_logw: '" + str(error)+ bioen_gsl_error(error) + str("'"))
     else:
-        raise ValueError("Error bioen_opt_bfgs_logw " + str(error))
+        if params["verbose"] == True :
+            print ("GSL: " + bioen_gsl_error(error))
 
     return result, fmin
 
@@ -514,18 +493,18 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     func_params.m       = <int>     m
     func_params.n       = <int>     n
 
+    cdef int error
     cdef double fmin
+    fmin = _opt_lbfgs_logw(<params_t> func_params,
+                           <lbfgs_config_params> c_params,
+                           <visual_params> c_visual_params,
+                           <int*> &error)
 
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
-
-    if error == 0:
-        fmin = _opt_lbfgs_logw(<params_t> func_params,
-                               <lbfgs_config_params> c_params,
-                               <visual_params> c_visual_params)
+    if (error < 0 or error > 2) :
+        raise ValueError("at bioen_opt_lbfgs_logw: '" + lbfgs_strerror(error) + str("'"))
     else:
-        raise ValueError("Error bioen_opt_lbfgs_logw " + str(error))
+        if params["verbose"] == True :
+            print ("LBFGS: " + lbfgs_strerror(error))
     return result, fmin
 
 
@@ -562,39 +541,31 @@ def bioen_log_posterior_forces(np.ndarray forces,
         use_cache_flag = 1
         yTildeT = yTilde.T.copy()
 
+    # 1) compute weights
+    _get_weights_from_forces(<double*> w0.data,
+                             <double*> yTilde.data,
+                             <double*> forces.data,
+                             <double*> w.data,
+                             <int> use_cache_flag,
+                             <double*> yTildeT.data,
+                             <double*> tmp_n.data,
+                             <size_t> m,
+                             <size_t> n)
+
+    # 2) compute function
     cdef double val
-
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
-
-    if error == 0:
-        # 1) compute weights
-        _get_weights_from_forces(<double*> w0.data,
-                                 <double*> yTilde.data,
-                                 <double*> forces.data,
-                                 <double*> w.data,
-                                 <int> use_cache_flag,
-                                 <double*> yTildeT.data,
-                                 <double*> tmp_n.data,
-                                 <size_t> m,
-                                 <size_t> n)
-
-        # 2) compute function
-        val = _bioen_log_posterior_forces(<double*> w0.data,
-                                          <double*> yTilde.data,
-                                          <double*> YTilde.data ,
-                                          <double*> w.data,
-                                          <double*> NULL,
-                                          theta,
-                                          <int> 0,
-                                          <double*> NULL,
-                                          <double*> tmp_n.data,
-                                          <double*> tmp_m.data,
-                                          <int> m,
-                                          <int> n)
-    else:
-        raise ValueError("Error _bioen_log_posterior_forces " + str(error))
+    val = _bioen_log_posterior_forces(<double*> w0.data,
+                                      <double*> yTilde.data,
+                                      <double*> YTilde.data ,
+                                      <double*> w.data,
+                                      <double*> NULL,
+                                      theta,
+                                      <int> 0,
+                                      <double*> NULL,
+                                      <double*> tmp_n.data,
+                                      <double*> tmp_m.data,
+                                      <int> m,
+                                      <int> n)
     return val
 
 
@@ -633,39 +604,30 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
 
     cdef np.ndarray gradient = np.empty([m], dtype=np.double)
 
+    # 1) compute weights
+    _get_weights_from_forces(<double*> w0.data,
+                             <double*> yTilde.data,
+                             <double*> forces.data,
+                             <double*> w.data,
+                             <int> use_cache_flag,
+                             <double*> yTildeT.data,
+                             <double*> tmp_n.data,
+                             <size_t> m,
+                             <size_t> n)
 
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
-
-    if error == 0:
-        # 1) compute weights
-        _get_weights_from_forces(<double*> w0.data,
-                                 <double*> yTilde.data,
-                                 <double*> forces.data,
-                                 <double*> w.data,
-                                 <int> use_cache_flag,
-                                 <double*> yTildeT.data,
-                                 <double*> tmp_n.data,
-                                 <size_t> m,
-                                 <size_t> n)
-
-        # 2) compute function gradient
-        _grad_bioen_log_posterior_forces(<double*> w0.data,
-                                         <double*> yTilde.data,
-                                         <double*> YTilde.data,
-                                         <double*> w.data,
-                                         <double*> gradient.data,
-                                         <double> theta,
-                                         <int> use_cache_flag,
-                                         <double*> yTildeT.data,
-                                         <double*> tmp_n.data,
-                                         <double*> tmp_m.data,
-                                         <int> m,
-                                         <int> n)
-    else:
-        raise ValueError("Error grad_bioen_log_posterior_forces " + str(error))
-
+    # 2) compute function gradient
+    _grad_bioen_log_posterior_forces(<double*> w0.data,
+                                     <double*> yTilde.data,
+                                     <double*> YTilde.data,
+                                     <double*> w.data,
+                                     <double*> gradient.data,
+                                     <double> theta,
+                                     <int> use_cache_flag,
+                                     <double*> yTildeT.data,
+                                     <double*> tmp_n.data,
+                                     <double*> tmp_m.data,
+                                     <int> m,
+                                     <int> n)
     return gradient
 
 
@@ -727,19 +689,19 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
     func_params.m       = <int>     m
     func_params.n       = <int>     n
 
+    cdef int error
+
     cdef double fmin
+    fmin = _opt_bfgs_forces(<params_t>             func_params,
+                            <gsl_config_params>    c_params,
+                            <visual_params>        c_visual_params,
+                            <int *>       &error )
 
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
-
-    if error == 0:
-        fmin = _opt_bfgs_forces(<params_t>             func_params,
-                                <gsl_config_params>     c_params,
-                                <visual_params>         c_visual_params)
-
+    if (error < -2 and error > 0) :
+        raise ValueError("Error bioen_opt_bfgs_forces: '" + str(error) + bioen_gsl_error(error) + str("'"))
     else:
-        raise ValueError("Error bioen_opt_bfgs_forces " + str(error))
+        if params["verbose"] == True :
+            print ("GSL: " + bioen_gsl_error(error))
 
 
     return result, fmin
@@ -807,18 +769,20 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
     func_params.m       = <int>     m
     func_params.n       = <int>     n
 
+    cdef int error
+
+
     cdef double fmin = 0.0
+    fmin = _opt_lbfgs_forces(<params_t>             func_params,
+                             <lbfgs_config_params>  c_conf_params,
+                             <visual_params>        c_visual_params,
+                             <int*>&error)
 
-    cdef jmp_buf ctx
-    _set_ctx(&ctx)
-    error = setjmp(ctx)
 
-    if error == 0:
-
-        fmin = _opt_lbfgs_forces(<params_t>             func_params,
-                                 <lbfgs_config_params>  c_conf_params,
-                                 <visual_params>        c_visual_params)
+    if (error < 0 or error > 2) :
+        raise ValueError("at bioen_opt_lbfgs_forces: '" + lbfgs_strerror(error) + str("'"))
     else:
-        raise ValueError("Error bioen_opt_lbfgs_forces " + str(error))
+        if params["verbose"] == True :
+            print ("LBFGS: " + lbfgs_strerror(error))
 
     return result, fmin

@@ -41,9 +41,11 @@ void _grad_bioen_log_posterior_logw(const double* const g,
 
 double _opt_bfgs_logw(struct params_t,
                       struct gsl_config_params config,
-                      struct visual_params visual);
+                      struct visual_params visual,
+                      int*);
 
 double _opt_lbfgs_logw(struct params_t,
                        struct lbfgs_config_params config,
-                       struct visual_params visual);
+                       struct visual_params visual,
+                       int*);
 #endif

@@ -1,16 +1,9 @@
 
 #include <stdio.h>
-#include <setjmp.h>
-
-
-enum sections { POSIX , GSL , LLBFGS };
-
-void _set_ctx(jmp_buf*);
-void bioen_manage_error(int, int);
-
+#include "c_bioen_common.h"
 
 #ifdef ENABLE_GSL
-void handler(const char *, const char *, int, int);
+const char* bioen_gsl_error(int);
 #endif
 
 #ifdef ENABLE_LBFGS
