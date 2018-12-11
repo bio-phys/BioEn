@@ -414,11 +414,10 @@ def bioen_opt_bfgs_logw(np.ndarray g,
                           <visual_params> c_visual_params,
                           <int*> &error)
 
-    if (error < -2 or error > 0) :
+    # GSL_SUCCESS = 0
+    # GSL_CONTINUE = -2 (iteration has not converged)
+    if (error != 0 and error != -2 ):
         raise ValueError("Error bioen_opt_bfgs_logw: '" + str(error)+ bioen_gsl_error(error) + str("'"))
-    else:
-        if params["verbose"] == True :
-            print ("GSL: " + bioen_gsl_error(error))
 
     return result, fmin
 
@@ -500,11 +499,13 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
                            <visual_params> c_visual_params,
                            <int*> &error)
 
+    # LBFGS_SUCCESS = 0
+    # LBFGS_CONVERGENCE = 0
+    # LBFGS_STOP = 1    # "Success: met stopping criteria (ftol).";
+    # LBFGS_ALREADY_MINIMIZED = 2
     if (error < 0 or error > 2) :
         raise ValueError("at bioen_opt_lbfgs_logw: '" + lbfgs_strerror(error) + str("'"))
-    else:
-        if params["verbose"] == True :
-            print ("LBFGS: " + lbfgs_strerror(error))
+
     return result, fmin
 
 
@@ -697,11 +698,10 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
                             <visual_params>        c_visual_params,
                             <int *>       &error )
 
-    if (error < -2 and error > 0) :
+    # GSL_SUCCESS = 0
+    # GSL_CONTINUE = -2 (iteration has not converged)
+    if (error != 0 and error != -2 ):
         raise ValueError("Error bioen_opt_bfgs_forces: '" + str(error) + bioen_gsl_error(error) + str("'"))
-    else:
-        if params["verbose"] == True :
-            print ("GSL: " + bioen_gsl_error(error))
 
 
     return result, fmin
@@ -779,10 +779,11 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
                              <int*>&error)
 
 
+    # LBFGS_SUCCESS = 0
+    # LBFGS_CONVERGENCE = 0
+    # LBFGS_STOP = 1    # "Success: met stopping criteria (ftol).";
+    # LBFGS_ALREADY_MINIMIZED = 2
     if (error < 0 or error > 2) :
         raise ValueError("at bioen_opt_lbfgs_forces: '" + lbfgs_strerror(error) + str("'"))
-    else:
-        if params["verbose"] == True :
-            print ("LBFGS: " + lbfgs_strerror(error))
 
     return result, fmin

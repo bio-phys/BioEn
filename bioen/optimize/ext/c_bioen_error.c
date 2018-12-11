@@ -23,6 +23,7 @@ const char* bioen_gsl_error(int gsl_errno){
 // Error enum from -2 to 32
 // Continue/Failure/Success = -2 to 0
 // 1 to 32 : error codes
+// From gsl/err/gsl_errno.h
 
 int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, double epsabs) {
     double norm;
@@ -54,6 +55,8 @@ int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, doub
 #endif
 
 #ifdef ENABLE_LBFGS
+// Values 0 to 2
+// Known error codes from  -994 to -1024
 // Error values description for the L-BFGS algorithm
 char* lbfgs_strerror(int error) {
 

@@ -660,6 +660,7 @@ double _opt_lbfgs_logw(struct params_t func_params,
 
     lbfgs_free(x);
 
+    *error = return_value;
 #else
     printf("%s\n", message_lbfgs_unavailable);
 #endif  // ENABLE_LBFGS

@@ -653,6 +653,7 @@ double _opt_lbfgs_forces(
 
     lbfgs_free(x);
 
+    *error = return_value;
 #else
     printf("%s\n", message_lbfgs_unavailable);
 #endif
