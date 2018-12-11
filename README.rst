@@ -2,39 +2,31 @@
  BioEn - Bayesian Inference Of ENsembles
 ========================================
 
-:Authors:       Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl
+:Authors:       César Allande, Jürgen Köfinger, Katrin Reichel,  Klaus Reuter,  Lukas S. Stelzl
 :Year:          2018
 :Licence:       GPLv3
-:Copyright:     © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
-:Citation:      | Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (2018). https://doi.org/10.1021/acs.jpclett.8b02439
-                | Hummer G. and Köfinger J., J. Chem. Phys. (2015). https://doi.org/10.1063/1.4937786
+:Copyright:     © 2018 César Allande, Gerhard Hummer, Jürgen Köfinger, Katrin Reichel, Klaus Reuter, Lukas S. Stelzl
+:References:    
 
+    - [Hummer2015] Hummer G. and Koefinger J., Bayesian Ensemble Refinement by Replica Simulations and Reweighting. J. Chem. Phys. 143(24):12B634_1 (2015). https://doi.org/10.1063/1.4937786 
+    - [Rozycki2011] Rozycki B., Kim Y. C., Hummer G., SAXS Ensemble Refinement of ESCRT-III Chmp3 Conformational Transitions Structure  19 109–116 (2011). https://doi.org/10.1016/j.str.2010.10.006
+    - [Reichel2018] Reichel K., Stelzl L. S., Köfinger J., Hummer G., Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett. 9 19 5748-5752 (2018). https://doi.org/10.1021/acs.jpclett.8b02439
 
 Description
 ===========
 
 BioEn integrates a broad range of experimental data to refine ensembles of structures.
+For a detailed description of the procedures and the algorithm, we refer to [Hummer2015].
 
 .. image::  /img/bioen.png
 
-For a detailed description of the procedures and the algorithm, we refer to [Hummer2015,Reichel2018].
-
-
-BioEn spin-label rotamer refinement
------------------------------------
-
-The BioEn software has been used to resolve precise distance from DEER experiments with flexbile spin lables as described in a recent paper  `"Precision DEER Distances from Spin-Label Ensemble Refinement" 
-<http://www.python.org/>`_.  
-
-Notebooks for spin-label refinement can be found in the `examples folder <https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA/>`_. 
-
 Overview of the BioEn software
------------------------------
+------------------------------
 
-The BioEn software consists of two packages:
-* optimize (functions to solve the BioEn optimization problem)
-* analyze (apply BioEn to a wide class of experimental data)
+The BioEn software consists of two python packages:
 
+* **BioEn/optimize** contains algorithms to solve the optimization problem underlying ensemble refinement by reweighting.
+* **BioEn/analyze** uses BioEn/optimize to integrage a wide range of experimental data and simulations)
 
 Dependencies and Software Requirements
 ======================================
@@ -54,7 +46,8 @@ Installation
 ============
 
 Installation
----------------------
+------------
+
 After loading the dependencies, install the package with::
 
 	BIOEN_OPENMP=1 python setup.py install
@@ -95,15 +88,20 @@ into a terminal and then set the path::
 
         export GSL_HOME=/usr/local/Cellar/gsl/1.16
 
-
 Usage
 =====
 
-We want to integrate a diverse set of experimental data with simulated observables. Therefore, we implemented three types of chi2-square calculations to use different kinds of experimental data:
+We want to integrate a diverse set of experimental data with simulated observables. Therefore, we implemented three types of chi-square calculations to use different kinds of experimental data:
 
-* Generic data (chi-square calculation without nuisance parameters)
+* Generic data (chi-square optimization without nuisance parameters)
 * DEER/PELDOR data (includes the modulation depth as a nuisance parameter)
-* Scattering data (includes the coefficient as a nuisance parameter)
+* SAXS/WAXS/SANS data (includes the scaling parameter and constant offset as a nuisance parameter)
+
+
+BioEn can also be used to obtain **precision DEER distances from spin-label ensemble refinement** [Reichel2018], for which we provide an `example
+<https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA>`_.
+
+.. .. image:: ./img/spin-label_rotamer_refinment_POTRA.jpg :width: 100px
 
 
 (1) Generic data
@@ -301,15 +299,8 @@ For further options and more information, type::
 Help
 ====
 
-Please, if you have an issue with the software, open an issue here on the github repository. If you have any questions, please contact bioen@biophys.mpg.de.
+Please, if you have an issue with the software, open an issue here on the github repository https://github.com/bio-phys/bioen/issues. 
+
+If you have any questions or suggestions, please contact bioen@biophys.mpg.de.
 
 
-References
-==========
-
-.. Articles
-.. --------
-
-.. [Reichel2018] Reichel K., Stelzl L. S., Köfinger J., Hummer G., Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018). https://doi.org/10.1021/acs.jpclett.8b02439
-
-.. [Hummer2015] Hummer G. and Koefinger J., Bayesian Ensemble Refinement by Replica Simulations and Reweighting. J. Chem. Phys. 143(24):12B634_1 (2015). https://doi.org/10.1063/1.4937786
