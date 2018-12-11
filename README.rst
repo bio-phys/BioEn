@@ -23,7 +23,7 @@ For a detailed description of the procedures and the algorithm, we refer to [Hum
 Overview of the BioEn software
 ------------------------------
 
-The BioEn software consists of two python packages:
+The BioEn software consists of two Python packages:
 
 * **BioEn/optimize** contains algorithms to solve the optimization problem underlying ensemble refinement by reweighting.
 * **BioEn/analyze** uses BioEn/optimize to integrage a wide range of experimental data and simulations)
