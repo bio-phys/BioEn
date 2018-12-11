@@ -25,8 +25,8 @@ Overview of the BioEn software
 
 The BioEn software consists of two Python packages:
 
-* **BioEn/optimize** contains algorithms to solve the optimization problem underlying ensemble refinement by reweighting.
-* **BioEn/analyze** uses BioEn/optimize to integrage a wide range of experimental data and simulations)
+* `BioEn/optimize <https://github.com/bio-phys/BioEn/optimize>`_ provides algorithms to solve the optimization problem underlying ensemble refinement by reweighting. This package can be used independently of BioEn/analyze. 
+* `BioEn/analyze <https://github.com/bio-phys/BioEn/analyze>`_ uses BioEn/optimize to integrate a wide range of experimental data and simulations in a user friendly way.
 
 Dependencies and Software Requirements
 ======================================
