@@ -105,7 +105,11 @@ cdef extern from "c_bioen_kernels_forces.h":
 
 
 # GSL status codes, see <gsl_errno.h>:
-gsl_success = [0]
+# We add '-2' since even though GSL would do more iterations,
+# the result is often OK.
+gsl_continue = -2
+gsl_success = [gsl_continue, 0]
+gsl_continue_msg = "Note: GSL may need more iterations, please check the parameters."
 
 # LBFGS status codes, see <lbfgs.h>:
 lbfgs_success = [0, 1, 2]
@@ -404,6 +408,8 @@ def bioen_opt_bfgs_logw(np.ndarray g,
                                       <int*> &errno)
 
     if errno in gsl_success:
+        if errno == gsl_continue:
+            print(gsl_continue_msg)
         return result, fmin
     else:
         raise RuntimeError("bioen_opt_bfgs_logw: {}:{}".format(errno, bioen_gsl_error(errno)))
@@ -677,6 +683,8 @@ def bioen_opt_bfgs_forces(np.ndarray forces, np.ndarray w0,
                                         <int *> &errno)
 
     if errno in gsl_success:
+        if errno == gsl_continue:
+            print(gsl_continue_msg)
         return result, fmin
     else:
         raise RuntimeError("bioen_opt_bfgs_forces: {}:{}".format(errno, bioen_gsl_error(errno)))
