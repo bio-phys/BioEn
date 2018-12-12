@@ -11,20 +11,16 @@
 #include <lbfgs.h>
 #endif
 
-char* lbfgs_strerror(int error);
-
 const char* bioen_gsl_error(int gsl_errno){
+#ifdef ENABLE_GSL
     return gsl_strerror(gsl_errno);
+#else
+    return NULL;
+#endif
 }
 
 
 #ifdef ENABLE_GSL
-
-// Error enum from -2 to 32
-// Continue/Failure/Success = -2 to 0
-// 1 to 32 : error codes
-// From gsl/err/gsl_errno.h
-
 int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, double epsabs) {
     double norm;
     double temp;
@@ -54,19 +50,13 @@ int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, doub
 }
 #endif
 
-#ifdef ENABLE_LBFGS
-// Values 0 to 2
-// Known error codes from  -994 to -1024
-// Error values description for the L-BFGS algorithm
-char* lbfgs_strerror(int error) {
 
+char* lbfgs_strerror(int error) {
+#ifdef ENABLE_LBFGS
     switch (error) {
-            // case LBFGS_SUCCESS: // 0
-        case LBFGS_CONVERGENCE:                                 // 0
-            // return "Success: reached convergence (gtol)";
-            return "LBFGS_CONVERGENCE";
+        case LBFGS_SUCCESS: // synonym is LBFGS_CONVERGENCE, value is 0
+            return "Convergence reached.";
         case LBFGS_STOP:                                        // 1
-            // return "Success: met stopping criteria (ftol).";
             return "LBFGS_STOP";
         case LBFGS_ALREADY_MINIMIZED:                           // 2
             return "The initial variables already minimize the objective "
@@ -151,5 +141,7 @@ char* lbfgs_strerror(int error) {
         default:
             return "(unknown)";
     };
-}
+#else
+    return NULL;
 #endif
+}

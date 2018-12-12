@@ -6,14 +6,11 @@ cimport numpy as np
 
 
 cdef extern from "c_bioen_error.h":
-
     char* bioen_gsl_error(int)
-
     char* lbfgs_strerror(int)
 
 
 cdef extern from "c_bioen_kernels_logw.h":
-
     double _get_weights(const double* const, # g
                         double* const, # w
                         const size_t) # n
@@ -51,29 +48,24 @@ cdef extern from "c_bioen_kernels_logw.h":
     double _opt_bfgs_logw(params_t,          # func_params
                           gsl_config_params, # c_params
                           visual_params,     # c_visual_params
-                          int *
-                         )
+                          int *)  # errno
 
     double _opt_lbfgs_logw(params_t,            #func_params
                            lbfgs_config_params, #c_params
                            visual_params,        #c_visual_params
-                           int *
-                          )
-
+                           int *) # errno
 
 
 cdef extern from "c_bioen_kernels_forces.h":
-
-
     double _opt_bfgs_forces(params_t, # packed params
                             gsl_config_params, # config
                             visual_params, # visual
-                            int *) # error
+                            int *) # errno
 
     double _opt_lbfgs_forces(params_t, # packed params
                              lbfgs_config_params, # config
                              visual_params, # visual
-                             int *) # error
+                             int *) # errno
 
     void _get_weights_from_forces(const double* const, # w0
                                   const double* const, # yTilde
@@ -112,6 +104,13 @@ cdef extern from "c_bioen_kernels_forces.h":
                                             const int) # n_int
 
 
+# GSL status codes, see <gsl_errno.h>:
+gsl_success = [0]
+
+# LBFGS status codes, see <lbfgs.h>:
+lbfgs_success = [0, 1, 2]
+
+
 cdef extern from "c_bioen_common.h":
     int _library_gsl()
     int _library_lbfgs()
@@ -145,8 +144,6 @@ cdef extern from "c_bioen_common.h":
         size_t debug            "debug"
         size_t verbose          "verbose"
 
-
-
     struct params_t     "params_t":
         double *forces  "forces"
         double *w0      "w0"
@@ -165,7 +162,6 @@ cdef extern from "c_bioen_common.h":
         int n           "n"
 
 
-
 def set_fast_openmp_flag(flag):
     _set_fast_openmp_flag(flag)
 
@@ -176,7 +172,7 @@ def get_fast_openmp_flag():
 
 def get_gsl_method(algorithm):
     """
-    Returns the id. of gsl's corresponding internal value to string name algorithm
+    Returns the id of gsl's internal value for algorithm.
 
     Parameters
     ----------
@@ -184,23 +180,21 @@ def get_gsl_method(algorithm):
 
     Returns
     -------
-    int: gsl's algorithm identificator
-
+    int: gsl's algorithm id
     """
 
-    if algorithm == "conjugate_fr" or algorithm == "gsl_multimin_fdfminimizer_conjugate_fr" :
+    if algorithm == "conjugate_fr" or algorithm == "gsl_multimin_fdfminimizer_conjugate_fr":
         return 0
-    elif algorithm == "conjugate_pr" or algorithm == "gsl_multimin_fdfminimizer_conjugate_pr" :
+    elif algorithm == "conjugate_pr" or algorithm == "gsl_multimin_fdfminimizer_conjugate_pr":
         return 1
-    elif algorithm == "bfgs2" or algorithm == "gsl_multimin_fdfminimizer_vector_bfgs2" :
+    elif algorithm == "bfgs2" or algorithm == "gsl_multimin_fdfminimizer_vector_bfgs2":
         return 2
-    elif algorithm == "bfgs" or algorithm == "gsl_multimin_fdfminimizer_vector_bfgs" :
+    elif algorithm == "bfgs" or algorithm == "gsl_multimin_fdfminimizer_vector_bfgs":
         return 3
-    elif algorithm == "steepest_descent" or algorithm == "gsl_multimin_fdfminimizer_steepest_descent" :
+    elif algorithm == "steepest_descent" or algorithm == "gsl_multimin_fdfminimizer_steepest_descent":
         return 4
     else:
-        # Default is bfgs2
-        print("Warning: Algorithm not recognized. Using gsl_multimin_fdfminimizer_vector_bfgs2 as default")
+        # default is bfgs2
         return 2
 
 
@@ -238,7 +232,7 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                              np.ndarray yTilde, np.ndarray YTilde, theta, caching=False):
     """
     Parameters
-    ---------
+    ----------
     gPrime: array_like, current log weights
     g: array_like, N log weights (initial log-weights)
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
@@ -280,7 +274,6 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                     <int> m,
                                     <int> n,
                                     <double> weights_sum)
-
     return val
 
 
@@ -288,7 +281,7 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                   np.ndarray yTilde, np.ndarray YTilde, theta, caching=False):
     """
     Parameters
-    ---------
+    ----------
     gPrime: array_like, current log weights
     g: array_like, N log weights (initial log-weights)
     G: array_like, vector with N components, derived from BioEn inital weights (reference probabilities)
@@ -317,7 +310,6 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
 
     cdef double weights_sum
 
-
     # 1) compute weights
     weights_sum = _get_weights(<double*> gPrime.data,
                                <double*> w.data,
@@ -338,7 +330,6 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                    <int> m,
                                    <int> n,
                                    <double> weights_sum)
-
     return gradient
 
 
@@ -390,7 +381,6 @@ def bioen_opt_bfgs_logw(np.ndarray g,
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
 
-
     cdef params_t  func_params
     func_params.g       = <double*> g.data
     func_params.G       = <double*> G.data
@@ -406,20 +396,17 @@ def bioen_opt_bfgs_logw(np.ndarray g,
     func_params.m       = <int>     m
     func_params.n       = <int>     n
 
+    cdef int errno = 0
 
-    cdef int error
-    cdef double fmin
-    fmin = _opt_bfgs_logw(<params_t> func_params,
-                          <gsl_config_params> c_params,
-                          <visual_params> c_visual_params,
-                          <int*> &error)
+    cdef double fmin = _opt_bfgs_logw(<params_t> func_params,
+                                      <gsl_config_params> c_params,
+                                      <visual_params> c_visual_params,
+                                      <int*> &errno)
 
-    # GSL_SUCCESS = 0
-    # GSL_CONTINUE = -2 (iteration has not converged)
-    if (error != 0 and error != -2 ):
-        raise ValueError("Error bioen_opt_bfgs_logw: '" + str(error)+ bioen_gsl_error(error) + str("'"))
-
-    return result, fmin
+    if errno in gsl_success:
+        return result, fmin
+    else:
+        raise RuntimeError("bioen_opt_bfgs_logw: {}:{}".format(errno, bioen_gsl_error(errno)))
 
 
 def bioen_opt_lbfgs_logw(np.ndarray g,
@@ -461,7 +448,6 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     # temporary arrays
     cdef np.ndarray result = np.empty([n], dtype=np.double)
 
-
     cdef lbfgs_config_params c_params
     c_params.linesearch     = params["params"]["linesearch"]
     c_params.max_iterations = params["params"]["max_iterations"]
@@ -471,7 +457,6 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     c_params.gtol           = params["params"]["gtol"]
     c_params.past           = params["params"]["past"]
     c_params.max_linesearch = params["params"]["max_linesearch"]
-
 
     cdef visual_params c_visual_params
     c_visual_params.debug   = params["debug"]
@@ -492,21 +477,16 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     func_params.m       = <int>     m
     func_params.n       = <int>     n
 
-    cdef int error
-    cdef double fmin
-    fmin = _opt_lbfgs_logw(<params_t> func_params,
-                           <lbfgs_config_params> c_params,
-                           <visual_params> c_visual_params,
-                           <int*> &error)
+    cdef int errno = 0
+    cdef double fmin = _opt_lbfgs_logw(<params_t> func_params,
+                                       <lbfgs_config_params> c_params,
+                                       <visual_params> c_visual_params,
+                                       <int*> &errno)
 
-    # LBFGS_SUCCESS = 0
-    # LBFGS_CONVERGENCE = 0
-    # LBFGS_STOP = 1    # "Success: met stopping criteria (ftol).";
-    # LBFGS_ALREADY_MINIMIZED = 2
-    if (error < 0 or error > 2) :
-        raise ValueError("at bioen_opt_lbfgs_logw: '" + lbfgs_strerror(error) + str("'"))
-
-    return result, fmin
+    if errno in lbfgs_success:
+        return result, fmin
+    else:
+        raise RuntimeError("bioen_opt_lbfgs_logw: {}:{}".format(errno, lbfgs_strerror(errno)))
 
 
 def bioen_log_posterior_forces(np.ndarray forces,
@@ -586,8 +566,8 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
     theta: float, confidence parameter
     caching: performance optimization; local transposed copy of yTilde (default = False)
 
-    Returns:
-    --------
+    Returns
+    -------
     array_like: gradient
     """
     cdef int m = yTilde.shape[0]
@@ -632,8 +612,8 @@ def grad_bioen_log_posterior_forces(np.ndarray forces,
     return gradient
 
 
-def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
-                          np.ndarray yTilde,  np.ndarray YTilde,  theta, params):
+def bioen_opt_bfgs_forces(np.ndarray forces, np.ndarray w0,
+                          np.ndarray yTilde, np.ndarray YTilde, theta, params):
     """
     Parameters
     ----------
@@ -674,7 +654,6 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
     c_visual_params.debug   = params["debug"]
     c_visual_params.verbose = params["verbose"]
 
-
     cdef params_t  func_params
     func_params.forces  = <double*> forces.data
     func_params.w0      = <double*> w0.data
@@ -690,21 +669,17 @@ def bioen_opt_bfgs_forces(np.ndarray forces,  np.ndarray w0,
     func_params.m       = <int>     m
     func_params.n       = <int>     n
 
-    cdef int error
+    cdef int errno = 0
 
-    cdef double fmin
-    fmin = _opt_bfgs_forces(<params_t>             func_params,
-                            <gsl_config_params>    c_params,
-                            <visual_params>        c_visual_params,
-                            <int *>       &error )
+    cdef double fmin = _opt_bfgs_forces(<params_t> func_params,
+                                        <gsl_config_params> c_params,
+                                        <visual_params> c_visual_params,
+                                        <int *> &errno)
 
-    # GSL_SUCCESS = 0
-    # GSL_CONTINUE = -2 (iteration has not converged)
-    if (error != 0 and error != -2 ):
-        raise ValueError("Error bioen_opt_bfgs_forces: '" + str(error) + bioen_gsl_error(error) + str("'"))
-
-
-    return result, fmin
+    if errno in gsl_success:
+        return result, fmin
+    else:
+        raise RuntimeError("bioen_opt_bfgs_forces: {}:{}".format(errno, bioen_gsl_error(errno)))
 
 
 def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
@@ -739,7 +714,6 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
 
     cdef np.ndarray result = np.empty([m], dtype=np.double)
 
-
     cdef lbfgs_config_params c_conf_params
     c_conf_params.linesearch     = params["params"]["linesearch"]
     c_conf_params.max_iterations = params["params"]["max_iterations"]
@@ -769,21 +743,14 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
     func_params.m       = <int>     m
     func_params.n       = <int>     n
 
-    cdef int error
+    cdef int errno = 0
 
+    cdef double fmin = _opt_lbfgs_forces(<params_t> func_params,
+                                         <lbfgs_config_params> c_conf_params,
+                                         <visual_params> c_visual_params,
+                                         <int*> &errno)
 
-    cdef double fmin = 0.0
-    fmin = _opt_lbfgs_forces(<params_t>             func_params,
-                             <lbfgs_config_params>  c_conf_params,
-                             <visual_params>        c_visual_params,
-                             <int*>&error)
-
-
-    # LBFGS_SUCCESS = 0
-    # LBFGS_CONVERGENCE = 0
-    # LBFGS_STOP = 1    # "Success: met stopping criteria (ftol).";
-    # LBFGS_ALREADY_MINIMIZED = 2
-    if (error < 0 or error > 2) :
-        raise ValueError("at bioen_opt_lbfgs_forces: '" + lbfgs_strerror(error) + str("'"))
-
-    return result, fmin
+    if errno in lbfgs_success:
+        return result, fmin
+    else:
+        raise RuntimeError("bioen_opt_lbfgs_forces: {}:{}".format(errno, lbfgs_strerror(errno)))
