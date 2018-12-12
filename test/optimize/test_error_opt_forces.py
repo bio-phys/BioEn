@@ -6,8 +6,8 @@ if sys.version_info >= (3,):
 else:
     import cPickle as pickle
 import numpy as np
-
 from bioen import optimize
+import pytest
 
 
 # relative tolerance for value comparison
@@ -90,8 +90,7 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
                 #  Force an error by defining a wrong parameter
                 params['params']['step_size'] = -1.00001
                 print (params['params'])
-
-            if params['minimizer'] == "lbfgs":
+            elif params['minimizer'] == "lbfgs":
                 #  Force an error by defining a wrong parameter
                 params['params']['delta'] = -1.
 
@@ -99,14 +98,9 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
                 print("-" * 80)
                 print("", params)
 
-            try:
-                # run optimization
+            with pytest.raises(RuntimeError):
                 wopt_list[i], yopt_list[i], forces_list[i], fmin_initial_list[i], fmin_final_list[i], chiSqr[i], S[i] = \
                     optimize.forces.find_optimum(forces_init, w0, y, yTilde, YTilde, theta, params)
-                ## It should crash and never reach this point
-                assert(False)
-            except ValueError:
-                assert(True)
 
 
 def test_error_opt_forces():
@@ -116,4 +110,3 @@ def test_error_opt_forces():
     for file_name in filenames:
         caching = ["False"]
         run_test_error_forces(file_name=file_name, caching=caching)
-

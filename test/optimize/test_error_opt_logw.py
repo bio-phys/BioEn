@@ -7,6 +7,7 @@ else:
     import cPickle as pickle
 import numpy as np
 from bioen import optimize
+import pytest
 
 
 # relative tolerance for value comparison
@@ -88,24 +89,18 @@ def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=
             #  Force an error by defining a wrong parameter
             params['params']['step_size'] = -1.00001
             print (params['params'])
-
-        if params['minimizer'] == "lbfgs":
+        elif params['minimizer'] == "lbfgs":
             #  Force an error by defining a wrong parameter
             params['params']['delta'] = -1.
-
 
         if verbose:
             print("-" * 80)
             print(params)
 
-        try:
+        with pytest.raises(RuntimeError):
             # run optimization
             wopt_list[i], yopt_list[i], gopt_list[i], fmin_initial_list[i], fmin_final_list[i] =  \
                 optimize.log_weights.find_optimum(GInit, G, y, yTilde, YTilde, theta, params)
-                ## It should crash and never reach this point
-            assert(False)
-        except ValueError:
-            assert(True)
 
 
 
@@ -117,8 +112,3 @@ def test_error_opt_logw():
     for file_name in filenames:
         caching = ["False"]
         run_test_error_opt_logw(file_name=file_name, caching=caching)
-
-
-
-
-
