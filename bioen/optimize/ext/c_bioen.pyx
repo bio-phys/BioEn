@@ -1,6 +1,7 @@
 """Cython interface to the C implementations of the log-weights and the forces methods.
 """
 
+import sys
 import numpy as np
 cimport numpy as np
 
@@ -109,7 +110,7 @@ cdef extern from "c_bioen_kernels_forces.h":
 # the result is often OK.
 gsl_continue = -2
 gsl_success = [gsl_continue, 0]
-gsl_continue_msg = "Note: GSL may need more iterations, please check the parameters."
+gsl_continue_msg = "Note: GSL might require more iterations, please check the parameters of the minimizer."
 
 # LBFGS status codes, see <lbfgs.h>:
 lbfgs_success = [0, 1, 2]
@@ -197,6 +198,8 @@ def get_gsl_method(algorithm):
         return 3
     elif algorithm == "steepest_descent" or algorithm == "gsl_multimin_fdfminimizer_steepest_descent":
         return 4
+    elif algorithm == "TEST_INVALID":
+        return 1024
     else:
         # default is bfgs2
         return 2
@@ -412,7 +415,8 @@ def bioen_opt_bfgs_logw(np.ndarray g,
             print(gsl_continue_msg)
         return result, fmin
     else:
-        raise RuntimeError("bioen_opt_bfgs_logw: {}:{}".format(errno, bioen_gsl_error(errno)))
+        raise RuntimeError("{}, GSL return code: {}:{}".format(
+            sys._getframe().f_code.co_name, errno, bioen_gsl_error(errno)))
 
 
 def bioen_opt_lbfgs_logw(np.ndarray g,
@@ -492,7 +496,8 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     if errno in lbfgs_success:
         return result, fmin
     else:
-        raise RuntimeError("bioen_opt_lbfgs_logw: {}:{}".format(errno, lbfgs_strerror(errno)))
+        raise RuntimeError("{}, liblbfgs return code: {}:{}".format(
+            sys._getframe().f_code.co_name, errno, lbfgs_strerror(errno)))
 
 
 def bioen_log_posterior_forces(np.ndarray forces,
@@ -687,7 +692,8 @@ def bioen_opt_bfgs_forces(np.ndarray forces, np.ndarray w0,
             print(gsl_continue_msg)
         return result, fmin
     else:
-        raise RuntimeError("bioen_opt_bfgs_forces: {}:{}".format(errno, bioen_gsl_error(errno)))
+        raise RuntimeError("{}, GSL return code: {}:{}".format(
+            sys._getframe().f_code.co_name, errno, bioen_gsl_error(errno)))
 
 
 def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
@@ -761,4 +767,5 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
     if errno in lbfgs_success:
         return result, fmin
     else:
-        raise RuntimeError("bioen_opt_lbfgs_forces: {}:{}".format(errno, lbfgs_strerror(errno)))
+        raise RuntimeError("{}, liblbfgs return code: {}:{}".format(
+            sys._getframe().f_code.co_name, errno, lbfgs_strerror(errno)))

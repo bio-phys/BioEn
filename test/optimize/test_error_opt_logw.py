@@ -97,11 +97,13 @@ def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=
             print("-" * 80)
             print(params)
 
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError) as excinfo:
             # run optimization
             wopt_list[i], yopt_list[i], gopt_list[i], fmin_initial_list[i], fmin_final_list[i] =  \
                 optimize.log_weights.find_optimum(GInit, G, y, yTilde, YTilde, theta, params)
 
+        print(excinfo.value)
+        assert('return code' in str(excinfo.value))
 
 
 def test_error_opt_logw():

@@ -26,19 +26,25 @@ filenames = [
 
 
 def available_tests():
-    exp_list_base = ""
+    exp_list_base = None
     exp_list_gsl = [['GSL'],
                     ['bfgs2']]
     exp_list_lbfgs = [['LBFGS'],
                       ['lbfgs']]
-    if (not optimize.util.library_gsl()):
-        exp_list_base = exp_list_gsl
+
+    # if (not optimize.util.library_gsl()):
+    #     exp_list_base = exp_list_gsl
+
+    # if (optimize.util.library_lbfgs()):
+    #     if exp_list_base != "" :
+    #         exp_list_base = np.hstack((exp_list_base, exp_list_lbfgs))
+    #     else:
+    #         exp_list_base = exp_list_lbfgs
+
+    # exp_list_base = np.hstack((exp_list_gsl, exp_list_lbfgs))
 
     if (optimize.util.library_lbfgs()):
-        if exp_list_base != "" :
-            exp_list_base = np.hstack((exp_list_base, exp_list_lbfgs))
-        else:
-            exp_list_base = exp_list_lbfgs
+        exp_list_base = exp_list_lbfgs
 
     return exp_list_base
 
@@ -54,9 +60,10 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
         print(" OPENMP NUM. THREADS = ", os.environ["OMP_NUM_THREADS"])
 
     exp_list = available_tests()
+    print(exp_list)
 
     # if GSL and LBFGS are not active we do not test error handling.
-    if exp_list != "" :
+    if exp_list is not None:
         # allocate vectors to store results
         exp_size = len(exp_list[0])
         wopt_list = [0] * (exp_size)
@@ -88,8 +95,8 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
 
             if params['minimizer'] == "gsl":
                 #  Force an error by defining a wrong parameter
-                params['params']['step_size'] = -1.00001
-                print (params['params'])
+                params['params']['algorithm'] = "TEST_INVALID"
+                # print (params['params'])
             elif params['minimizer'] == "lbfgs":
                 #  Force an error by defining a wrong parameter
                 params['params']['delta'] = -1.
@@ -98,9 +105,12 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
                 print("-" * 80)
                 print("", params)
 
-            with pytest.raises(RuntimeError):
+            with pytest.raises(RuntimeError) as excinfo:
                 wopt_list[i], yopt_list[i], forces_list[i], fmin_initial_list[i], fmin_final_list[i], chiSqr[i], S[i] = \
                     optimize.forces.find_optimum(forces_init, w0, y, yTilde, YTilde, theta, params)
+
+            print(excinfo.value)
+            assert('return code' in str(excinfo.value))
 
 
 def test_error_opt_forces():
