@@ -11,7 +11,7 @@
     - [Hummer2015] Hummer G. and Koefinger J., Bayesian Ensemble Refinement by Replica Simulations and Reweighting. J. Chem. Phys. 143(24):12B634_1 (2015). https://doi.org/10.1063/1.4937786 
     - [Rozycki2011] Rozycki B., Kim Y. C., Hummer G., SAXS Ensemble Refinement of ESCRT-III Chmp3 Conformational Transitions Structure  19 109–116 (2011). https://doi.org/10.1016/j.str.2010.10.006
     - [Reichel2018] Reichel K., Stelzl L. S., Köfinger J., Hummer G., Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett. 9 19 5748-5752 (2018). https://doi.org/10.1021/acs.jpclett.8b02439
-    - [Köfinger-submitted] Koefinger J, Stelzl L. S. Reuter K., Allande C., Reichel K, Hummer G., Efficient Ensemble Refinement by Reweighting https://doi.org/10.26434/chemrxiv.7461413.v1
+    - [Köfinger-submitted] Koefinger J., Stelzl L. S. Reuter K., Allande C., Reichel K., Hummer G., Efficient Ensemble Refinement by Reweighting https://doi.org/10.26434/chemrxiv.7461413.v1
 
 Description
 ===========
