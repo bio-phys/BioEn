@@ -129,7 +129,7 @@ Please take note of the options ``--sim_path``, ``--sim_prefix``, ``--sim_sufffi
 
 (2) Experimental data from DEER/PELDOR measurements
 ---------------------------------------------------
-For the reweighting with experimental data including a nuisance parameter (here: modulation depth), the structure of the input files is extended and more information is needed. To use DEER data, the bioen options should contain ``--experiments deer``. In the case of DEER data, we can either perform reweighting over an ensemble of conformations with averaged spin-label rotamer states or over an ensemble of spin-label rotamer states with a single protein conformation.
+For the reweighting with experimental data including a nuisance parameter (here: modulation depth), the structure of the input files is extended and more information is needed. To use DEER data, the bioen options should contain ``--experiments deer``. In the case of DEER data, we can either perform reweighting over an ensemble of conformations with  `averaged spin-label rotamer states <https://github.com/bio-phys/BioEn/blob/master/examples/DEER/conformation-refinement/conformer_refinement.ipynb>`_  or   over an  `ensemble of spin-label rotamer states with a single protein conformation  <https://github.com/bio-phys/BioEn/blob/master/examples/DEER/rotamer-refinement/POTRA/rotamer_refinement_potra.ipynb>`_.
 
 If an ensemble of conformations is investigated, provide for each label pair (e.g. 319-259) a single file of the experimental data (e.g., ``./test/deer/data/exp-319-259-deer.dat``) and ensemble member (e.g., ``./test/deer/data/conf0-319-259-deer.dat``). The experimental data file contains:
 
@@ -183,7 +183,7 @@ Please take note of the options ``--deer-sim_path``, ``--deer_sim_prefix``, ``--
 
 (3) Experimental data from SAXS/WAXS measurements
 -------------------------------------------------
-BioEn can be used with scattering data like SAXS or WAXS, for which we provide also the optimization of the nuisance parameter (here: coefficient). To use scattering data, the bioen options should contain ``--experiments scattering``. The input data is handled in a similar way as the DEER data, but just for a single scattering curve and not different label-pairs. The standard file format for experimental data (e.g. ``lyz-exp.dat``) is:
+BioEn can be used with  `scattering data <https://github.com/bio-phys/BioEn/blob/master/examples/scattering/scattering_reweighting.ipynb>`_ like SAXS or WAXS, for which we provide also the optimization of the nuisance parameter (here: coefficient). To use scattering data, the bioen options should contain ``--experiments scattering``. The input data is handled in a similar way as the DEER data, but just for a single scattering curve and not different label-pairs. The standard file format for experimental data (e.g. ``lyz-exp.dat``) is:
 
 .. code-block:: bash
 
