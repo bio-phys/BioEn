@@ -92,6 +92,16 @@ def get_entropy(w0, weights):
     Returns
     -------
     S: float, relative entropy
+    
+    Warnings
+    --------
+    The current implementation returns the negative Kullback-Leibler divergence.
+    For ellbow plots, you have to take minus the output of the function. This likely
+    to be changed in the future so that the function returns the Kullback-Leibler divergence. 
+    
+    References
+    ----------
+    https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence      
     """
     return - np.sum(weights.T * np.log(weights / w0))
 

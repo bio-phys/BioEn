@@ -2,31 +2,32 @@
  BioEn - Bayesian Inference Of ENsembles
 ========================================
 
-:Authors:       Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl
+:Authors:       César Allande, Jürgen Köfinger, Katrin Reichel,  Klaus Reuter,  Lukas S. Stelzl
 :Year:          2018
 :Licence:       GPLv3
-:Copyright:     © 2018 Katrin Reichel, Jürgen Köfinger, Klaus Reuter, César Allande, Lukas S. Stelzl, Gerhard Hummer
-:Citation:      | Reichel K., Stelzl L.S., Köfinger J., Hummer G., J. Phys. Chem. Lett. (2018). https://doi.org/10.1021/acs.jpclett.8b02439
-                | Hummer G. and Köfinger J., J. Chem. Phys. (2015). https://doi.org/10.1063/1.4937786
+:Copyright:     © 2018 César Allande, Gerhard Hummer, Jürgen Köfinger, Katrin Reichel, Klaus Reuter, Lukas S. Stelzl
+:References:
 
+    - [Hummer2015] Hummer G. and Koefinger J., Bayesian Ensemble Refinement by Replica Simulations and Reweighting. J. Chem. Phys. 143(24):12B634_1 (2015). https://doi.org/10.1063/1.4937786
+    - [Rozycki2011] Rozycki B., Kim Y. C., Hummer G., SAXS Ensemble Refinement of ESCRT-III Chmp3 Conformational Transitions Structure  19 109–116 (2011). https://doi.org/10.1016/j.str.2010.10.006
+    - [Reichel2018] Reichel K., Stelzl L. S., Köfinger J., Hummer G., Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett. 9 19 5748-5752 (2018). https://doi.org/10.1021/acs.jpclett.8b02439
+    - [Köfinger-submitted] Koefinger J., Stelzl L. S. Reuter K., Allande C., Reichel K., Hummer G., Efficient Ensemble Refinement by Reweighting https://doi.org/10.26434/chemrxiv.7461413.v1
 
 Description
 ===========
 
 BioEn integrates a broad range of experimental data to refine ensembles of structures.
+For a detailed description of the procedures and the algorithm, we refer to [Hummer2015].
 
 .. image::  /img/bioen.png
 
-For a detailed description of the procedures and the algorithm, we refer to [Hummer2015,Reichel2018].
+Overview of the BioEn software
+------------------------------
 
+The BioEn software consists of two Python packages:
 
-BioEn spin-label rotamer refinement
------------------------------------
-
-Link to **Precision DEER Distances from Spin-Label Ensemble Refinement**
-
-https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA
-
+* `BioEn/optimize <https://github.com/bio-phys/BioEn/optimize>`_ provides algorithms to solve the optimization problem underlying ensemble refinement by reweighting. This package can be used independently of BioEn/analyze.
+* `BioEn/analyze <https://github.com/bio-phys/BioEn/analyze>`_ uses BioEn/optimize to integrate a wide range of experimental data and simulations in a user friendly way.
 
 Dependencies and Software Requirements
 ======================================
@@ -109,15 +110,20 @@ into a terminal and then set the path::
 
         export GSL_HOME=/usr/local/Cellar/gsl/1.16
 
-
 Usage
 =====
 
-We want to integrate a diverse set of experimental data with simulated observables. Therefore, we implemented three types of chi2-square calculations to use different kinds of experimental data:
+We want to integrate a diverse set of experimental data with simulated observables. Therefore, we implemented three types of chi-square calculations to use different kinds of experimental data:
 
-* Generic data (chi-square calculation without nuisance parameters)
+* Generic data (chi-square optimization without nuisance parameters)
 * DEER/PELDOR data (includes the modulation depth as a nuisance parameter)
-* Scattering data (includes the coefficient as a nuisance parameter)
+* SAXS/WAXS/SANS data (includes the scaling parameter and constant offset as a nuisance parameter)
+
+
+BioEn can also be used to obtain **precision DEER distances from spin-label ensemble refinement** [Reichel2018], for which we provide an `example
+<https://github.com/bio-phys/BioEn/tree/master/examples/DEER/rotamer-refinement/POTRA>`_.
+
+.. .. image:: ./img/spin-label_rotamer_refinment_POTRA.jpg :width: 100px
 
 
 (1) Generic data
@@ -144,7 +150,7 @@ Please take note of the options ``--sim_path``, ``--sim_prefix``, ``--sim_sufffi
 
 (2) Experimental data from DEER/PELDOR measurements
 ---------------------------------------------------
-For the reweighting with experimental data including a nuisance parameter (here: modulation depth), the structure of the input files is extended and more information is needed. To use DEER data, the bioen options should contain ``--experiments deer``. In the case of DEER data, we can either perform reweighting over an ensemble of conformations with averaged spin-label rotamer states or over an ensemble of spin-label rotamer states with a single protein conformation.
+For the reweighting with experimental data including a nuisance parameter (here: modulation depth), the structure of the input files is extended and more information is needed. To use DEER data, the bioen options should contain ``--experiments deer``. In the case of DEER data, we can either perform reweighting over an ensemble of conformations with  `averaged spin-label rotamer states <https://github.com/bio-phys/BioEn/blob/master/examples/DEER/conformation-refinement/conformer_refinement.ipynb>`_  or   over an  `ensemble of spin-label rotamer states with a single protein conformation  <https://github.com/bio-phys/BioEn/blob/master/examples/DEER/rotamer-refinement/POTRA/rotamer_refinement_potra.ipynb>`_.
 
 If an ensemble of conformations is investigated, provide for each label pair (e.g. 319-259) a single file of the experimental data (e.g., ``./test/deer/data/exp-319-259-deer.dat``) and ensemble member (e.g., ``./test/deer/data/conf0-319-259-deer.dat``). The experimental data file contains:
 
@@ -198,7 +204,7 @@ Please take note of the options ``--deer-sim_path``, ``--deer_sim_prefix``, ``--
 
 (3) Experimental data from SAXS/WAXS measurements
 -------------------------------------------------
-BioEn can be used with scattering data like SAXS or WAXS, for which we provide also the optimization of the nuisance parameter (here: coefficient). To use scattering data, the bioen options should contain ``--experiments scattering``. The input data is handled in a similar way as the DEER data, but just for a single scattering curve and not different label-pairs. The standard file format for experimental data (e.g. ``lyz-exp.dat``) is:
+BioEn can be used with  `scattering data <https://github.com/bio-phys/BioEn/blob/master/examples/scattering/scattering_reweighting.ipynb>`_ like SAXS or WAXS, for which we provide also the optimization of the nuisance parameter (here: coefficient). To use scattering data, the bioen options should contain ``--experiments scattering``. The input data is handled in a similar way as the DEER data, but just for a single scattering curve and not different label-pairs. The standard file format for experimental data (e.g. ``lyz-exp.dat``) is:
 
 .. code-block:: bash
 
@@ -315,15 +321,6 @@ For further options and more information, type::
 Help
 ====
 
-Please, if you have an issue with the software, open an issue here on the github repository. If you have any questions, please contact bioen@biophys.mpg.de.
+Please, if you have an issue with the software, open an issue here on the github repository https://github.com/bio-phys/bioen/issues.
 
-
-References
-==========
-
-.. Articles
-.. --------
-
-.. [Reichel2018] Reichel K., Stelzl Lukas S., Köfinger J., Hummer G., Precision DEER Distances from Spin-Label Reweighting, J. Phys. Chem. Lett., in press (2018). https://doi.org/10.1021/acs.jpclett.8b02439
-
-.. [Hummer2015] Hummer G. and Koefinger J., Bayesian Ensemble Refinement by Replica Simulations and Reweighting. J. Chem. Phys. 143(24):12B634_1 (2015). https://doi.org/10.1063/1.4937786
+If you have any questions or suggestions, please contact bioen@biophys.mpg.de.
