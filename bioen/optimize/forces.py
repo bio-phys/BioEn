@@ -116,7 +116,6 @@ def bioen_chi2_s_forces(forces, w0, y, yTilde, YTilde):
     y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
-    theta: float, confidence parameter
 
     Returns
     -------
