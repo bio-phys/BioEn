@@ -198,11 +198,10 @@ def get_gsl_method(algorithm):
         return 3
     elif algorithm == "steepest_descent" or algorithm == "gsl_multimin_fdfminimizer_steepest_descent":
         return 4
-    elif algorithm == "TEST_INVALID":
-        return 1024
-    else:
-        # default is bfgs2
-        return 2
+    raise RuntimeError("{}, GSL return code: {}:{}".format(
+            sys._getframe().f_code.co_name, -1, ' The algorithm ' + algorithm + ' is not available.'))
+
+    return
 
 
 def library_gsl ():

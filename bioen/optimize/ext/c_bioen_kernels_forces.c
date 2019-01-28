@@ -36,6 +36,17 @@ size_t iterations_lbfgs_forces = 0;
 // functions.
 size_t lbfgs_verbose_forces = 1;
 
+
+int gsl_error_val = GSL_CONTINUE;
+
+void handler(const char* reason, const char* file, int line, int gsl_errno) {
+    //printf("----  Error has occured ( %s ) \n", reason);
+    //printf("----  ErrNo   : %d\n", gsl_errno);
+    //printf("----  ErrDesc :\"%s\"\n", gsl_strerror(gsl_errno));
+    gsl_error_val = gsl_errno;
+    return;
+}
+
 // Interface function used by LibLBFGS to perform an interation.
 // The new functions coordinates are provided by LibLBFGS and they are named as
 // new_forces.
@@ -441,9 +452,6 @@ double _opt_bfgs_forces(struct params_t func_params,
     int m = func_params.m;
     int n = func_params.n;
 
-    int status1 = 0;
-    int status2 = 0;
-
     if (visual.verbose) {
         printf("\t=========================\n");
         printf("\tcaching_yTilde_tranposed : %s\n",  func_params.caching ? "enabled" : "disabled");
@@ -457,7 +465,8 @@ double _opt_bfgs_forces(struct params_t func_params,
 
     double start = get_wtime();
 
-    gsl_set_error_handler_off();
+    gsl_set_error_handler(handler);
+
 
     gsl_vector* x0 = gsl_vector_alloc(m);
 
@@ -482,8 +491,8 @@ double _opt_bfgs_forces(struct params_t func_params,
             T = gsl_multimin_fdfminimizer_vector_bfgs2;
             break;
         case (fdfminimizer_steepest_descent):
+        default:
             T = gsl_multimin_fdfminimizer_steepest_descent;
-            break;
     }
 
     gsl_multimin_fdfminimizer* s;
@@ -501,22 +510,23 @@ double _opt_bfgs_forces(struct params_t func_params,
 
     // Main loop
     int iter = 0;
-    do {
+
+    while (gsl_error_val == GSL_CONTINUE && iter < config.max_iterations){
+
         if (visual.verbose)
             if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
 
-        status1 = gsl_multimin_fdfminimizer_iterate(s);
+        gsl_error_val = gsl_multimin_fdfminimizer_iterate(s);
         // if error, message and break
-        *error = status1;
-        if (status1) break;
+        if (gsl_error_val) break;
 
-        status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
-        *error = status2;
+        gsl_error_val = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
 
         iter++;
-    } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
+    };
 
     // Get the final minimizing function parameters
+
     gsl_vector* x = gsl_multimin_fdfminimizer_x(s);
 
     // Get minimum value
@@ -563,6 +573,8 @@ double _opt_bfgs_forces(struct params_t func_params,
 
     gsl_vector_free(x0);
     gsl_multimin_fdfminimizer_free(s);
+
+    *error = gsl_error_val;
 
 #else
     printf("%s\n", message_gsl_unavailable);

@@ -54,6 +54,8 @@ def compute_relative_difference_for_values(a, b):
     d: relative difference
 
     """
+    if (b == 0):
+        return abs(a)
     d = abs(a - b)/abs(b)
     return d
 

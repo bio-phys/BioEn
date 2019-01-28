@@ -26,27 +26,15 @@ filenames = [
 
 
 def available_tests():
-    exp_list_base = None
-    exp_list_gsl = [['GSL'],
-                    ['bfgs2']]
-    exp_list_lbfgs = [['LBFGS'],
-                      ['lbfgs']]
+    exp = {}
 
-    # if (not optimize.util.library_gsl()):
-    #     exp_list_base = exp_list_gsl
-
-    # if (optimize.util.library_lbfgs()):
-    #     if exp_list_base != "" :
-    #         exp_list_base = np.hstack((exp_list_base, exp_list_lbfgs))
-    #     else:
-    #         exp_list_base = exp_list_lbfgs
-
-    # exp_list_base = np.hstack((exp_list_gsl, exp_list_lbfgs))
+    if (optimize.util.library_gsl()):
+        exp['GSL'] = { 'bfgs2':{}  }
 
     if (optimize.util.library_lbfgs()):
-        exp_list_base = exp_list_lbfgs
+        exp['LBFGS'] = { 'lbfgs':{} }
 
-    return exp_list_base
+    return exp
 
 
 def run_test_error_forces(file_name=filenames[0], caching=False):
@@ -59,43 +47,27 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
     if "OMP_NUM_THREADS" in os.environ:
         print(" OPENMP NUM. THREADS = ", os.environ["OMP_NUM_THREADS"])
 
-    exp_list = available_tests()
-    print(exp_list)
+    exp = available_tests()
 
-    # if GSL and LBFGS are not active we do not test error handling.
-    if exp_list is not None:
-        # allocate vectors to store results
-        exp_size = len(exp_list[0])
-        wopt_list = [0] * (exp_size)
-        yopt_list = [0] * (exp_size)
-        forces_list = [0] * (exp_size)
-        fmin_initial_list = [0] * (exp_size)
-        fmin_final_list = [0] * (exp_size)
-        chiSqr = [0] * (exp_size)
-        S = [0] * (exp_size)
-        reeval_fmin_list = [0] * (exp_size)
+    # load exp. data from file
+    with open(file_name, 'rb') as ifile:
+        [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
 
-        # load exp. data from file
-        with open(file_name, 'rb') as ifile:
-            [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
-
-        # run all available optimizations
-        for i in range(exp_size):
-
-            minimizer = exp_list[0][i]
-            algorithm = exp_list[1][i]
-
-            use_c_functions = True
+    for minimizer in exp:
+        for algorithm in exp[minimizer]:
 
             params = optimize.minimize.Parameters(minimizer)
             params['cache_ytilde_transposed'] = caching
-            params['use_c_functions'] = use_c_functions
+            params['use_c_functions'] = True
             params['algorithm'] = algorithm
             params['verbose'] = verbose
 
+
             if params['minimizer'] == "gsl":
                 #  Force an error by defining a wrong parameter
-                params['params']['algorithm'] = "TEST_INVALID"
+                params['algorithm'] = "TEST_INVALID"
+                #params['params']['step_size'] = -1.00001
+
                 # print (params['params'])
             elif params['minimizer'] == "lbfgs":
                 #  Force an error by defining a wrong parameter
@@ -106,11 +78,12 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
                 print("", params)
 
             with pytest.raises(RuntimeError) as excinfo:
-                wopt_list[i], yopt_list[i], forces_list[i], fmin_initial_list[i], fmin_final_list[i], chiSqr[i], S[i] = \
+                wopt, yopt, forces, fmin_ini, fmin_fin, chiSqr, S = \
                     optimize.forces.find_optimum(forces_init, w0, y, yTilde, YTilde, theta, params)
 
             print(excinfo.value)
             assert('return code' in str(excinfo.value))
+
 
 
 def test_error_opt_forces():

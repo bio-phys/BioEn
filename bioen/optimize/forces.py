@@ -34,7 +34,7 @@ def gen_synthetic_data(M, N, YTrue, sig_exp):
     """
     # np.random.seed(0)
     YObs = np.random.normal(YTrue, sig_exp)
-    YObs = np.matrix(YObs)
+    YObs = np.array(YObs)
     # Experimentally observed values scaled by the inverse of the experimental error
     YTilde = YObs / sig_exp
     return YObs, YTilde
@@ -59,7 +59,7 @@ def gen_sythetic_ensemble(M, N, YTrue, sig_exp, sig_sim):
     # Values of observables for simulation ensemble.
     # Also distributed around true values, but with different standard deviation.
     # np.random.seed(0)
-    y = np.matrix(np.random.normal(np.repeat(np.transpose([YTrue]), N, axis=1), sig_sim))
+    y = np.array(np.random.normal(np.repeat(np.transpose([YTrue]), N, axis=1), sig_sim))
     # Values of ensemble observables scaled by the inverse of the experimental error
     yTilde = y.copy()
     sig_exp_mat = np.transpose(np.repeat([sig_exp], N, axis=0))
@@ -80,7 +80,7 @@ def init_forces(M, val=0):
     forces:
 
     """
-    forces = np.matrix(np.zeros((M, 1)))
+    forces = np.array(np.zeros((M, 1)))
     forces[:, 0] = val
     return forces
 
