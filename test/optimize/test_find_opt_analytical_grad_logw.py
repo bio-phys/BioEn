@@ -33,38 +33,24 @@ filenames = [
 
 
 def available_tests():
+
+    exp = {}
+
     if (create_reference_values):
-        # Create reference values using scipy python version for the bfgs algorithm
-        exp_list_base = [['scipy_py'],
-                         ['bfgs']]
-    else:
-        exp_list_base = [['scipy_py', 'scipy_py', 'scipy_py', 'scipy_c', 'scipy_c', 'scipy_c'],
-                         ['bfgs', 'lbfgs', 'cg', 'bfgs', 'lbfgs', 'cg']]
+        exp['GSL'] = { 'bfgs' : {} }
+        return exp
 
-        #exp_list_base = [[],
-        #                 []]
+    exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
-        exp_list_gsl = [['GSL', 'GSL', 'GSL', 'GSL', 'GSL'],
-                        ['conjugate_fr', 'conjugate_pr', 'bfgs2', 'bfgs', 'steepest_descent']]
+    if (optimize.util.library_gsl()):
+        exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
 
-        #exp_list_gsl = [['GSL', 'GSL'],
-        #                ['bfgs2', 'bfgs']]
+    if (optimize.util.library_lbfgs()):
+        exp['LBFGS'] = { 'lbfgs':{} }
 
-        #exp_list_gsl = [['GSL', 'GSL'],
-        #                ['conjugate_fr', 'conjugate_pr']]
+    return exp
 
-        #exp_list_gsl = [['GSL'],
-        #                ['steepest_descent']]
-
-        exp_list_lbfgs = [['LBFGS'],
-                          ['lbfgs']]
-
-        if (optimize.util.library_gsl()):
-            exp_list_base = np.hstack((exp_list_base, exp_list_gsl))
-
-        if (optimize.util.library_lbfgs()):
-            exp_list_base = np.hstack((exp_list_base, exp_list_lbfgs))
-    return exp_list_base
 
 
 def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=False):
@@ -76,64 +62,65 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
     if "OMP_NUM_THREADS" in os.environ:
         print("OPENMP NUM. THREADS = ", os.environ["OMP_NUM_THREADS"])
 
-    exp_list = available_tests()
+    exp = available_tests()
 
-    # allocate vectors to store results
-    exp_size = len(exp_list[0])
-    yopt_list = [0] * (exp_size)
-    wopt_list = [0] * (exp_size)
-    gopt_list = [0] * (exp_size)
-    fmin_initial_list = [0] * (exp_size)
-    fmin_final_list = [0] * (exp_size)
-    reeval_fmin_list = [0] * (exp_size)
+    # Run the optimizer for all the available tests
+    for minimizer in exp:
+        for algorithm in exp[minimizer]:
 
-    # load exp. data from file
-    with open(file_name, 'r') as ifile:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+            # load exp. data from file
+            with open(file_name, 'r') as ifile:
+                [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
 
-    # run all available optimizations
-    for i in range(exp_size):
-        if verbose:
-            print("#" * 60)
+            minimizer_tag = minimizer
+            use_c_functions = True
+            if (minimizer == 'scipy_py'):
+                minimizer_tag = 'scipy'
+                use_c_functions = False
 
-        minimizer = exp_list[0][i]
-        algorithm = exp_list[1][i]
+            if (minimizer == 'scipy_c'):
+                minimizer_tag = 'scipy'
 
-        use_c_functions = True
-        if (minimizer == 'scipy_py'):
-            minimizer = 'scipy'
-            use_c_functions = False
+            # get default parameter's configuration for a minimizer
+            params = optimize.minimize.Parameters(minimizer_tag)
 
-        if (minimizer == 'scipy_c'):
-            minimizer = 'scipy'
+            params['cache_ytilde_transposed'] = caching
+            params['use_c_functions'] = use_c_functions
+            params['algorithm'] = algorithm
+            params['verbose'] = verbose
 
-        params = optimize.minimize.Parameters(minimizer)
+            if verbose:
+                print("-" * 80)
+                print(params)
 
-        params['cache_ytilde_transposed'] = caching
-        params['use_c_functions'] = use_c_functions
-        params['algorithm'] = algorithm
-        params['verbose'] = verbose
+            # run optimization
+            wopt, yopt, gopt, fmin_ini, fmin_fin =  \
+                optimize.log_weights.find_optimum(GInit, G, y, yTilde, YTilde, theta, params)
 
-        if verbose:
-            print("-" * 80)
-            print(params)
+            # store the results in the structure
+            exp[minimizer][algorithm]['wopt'] = wopt
+            exp[minimizer][algorithm]['yopt'] = yopt
+            exp[minimizer][algorithm]['gopt'] = gopt
+            exp[minimizer][algorithm]['fmin_ini'] = fmin_ini
+            exp[minimizer][algorithm]['fmin_fin'] = fmin_fin
 
-        # run optimization
-        wopt_list[i], yopt_list[i], gopt_list[i], fmin_initial_list[i], fmin_final_list[i] =  \
-            optimize.log_weights.find_optimum(GInit, G, y, yTilde, YTilde, theta, params)
+
 
     if (create_reference_values):
         print("-" * 80)
-        print(" === CREATING REFERENCE VALUES ===")
-        ref_file_name = os.path.splitext(file_name)[0] + ".ref"
-        with open(ref_file_name, "wb") as f:
-            pickle.dump(fmin_final_list[0], f)
-        print(" [%8s][%4s] -- fmin: %.16f --> %s" % (exp_list[0][0], exp_list[1][0], fmin_final_list[0], ref_file_name))
-        print("=" * 34, " END TEST ", "=" * 34)
-        print("%" * 80)
-    else:
 
-        # test results
+        for minimizer in exp:
+            for algorithm in exp[minimizer]:
+                fmin_fin = exp[minimizer][algorithm]['fmin_fin']
+
+                print(" === CREATING REFERENCE VALUES ===")
+                ref_file_name = os.path.splitext(file_name)[0] + ".ref"
+                with open(ref_file_name, "wb") as f:
+                    pickle.dump(fmin_fin, f)
+                print(" [%8s][%4s] -- fmin: %.16f --> %s" % (minimizer, algorithm, fmin_fin, ref_file_name))
+                print("=" * 34, " END TEST ", "=" * 34)
+                print("%" * 80)
+    else:
 
         # get reference value
         ref_file_name = os.path.splitext(file_name)[0] + ".ref"
@@ -150,19 +137,27 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
         if (available_reference):
             print("-" * 80)
             print(" === REFERENCE EVALUATION ===")
-            for i in range(exp_size):
-                eval_diff = optimize.util.compute_relative_difference_for_values(fmin_final_list[i], fmin_reference)
-                print(" [%8s][%16s] -- fmin: %.16f -- fmin_reference   : %.16f  -- diff(tol=%1.0e) = %.16f" % (
-                    exp_list[0][i], exp_list[1][i], fmin_final_list[i], fmin_reference, tol_min, eval_diff))
 
-            for i in range(exp_size):
-                eval_diff = optimize.util.compute_relative_difference_for_values(fmin_final_list[i], fmin_reference)
-                assert(np.all(eval_diff < tol_min))
+            for minimizer in exp:
+                for algorithm in exp[minimizer]:
+                    fmin_fin = exp[minimizer][algorithm]['fmin_fin']
+
+                    eval_diff = optimize.util.compute_relative_difference_for_values(fmin_fin, fmin_reference)
+                    print(" [%8s][%16s] -- fmin: %.16f -- fmin_reference   : %.16f  -- diff(tol=%1.0e) = %.16f" % (
+                        minimizer, algorithm, fmin_fin, fmin_reference, tol_min, eval_diff))
+
+
+            for minimizer in exp:
+                for algorithm in exp[minimizer]:
+                    fmin_fin = exp[minimizer][algorithm]['fmin_fin']
+                    eval_diff = optimize.util.compute_relative_difference_for_values(fmin_fin, fmin_reference)
+                    assert(np.all(eval_diff < tol_min))
 
         else:
             print("-" * 80)
             print(" === REFERENCE EVALUATION === ")
             print(" [Reference not found]  To re-generate reference values enable create_reference_values=True and relaunch")
+            assert(False)
 
         print("-" * 80)
         print(" === RETURNED GRADIENT EVALUATION ===")
@@ -170,22 +165,36 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
         with open(file_name, 'r') as ifile:
             [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
 
-        for i in range(exp_size):
-            reeval_fmin_list[i] = optimize.log_weights.bioen_log_posterior(gopt_list[i], GInit, G, yTilde, YTilde, theta, use_c=True)
+        for minimizer in exp:
+            for algorithm in exp[minimizer]:
+                gopt = exp[minimizer][algorithm]['gopt']
+                exp[minimizer][algorithm]['re_fmin'] = \
+                    optimize.log_weights.bioen_log_posterior(gopt, GInit, G, yTilde, YTilde, theta, use_c=True)
+
 
         # print differences
-        for i in range(exp_size):
-            eval_diff = optimize.util.compute_relative_difference_for_values(fmin_final_list[i], reeval_fmin_list[i])
-            print(" [%8s][%16s] -- fmin: %.16f -- fmin_for_gradient: %.16f  -- diff(tol=%1.0e) = %.16f" % (
-                exp_list[0][i], exp_list[1][i], fmin_final_list[i], reeval_fmin_list[i], tol, eval_diff))
+        for minimizer in exp:
+            for algorithm in exp[minimizer]:
+                re_fmin = exp[minimizer][algorithm]['re_fmin']
+                fmin_fin = exp[minimizer][algorithm]['fmin_fin']
+                eval_diff = optimize.util.compute_relative_difference_for_values(fmin_fin, re_fmin)
+                print(" [%8s][%16s] -- fmin: %.16f -- fmin_for_gradient: %.16f  -- diff(tol=%1.0e) = %.16f" % (
+                    minimizer, algorithm, fmin_fin, re_fmin, tol, eval_diff))
 
         print("=" * 34, " END TEST ", "=" * 34)
         print("%" * 80)
 
         # validate differences
-        for i in range(exp_size):
-            eval_diff = optimize.util.compute_relative_difference_for_values(fmin_final_list[i], reeval_fmin_list[i])
-            assert(np.all(eval_diff < tol))
+        for minimizer in exp:
+            for algorithm in exp[minimizer]:
+                re_fmin = exp[minimizer][algorithm]['re_fmin']
+                fmin_fin = exp[minimizer][algorithm]['fmin_fin']
+
+                eval_diff = optimize.util.compute_relative_difference_for_values(fmin_fin, re_fmin)
+                assert(np.all(eval_diff < tol))
+    return
+
+
 
 
 def test_find_opt_analytical_grad():
@@ -199,3 +208,4 @@ def test_find_opt_analytical_grad():
 
         for caching in caching_options:
             run_test_optimum_logw(file_name=file_name, caching=caching)
+
