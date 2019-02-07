@@ -1,4 +1,7 @@
 #!/bin/bash
-#export OMP_NUM_THREADS=1
-py.test -sv
+
+# Ignore the deprecation warnings from the newest NumPy,
+# caused by pickle files still containing matrix objects.
+
+py.test -Wignore::PendingDeprecationWarning -sv
 
