@@ -188,20 +188,18 @@ def get_gsl_method(algorithm):
     int: gsl's algorithm id
     """
 
-    if algorithm == "conjugate_fr" or algorithm == "gsl_multimin_fdfminimizer_conjugate_fr":
+    if algorithm in ["conjugate_fr", "gsl_multimin_fdfminimizer_conjugate_fr"]:
         return 0
-    elif algorithm == "conjugate_pr" or algorithm == "gsl_multimin_fdfminimizer_conjugate_pr":
+    elif algorithm in ["conjugate_pr", "gsl_multimin_fdfminimizer_conjugate_pr"]:
         return 1
-    elif algorithm == "bfgs2" or algorithm == "gsl_multimin_fdfminimizer_vector_bfgs2":
+    elif algorithm in ["bfgs2", "gsl_multimin_fdfminimizer_vector_bfgs2"]:
         return 2
-    elif algorithm == "bfgs" or algorithm == "gsl_multimin_fdfminimizer_vector_bfgs":
+    elif algorithm in ["bfgs", "gsl_multimin_fdfminimizer_vector_bfgs"]:
         return 3
-    elif algorithm == "steepest_descent" or algorithm == "gsl_multimin_fdfminimizer_steepest_descent":
+    elif algorithm in ["steepest_descent", "gsl_multimin_fdfminimizer_steepest_descent"]:
         return 4
-    raise RuntimeError("{}, GSL return code: {}:{}".format(
-            sys._getframe().f_code.co_name, -1, ' The algorithm ' + algorithm + ' is not available.'))
-
-    return
+    else
+        raise RuntimeError("algorithm {} is not available in GSL".format(algorithm))
 
 
 def library_gsl ():
