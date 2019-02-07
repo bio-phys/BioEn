@@ -198,7 +198,7 @@ def get_gsl_method(algorithm):
         return 3
     elif algorithm in ["steepest_descent", "gsl_multimin_fdfminimizer_steepest_descent"]:
         return 4
-    else
+    else:
         raise RuntimeError("algorithm {} is not available in GSL".format(algorithm))
 
 
