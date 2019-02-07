@@ -49,13 +49,17 @@ def compute_relative_difference_for_values(a, b):
     a: value
     b: reference
 
+    Raises
+    ------
+    ZeroDivisionError
+        If b is zero.
+
     Returns
     -------
     d: relative difference
-
     """
-    if (b == 0):
-        return abs(a)
+    # if (b == 0):
+    #     return abs(a)
     d = abs(a - b)/abs(b)
     return d
 
