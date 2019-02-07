@@ -11,7 +11,6 @@ from bioen import optimize
 
 
 # relative tolerance for value comparison
-#tol = 1.e-14
 tol = 5.e-14
 tol_min = 1.e-1
 
@@ -20,7 +19,7 @@ create_reference_values = False
 
 
 filenames = [
-#    "./data/data_deer_test_forces_M808xN10.pkl",
+    "./data/data_deer_test_forces_M808xN10.pkl",
     "./data/data_forces_M64xN64.pkl"
 ]
 
