@@ -19,38 +19,6 @@ const char* bioen_gsl_error(int gsl_errno){
 #endif
 }
 
-
-#ifdef ENABLE_GSL
-int gsl_multimin_test_gradient__scipy_optimize_vecnorm(const gsl_vector* g, double epsabs) {
-    double norm;
-    double temp;
-    size_t n_elem;
-    double* data;
-    size_t i;
-
-    if (epsabs < 0.0) {
-        GSL_ERROR("absolute tolerance is negative", GSL_EBADTOL);
-    }
-
-    n_elem = g->size;
-    data = g->data;
-    norm = 0.0;
-    for (i = 0; i < n_elem; ++i) {
-        temp = fabs(data[i]);
-        if (temp > norm) {
-            norm = temp;
-        }
-    }
-
-    if (norm < epsabs) {
-        return GSL_SUCCESS;
-    }
-
-    return GSL_CONTINUE;
-}
-#endif
-
-
 char* lbfgs_strerror(int error) {
 #ifdef ENABLE_LBFGS
     switch (error) {
