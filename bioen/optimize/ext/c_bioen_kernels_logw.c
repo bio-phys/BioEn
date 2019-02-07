@@ -376,8 +376,8 @@ double _opt_bfgs_logw(struct params_t func_params,
     int n = func_params.n;
     int m = func_params.m;
 
-    int status1 = 0;
-    int status2 = 0;
+    int gsl_status;
+    gsl_set_error_handler_off();
 
     if (visual.verbose) {
         printf("\t=========================\n");
@@ -391,8 +391,6 @@ double _opt_bfgs_logw(struct params_t func_params,
     }
 
     double start = get_wtime();
-
-    gsl_set_error_handler_off();
 
     // Allocate independant variables array
     gsl_vector* x0 = gsl_vector_alloc((size_t)n);
@@ -441,18 +439,17 @@ double _opt_bfgs_logw(struct params_t func_params,
     int iter = 0;
     do {
         if (visual.verbose)
-            if ((iter != 0) && ((iter % 1000) == 0)) printf("\t\tOpt Iteration %d\n", iter);
+            if ((iter != 0) && ((iter % 1000) == 0))
+                printf("\t\titeration %d\n", iter);
 
-        status1 = gsl_multimin_fdfminimizer_iterate(s);
-        *error = status1;
-        if (status1) break;
+        gsl_status = gsl_multimin_fdfminimizer_iterate(s);
+        if (gsl_status)
+            break;
 
-        status2 = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
-        *error = status2;
+        gsl_status = gsl_multimin_test_gradient__scipy_optimize_vecnorm(s->gradient, config.tol);
 
         iter++;
-
-    } while (status2 == GSL_CONTINUE && iter < config.max_iterations);
+    } while (gsl_status == GSL_CONTINUE && iter < config.max_iterations);
 
     DEBUG_PRINT("end");
 
@@ -500,10 +497,11 @@ double _opt_bfgs_logw(struct params_t func_params,
         printf("\tConfig: m=%d and n=%d\n", m, n);
         printf("\tCurrent function value  = %.6lf\n", final_val);
         printf("\tIterations              : %d\n", iter);
-        printf("\tTime(s) of BFGS_GSL     : %.12lf\n", end - start);
-        printf("\tTime(s) per iter        : %.12lf\n", (end - start) / iter);
+        printf("\tMinimization time [s]   : %.12lf\n", end - start);
+        printf("\tTime [s] per iteration  : %.12lf\n", (end - start) / iter);
     }
 
+    *error = gsl_status;
 #else
     printf("%s\n", message_gsl_unavailable);
 #endif
