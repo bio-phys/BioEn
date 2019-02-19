@@ -100,6 +100,8 @@ extern int _fast_openmp_flag;
 void _set_fast_openmp_flag(int);
 int _get_fast_openmp_flag(void);
 
+void _omp_set_num_threads(int);
+
 double get_wtime(void);
 
 double _bioen_chi_squared(const double *const, const double *const, const double *const,

@@ -2,6 +2,7 @@
 """
 
 import sys
+import time
 import numpy as np
 cimport numpy as np
 
@@ -120,6 +121,7 @@ cdef extern from "c_bioen_common.h":
     int _library_gsl()
     int _library_lbfgs()
 
+    void _omp_set_num_threads(int)
     void _set_fast_openmp_flag(int)
     int _get_fast_openmp_flag()
 
@@ -173,6 +175,10 @@ def set_fast_openmp_flag(flag):
 
 def get_fast_openmp_flag():
     return _get_fast_openmp_flag()
+
+
+def omp_set_num_threads(i):
+    _omp_set_num_threads(i)
 
 
 def get_gsl_method(algorithm):
@@ -283,7 +289,8 @@ def bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
 
 
 def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
-                                  np.ndarray yTilde, np.ndarray YTilde, theta, caching=False):
+                                  np.ndarray yTilde, np.ndarray YTilde, theta,
+                                  caching=False, print_timing=False):
     """
     Parameters
     ----------
@@ -315,10 +322,16 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
 
     cdef double weights_sum
 
+    if print_timing:
+        t0 = time.time()
+
     # 1) compute weights
     weights_sum = _get_weights(<double*> gPrime.data,
                                <double*> w.data,
                                <size_t> n)
+
+    if print_timing:
+        print("_get_weights: {}".format(time.time() - t0))
 
     # 2) compute function gradient
     _grad_bioen_log_posterior_logw(<double*> gPrime.data,
@@ -335,6 +348,10 @@ def grad_bioen_log_posterior_logw(np.ndarray gPrime, np.ndarray g, np.ndarray G,
                                    <int> m,
                                    <int> n,
                                    <double> weights_sum)
+
+    if print_timing:
+        print("_grad_bioen_log_posterior_logw: {}".format(time.time() - t0))
+
     return gradient
 
 

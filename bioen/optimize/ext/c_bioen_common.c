@@ -20,6 +20,9 @@
 
 #include "c_bioen_common.h"
 #include "ompmagic.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #ifdef ENABLE_GSL
 // GSL bfgs algorithm (default)
@@ -43,9 +46,19 @@ int _library_lbfgs() {
 // flag to toggle aggressive OpenMP parallelization, default: 0 == off
 int _fast_openmp_flag = 0;
 
-void _set_fast_openmp_flag(int flag) { _fast_openmp_flag = flag; };
+void _set_fast_openmp_flag(int flag) {
+    _fast_openmp_flag = flag;
+};
 
-int _get_fast_openmp_flag() { return _fast_openmp_flag; };
+int _get_fast_openmp_flag() {
+    return _fast_openmp_flag;
+};
+
+void _omp_set_num_threads(int flag) {
+#ifdef _OPENMP
+    omp_set_num_threads(flag);
+#endif
+};
 
 // get the time since the epoch in microseconds
 double get_wtime(void) {
