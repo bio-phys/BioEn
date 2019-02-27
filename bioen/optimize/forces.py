@@ -101,25 +101,8 @@ def get_weights_from_forces(w0, y, forces):
     w: array of length N
     """
 
-    #if (isinstance(y, np.matrixlib.defmatrix.matrix)):
-    #    x = np.dot(forces, y)
-    #    M = np.exp(x - np.max(x))
-    #    w = np.asarray(w0) * np.asarray(M.T)
-    #    result = w / w.sum()
-    #else:
-    #    xpre = np.dot(forces, y)
-    #    # this should fix the issue
-    #    #x = np.expand_dims(xpre, axis=0)
-    #    x = xpre
-    #    M = np.exp(x - np.max(x))
-    #    w = np.asarray(w0) * np.asarray(M.T)
-    #    result = w / w.sum()
-
-    #print("GET_WEIGHTS_FROM_FORCES: x shape", x.shape)
-    #print("GET_WEIGHTS_FROM_FORCES: x type", str(type(x)))
-    #print("GET_WEIGHTS_FROM_FORCES: result shape", result.shape)
-    #print("GET_WEIGHTS_FROM_FORCES: result type", str(type(result)))
-
+    if (forces.ndim == 1):
+        forces = np.expand_dims(forces, axis=0)
 
     x = np.dot(forces, y)
     M = np.exp(x - np.max(x))
