@@ -34,21 +34,21 @@ def bioen_log_prior(w, s, g, G, theta):
     """
     w0, s0 = getWeights(G)
 
-    print("DEB log_prior (shape G, w0, s0)" , G.shape, w0.shape, s0.shape)
-    print("DEB log_prior (G)" , G)
-    print("DEB log_prior (w0)" , w0)
-    print("DEB log_prior (s0)" , s0)
+    #print("DEB log_prior (shape G, w0, s0)" , G.shape, w0.shape, s0.shape)
+    #print("DEB log_prior (G)" , G)
+    #print("DEB log_prior (w0)" , w0)
+    #print("DEB log_prior (s0)" , s0)
 
 
     #### HERE IS THE ERROR
-    print("DEB log_prior (w type)" , str(type(w)))
-    print("DEB log_prior (s type)" , str(type(s)))
-    print("DEB log_prior (g type)" , str(type(g)))
-    print("DEB log_prior (G type)" , str(type(G)))
-    print("DEB log_prior (w shape)" , w.shape)
-    print("DEB log_prior (s shape)" , s.shape)
-    print("DEB log_prior (g shape)" , g.shape)
-    print("DEB log_prior (G shape)" , G.shape)
+    #print("DEB log_prior (w type)" , str(type(w)))
+    #print("DEB log_prior (s type)" , str(type(s)))
+    #print("DEB log_prior (g type)" , str(type(g)))
+    #print("DEB log_prior (G type)" , str(type(G)))
+    #print("DEB log_prior (w shape)" , w.shape)
+    #print("DEB log_prior (s shape)" , s.shape)
+    #print("DEB log_prior (g shape)" , g.shape)
+    #print("DEB log_prior (G shape)" , G.shape)
 
 
     if (isinstance(G, np.matrixlib.defmatrix.matrix)):
@@ -81,12 +81,12 @@ def bioen_log_prior(w, s, g, G, theta):
         
         result = mul1[0,0]
  
-    print("DEB log_prior (log s)" , var3)
-    print("DEB log_prior (log s0)" , var4)
+    #print("DEB log_prior (log s)" , var3)
+    #print("DEB log_prior (log s0)" , var4)
 
 
-    print("DEB log_prior (result)" , result.shape)
-    print("DEB log_prior (result)" , result)
+    #print("DEB log_prior (result)" , result.shape)
+    #print("DEB log_prior (result)" , result)
 
     return result
     #return (theta * ((g.T * w) - (G.T * w) - np.log(s) + np.log(s0)))[0, 0]
@@ -330,7 +330,7 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     -------
     L: BioEn loglikelihood
     """
-    print ("BIOEN_LOG_POSTERIOR_BASE")
+    #print ("BIOEN_LOG_POSTERIOR_BASE")
 
     if (isinstance(g, np.matrixlib.defmatrix.matrix)):
         g[:, 0] = gPrime[:, np.newaxis]
@@ -353,7 +353,7 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     result = val1 + val2
 
 
-    print ("DEB val1 and val2", val1, val2)
+    #print ("DEB val1 and val2", val1, val2)
 
 
 
@@ -381,7 +381,7 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     array_like, vector with N components
     """
 
-    print ("GRAD_BIOEN_LOG_POSTERIOR_BASE")
+    #print ("GRAD_BIOEN_LOG_POSTERIOR_BASE")
     #print ("    yTilde    shape " , yTilde.shape)
     #print ("    yTilde    type " , str(type(yTilde)))
     value = 0.
@@ -437,9 +437,9 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     #value = np.asarray((np.asarray(w.T) * np.asarray(theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
 
 
-    print ("DEB value shape", value.shape)
-    print ("DEB value type ", str(type(value)))
-    print ("DEB value      ", value)
+    #print ("DEB value shape", value.shape)
+    #print ("DEB value type ", str(type(value)))
+    #print ("DEB value      ", value)
 
     return value
 
