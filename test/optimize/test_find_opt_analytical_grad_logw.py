@@ -41,24 +41,14 @@ def available_tests():
         return exp
 
     #exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-    exp['scipy_py']  = { 'bfgs':{} }
+    exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{}  }
+    exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
-    #exp['scipy_py']  = { 'lbfgs':{} }
-    #exp['scipy_py']  = { 'cg':{} }
+    if (optimize.util.library_gsl()):
+        exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
 
-    #exp['scipy_c']  = { 'bfgs':{} }
-
-
-
-
-
-    #exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-
-    #if (optimize.util.library_gsl()):
-    #    exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
-
-    #if (optimize.util.library_lbfgs()):
-    #    exp['LBFGS'] = { 'lbfgs':{} }
+    if (optimize.util.library_lbfgs()):
+        exp['LBFGS'] = { 'lbfgs':{} }
 
     return exp
 
@@ -78,6 +68,36 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
     # Run the optimizer for all the available tests
     for minimizer in exp:
         for algorithm in exp[minimizer]:
+
+
+            ### compare
+            #with open(file_name, 'r') as ifile:
+            #    [pGInit, pG, py, pyTilde, pYTilde, pw0, ptheta] = pickle.load(ifile)
+
+            #new_mydict = fio.load_dict(file_name)
+            #[hGInit, hG, hy, hyTilde, hYTilde, hw0, htheta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+
+            #print ("COMPARISON OF PICKLE AND H5PY") 
+
+            #eval_diff = optimize.util.compute_relative_difference_for_values(ptheta, htheta)
+            #print ("Theta diff ", eval_diff) 
+
+            #print("p type " , str(type(py)))
+            #print("p shape " , py.shape)
+            #print("h type " , str(type(hy)))
+            #print("h shape " , hy.shape)
+            #print (py)
+            #print (hy)
+            #dg, idx = optimize.util.compute_relative_difference_for_arrays(py, hy)
+            #print("relative difference of gradient = y {} (maximum at index {})".format(dg, idx))
+
+            #dg, idx = optimize.util.compute_relative_difference_for_arrays(pyTilde, hyTilde)
+            #print("relative difference of gradient = yTilde {} (maximum at index {})".format(dg, idx))
+            #dg, idx = optimize.util.compute_relative_difference_for_arrays(pYTilde, hYTilde)
+            #print("relative difference of gradient = YTilde {} (maximum at index {})".format(dg, idx))
+            #dg, idx = optimize.util.compute_relative_difference_for_arrays(pw0, hw0)
+            #print("relative difference of gradient = w0 {} (maximum at index {})".format(dg, idx))
+            
 
             if not myfio :
                 with open(file_name, 'r') as ifile:

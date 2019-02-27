@@ -22,10 +22,8 @@ def run_func_forces(use_c=True):
     new_mydict = fio.load_dict(filename)
     [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
 
-    #log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
+    log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
     #log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=False)
-    #log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=True)
-    log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=False)
     return log_posterior
 
 
@@ -41,8 +39,8 @@ def run_grad_forces(use_c=True):
     [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
 
  
-    #fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
-    fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=False)
+    fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
+    #fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=False)
     return fprime
 
 

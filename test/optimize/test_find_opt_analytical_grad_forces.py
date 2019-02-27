@@ -30,13 +30,6 @@ def available_tests():
         return exp
 
     exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-    
-    #exp['scipy_py'] = { 'cg':{} }
-    #exp['scipy_py'] = { 'lbfgs':{} }
-    #exp['scipy_py'] = { 'bfgs':{} }
-
-
-   
     exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
     if (optimize.util.library_gsl()):
@@ -152,12 +145,6 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
                 for algorithm in exp[minimizer]:
                     fmin_fin = exp[minimizer][algorithm]['fmin_fin']
                     eval_diff = optimize.util.compute_relative_difference_for_values(fmin_fin, fmin_reference)
-                    print("##################") 
-                    print("minimizer", minimizer)
-                    print("algorithm", algorithm)
-                    print("fmin_fin", fmin_fin)
-                    print("fmin_reference", fmin_reference)
-                    print("eval_diff", eval_diff)
                     assert(np.all(eval_diff < tol_min))
 
         else:
@@ -171,11 +158,11 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
         # re-evaluation of minimum for the the returned vector
 
 
-        with open(file_name, 'r') as ifile:
-            [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
+        #with open(file_name, 'r') as ifile:
+        #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
 
-        #new_mydict = fio.load_dict(file_name)
-        #[forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+        new_mydict = fio.load_dict(file_name)
+        [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
 
 
 
