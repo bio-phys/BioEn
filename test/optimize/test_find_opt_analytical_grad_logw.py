@@ -1,13 +1,10 @@
 from __future__ import print_function
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 from bioen import optimize
-
+from bioen import fileio as fio
+import pickle
 
 # relative tolerance for value comparison
 #tol = 1.e-14
@@ -17,13 +14,16 @@ tol_min = 1.e-1
 verbose = False
 create_reference_values = False
 
+myfio=True
+#myfio=False
+
 filenames = [
     "./data/data_potra_part_2_logw_M205xN10.pkl",  # realistic test case provided by Katrin, has small theta
-    "./data/data_16x15.pkl",                       # synthetic test case
-    "./data/data_deer_test_logw_M808xN10.pkl",
-    "./data/data_potra_part_2_logw_M205xN10.pkl",
-    #    "./data/data_potra_part_1_logw_M808xN80.pkl",   ## (*)(1)
-    #    "./data/data_potra_part_2_logw_M808xN10.pkl"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
+#    "./data/data_16x15.pkl",                       # synthetic test case
+#    "./data/data_deer_test_logw_M808xN10.pkl",
+#    "./data/data_potra_part_2_logw_M205xN10.pkl",
+#    #    "./data/data_potra_part_1_logw_M808xN80.pkl",   ## (*)(1)
+#    #    "./data/data_potra_part_2_logw_M808xN10.pkl"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
 ]
 
 
@@ -40,14 +40,25 @@ def available_tests():
         exp['GSL'] = { 'bfgs' : {} }
         return exp
 
-    exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-    exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    #exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    exp['scipy_py']  = { 'bfgs':{} }
 
-    if (optimize.util.library_gsl()):
-        exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
+    #exp['scipy_py']  = { 'lbfgs':{} }
+    #exp['scipy_py']  = { 'cg':{} }
 
-    if (optimize.util.library_lbfgs()):
-        exp['LBFGS'] = { 'lbfgs':{} }
+    #exp['scipy_c']  = { 'bfgs':{} }
+
+
+
+
+
+    #exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+
+    #if (optimize.util.library_gsl()):
+    #    exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
+
+    #if (optimize.util.library_lbfgs()):
+    #    exp['LBFGS'] = { 'lbfgs':{} }
 
     return exp
 
@@ -68,9 +79,15 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
     for minimizer in exp:
         for algorithm in exp[minimizer]:
 
-            # load exp. data from file
-            with open(file_name, 'r') as ifile:
-                [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+            if not myfio :
+                with open(file_name, 'r') as ifile:
+                    [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+            else:
+                new_mydict = fio.load_dict(file_name)
+                [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+
+
+
 
             minimizer_tag = minimizer
             use_c_functions = True
@@ -105,6 +122,7 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
             exp[minimizer][algorithm]['fmin_fin'] = fmin_fin
 
 
+    print ("XXXXXXXXXXX DONE WITH OPTIMIZATIONS XXXXXXXXXXXXXXXX")
 
     if (create_reference_values):
         print("-" * 80)
@@ -117,6 +135,7 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
                 ref_file_name = os.path.splitext(file_name)[0] + ".ref"
                 with open(ref_file_name, "wb") as f:
                     pickle.dump(fmin_fin, f)
+                    #fio.dump(fmin_fin, f)
                 print(" [%8s][%4s] -- fmin: %.16f --> %s" % (minimizer, algorithm, fmin_fin, ref_file_name))
                 print("=" * 34, " END TEST ", "=" * 34)
                 print("%" * 80)
@@ -161,9 +180,18 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
 
         print("-" * 80)
         print(" === RETURNED GRADIENT EVALUATION ===")
+
         # re-evaluation of minimum for the returned vector
-        with open(file_name, 'r') as ifile:
-            [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+    
+        if not myfio :
+            with open(file_name, 'r') as ifile:
+                [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+        else:
+            new_mydict = fio.load_dict(file_name)
+            [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+
+
+
 
         for minimizer in exp:
             for algorithm in exp[minimizer]:
@@ -203,8 +231,8 @@ def test_find_opt_analytical_grad():
     optimize.minimize.set_fast_openmp_flag(0)
     for file_name in filenames:
         caching_options = ["False"]
-        if (not create_reference_values):
-            caching_options = ["False", "True"]
+        #if (not create_reference_values):
+        #    caching_options = ["False", "True"]
 
         for caching in caching_options:
             run_test_optimum_logw(file_name=file_name, caching=caching)

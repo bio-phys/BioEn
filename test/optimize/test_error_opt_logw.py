@@ -1,13 +1,11 @@
 from __future__ import print_function
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 from bioen import optimize
+from bioen import fileio as fio
 import pytest
+import pickle
 
 
 # relative tolerance for value comparison
@@ -52,8 +50,11 @@ def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=
     exp = available_tests()
 
     # load exp. data from file
-    with open(file_name, 'r') as ifile:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+    #with open(file_name, 'r') as ifile:
+    #    [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+
+    new_mydict = fio.load_dict(file_name)
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
     # run all available optimizations
     for minimizer in exp:

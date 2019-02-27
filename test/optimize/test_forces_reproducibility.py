@@ -1,11 +1,9 @@
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 from bioen import optimize
+from bioen import fileio as fio
+import pickle
 
 
 # relative tolerance for value comparison
@@ -26,8 +24,13 @@ def check_forces_reproducibility(file_name, n_iter=500):
     params['algorithm'] = "bfgs2"
     params['verbose'] = False
 
-    with open(file_name, 'r') as fp:
-        [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(fp)
+    #with open(file_name, 'r') as fp:
+    #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(fp)
+
+    new_mydict = fio.load_dict(file_name)
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+
+
 
     fmin_list = []
     forces_sum_list = []

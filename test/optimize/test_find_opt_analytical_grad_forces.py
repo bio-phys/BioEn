@@ -1,13 +1,10 @@
 from __future__ import print_function
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
-
+from bioen import fileio as fio
 from bioen import optimize
+import pickle
 
 
 # relative tolerance for value comparison
@@ -20,7 +17,7 @@ create_reference_values = False
 
 filenames = [
     "./data/data_deer_test_forces_M808xN10.pkl",
-    "./data/data_forces_M64xN64.pkl"
+#    "./data/data_forces_M64xN64.pkl"
 ]
 
 
@@ -33,6 +30,13 @@ def available_tests():
         return exp
 
     exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    
+    #exp['scipy_py'] = { 'cg':{} }
+    #exp['scipy_py'] = { 'lbfgs':{} }
+    #exp['scipy_py'] = { 'bfgs':{} }
+
+
+   
     exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
     if (optimize.util.library_gsl()):
@@ -59,10 +63,13 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
     for minimizer in exp:
         for algorithm in exp[minimizer]:
 
+            #with open(file_name, 'rb') as ifile:
+            #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
 
-            # load exp. data from file
-            with open(file_name, 'rb') as ifile:
-                [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
+            new_mydict = fio.load_dict(file_name)
+            [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+
+
 
             minimizer_tag = minimizer
             use_c_functions = True
@@ -110,6 +117,7 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
                 ref_file_name = os.path.splitext(file_name)[0] + ".ref"
                 with open(ref_file_name, "wb") as f:
                     pickle.dump(fmin_fin, f)
+                    #fio.dump(fmin_fin, f)
                 print(" [%8s][%4s] -- fmin: %.16f --> %s" % (minimizer, algorithm, fmin_fin, ref_file_name))
                 print("=" * 34, " END TEST ", "=" * 34)
                 print("%" * 80)
@@ -144,6 +152,12 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
                 for algorithm in exp[minimizer]:
                     fmin_fin = exp[minimizer][algorithm]['fmin_fin']
                     eval_diff = optimize.util.compute_relative_difference_for_values(fmin_fin, fmin_reference)
+                    print("##################") 
+                    print("minimizer", minimizer)
+                    print("algorithm", algorithm)
+                    print("fmin_fin", fmin_fin)
+                    print("fmin_reference", fmin_reference)
+                    print("eval_diff", eval_diff)
                     assert(np.all(eval_diff < tol_min))
 
         else:
@@ -155,8 +169,14 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
         print("-" * 80)
         print(" === RETURNED GRADIENT EVALUATION ===")
         # re-evaluation of minimum for the the returned vector
+
+
         with open(file_name, 'r') as ifile:
             [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
+
+        #new_mydict = fio.load_dict(file_name)
+        #[forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+
 
 
         for minimizer in exp:

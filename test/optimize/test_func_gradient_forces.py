@@ -1,14 +1,11 @@
 from __future__ import print_function
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import pytest
 import numpy as np
 from bioen import optimize
-
+from bioen import fileio as fio
+import pickle
 
 # tolerance for value comparison
 tol = 5.e-14
@@ -17,17 +14,35 @@ tol_grad = 5.e-8
 
 def run_func_forces(use_c=True):
     # bbfgs.use_c_bioen(use_c)
-    with open("./data/data_deer_test_forces_M808xN10.pkl", 'r') as ifile:
-        [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
-    log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
+
+    #with open("./data/data_deer_test_forces_M808xN10.pkl", 'r') as ifile:
+    #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
+
+    filename="./data/data_deer_test_forces_M808xN10.pkl"
+    new_mydict = fio.load_dict(filename)
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+
+    #log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
+    #log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=False)
+    #log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=True)
+    log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=False)
     return log_posterior
 
 
 def run_grad_forces(use_c=True):
     # bbfgs.use_c_bioen(use_c)
-    with open("./data/data_deer_test_forces_M808xN10.pkl", 'r') as ifile:
-        [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
-    fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
+
+
+    #with open("./data/data_deer_test_forces_M808xN10.pkl", 'r') as ifile:
+    #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
+    
+    filename="./data/data_deer_test_forces_M808xN10.pkl"
+    new_mydict = fio.load_dict(filename)
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+
+ 
+    #fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
+    fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c=False)
     return fprime
 
 

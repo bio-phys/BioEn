@@ -1,13 +1,11 @@
 from __future__ import print_function
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import pytest
 import numpy as np
 from bioen import optimize
+from bioen import fileio as fio
+import pickle
 
 
 # relative tolerance for value comparison
@@ -17,8 +15,15 @@ tol_grad = 5.e-12
 
 def run_func(use_c=True):
     # bbfgs.use_c_bioen(use_c)
-    with open("./data/data_deer_test_logw_M808xN10.pkl", 'r') as ifile:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+
+    #with open("./data/data_deer_test_logw_M808xN10.pkl", 'r') as ifile:
+    #    [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+
+    filename="./data/data_deer_test_logw_M808xN10.pkl"
+    new_mydict = fio.load_dict(filename)
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+
+
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
     log_posterior = optimize.log_weights.bioen_log_posterior(gPrime, g, G, yTilde, YTilde, theta, use_c=use_c)
@@ -27,8 +32,15 @@ def run_func(use_c=True):
 
 def run_grad(use_c=True):
     # bbfgs.use_c_bioen(use_c)
-    with open("./data/data_deer_test_logw_M808xN10.pkl", 'r') as ifile:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+
+    #with open("./data/data_deer_test_logw_M808xN10.pkl", 'r') as ifile:
+    #    [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+    
+    filename="./data/data_deer_test_logw_M808xN10.pkl"
+    new_mydict = fio.load_dict(filename)
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+
+
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
     fprime = optimize.log_weights.grad_bioen_log_posterior(gPrime, g, G, yTilde, YTilde, theta, use_c=use_c)

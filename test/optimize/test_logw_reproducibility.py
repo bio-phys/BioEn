@@ -1,11 +1,9 @@
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 from bioen import optimize
+from bioen import fileio as fio
+import pickle
 
 
 # relative tolerance for value comparison
@@ -26,8 +24,14 @@ def check_logw_reproducibility(file_name, n_iter=500):
     params['algorithm'] = "bfgs2"
     params['verbose'] = False
 
-    with open(file_name, 'r') as fp:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(fp)
+    #with open(file_name, 'r') as fp:
+    #    [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(fp)
+
+    new_mydict = fio.load_dict(file_name)
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+
+
+
 
     fmin_list = []
     gopt_sum_list = []
