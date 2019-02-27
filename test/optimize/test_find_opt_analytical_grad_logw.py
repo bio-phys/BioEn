@@ -41,7 +41,10 @@ def available_tests():
         return exp
 
     #exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-    exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{}  }
+    exp['scipy_py'] = { 'bfgs':{}  }
+    #exp['scipy_py'] = { 'lbfgs':{}  }
+    #exp['scipy_py'] = { 'cg':{}  }
+
     exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
     if (optimize.util.library_gsl()):
@@ -142,7 +145,6 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
             exp[minimizer][algorithm]['fmin_fin'] = fmin_fin
 
 
-    print ("XXXXXXXXXXX DONE WITH OPTIMIZATIONS XXXXXXXXXXXXXXXX")
 
     if (create_reference_values):
         print("-" * 80)
