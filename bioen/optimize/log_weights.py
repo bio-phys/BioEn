@@ -444,16 +444,14 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     return value
 
 
-num_iters = 0
-
-#def myprintiter(gPrime, g, G, yTilde, YTilde, theta):
-def myprintiter(x):
-    global num_iters
-    num_iters += 1
-    print("ITER", num_iters)
-    #print(" shape of x", x.shape)
-    #print(" type of x", str(type(x)))
-    print ("x ---->", x)
+#num_iters = 0
+#def myprintiter(x):
+#    global num_iters
+#    num_iters += 1
+#    print("ITER", num_iters)
+#    #print(" shape of x", x.shape)
+#    #print(" type of x", str(type(x)))
+#    print ("x ---->", x)
 
 def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
     """
@@ -627,29 +625,29 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                 print("\t", "maxiter     ", cfg["params"]["max_iterations"])
                 print("\t", "=" * 25)
 
-            print("FIND OPTIMUM FOR LOGW --------------------------------- START DEBUG HERE")
-            print("HHHHHHHHHHHHHHHHHHHHHHHHHHHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEERE") 
-            res = sopt.fmin_bfgs(bioen_log_posterior_base,
-                                 gPrime,
-                                 args=(g, G, yTilde, YTilde, theta),
-                                 fprime=grad_bioen_log_posterior_base,
-                                 epsilon=cfg["params"]["epsilon"],
-                                 gtol=cfg["params"]["gtol"],
-                                 callback=myprintiter,
-                                 maxiter=5,
-                                 disp=1,
-                                 full_output=True)
-
-
+            #print("FIND OPTIMUM FOR LOGW --------------------------------- START DEBUG HERE")
+            #print("HHHHHHHHHHHHHHHHHHHHHHHHHHHEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEERE") 
             #res = sopt.fmin_bfgs(bioen_log_posterior_base,
             #                     gPrime,
             #                     args=(g, G, yTilde, YTilde, theta),
             #                     fprime=grad_bioen_log_posterior_base,
             #                     epsilon=cfg["params"]["epsilon"],
             #                     gtol=cfg["params"]["gtol"],
-            #                     maxiter=cfg["params"]["max_iterations"],
-            #                     disp=cfg["verbose"],
+            #                     callback=myprintiter,
+            #                     maxiter=5,
+            #                     disp=1,
             #                     full_output=True)
+
+
+            res = sopt.fmin_bfgs(bioen_log_posterior_base,
+                                 gPrime,
+                                 args=(g, G, yTilde, YTilde, theta),
+                                 fprime=grad_bioen_log_posterior_base,
+                                 epsilon=cfg["params"]["epsilon"],
+                                 gtol=cfg["params"]["gtol"],
+                                 maxiter=cfg["params"]["max_iterations"],
+                                 disp=cfg["verbose"],
+                                 full_output=True)
 
         elif cfg["algorithm"].lower() == 'cg' or cfg["algorithm"].lower() == 'fmin_cg':
 
@@ -680,7 +678,7 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
     end = time.time()
 
 
-    print("xxxxxxxxxxxxxxxxxxxxxxxxxx HERE IT IS DONE xxxxxx")
+    #print("xxxxxxxxxxxxxxxxxxxxxxxxxx HERE IT IS DONE xxxxxx")
     if cfg["verbose"]:
         print('time elapsed ', (end - start))
 

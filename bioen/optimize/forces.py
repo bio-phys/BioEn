@@ -202,7 +202,7 @@ def bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, cachin
     double:
       fmin value
     """
-    print ("BIOEN_LOG_POSTERIOR INTERFACE")
+    #print ("BIOEN_LOG_POSTERIOR INTERFACE")
     if use_c:
         log_posterior = c_bioen.bioen_log_posterior_forces(forces, w0, yTilde, YTilde, theta)
     else:
@@ -232,7 +232,7 @@ def grad_bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, c
     fprime: 1xN matrix
     """
 
-    print ("GRAD_BIOEN_LOG_POSTERIOR INTERFACE")
+    #print ("GRAD_BIOEN_LOG_POSTERIOR INTERFACE")
     if use_c:
         fprime = c_bioen.grad_bioen_log_posterior_forces(forces, w0, yTilde, YTilde, theta)
     else:
@@ -260,28 +260,29 @@ def bioen_log_posterior_base(forces, w0, yTilde, YTilde, theta, use_c=True):
     double:
       fmin value
     """
-    print ("BIOEN_LOG_POSTERIOR -- needs to be fixed")
-    print ("    forces shape", forces.shape)
-    print ("    w0 shape    ", w0.shape)
-    print ("    yTilde shape", yTilde.shape)
-    print ("    YTilde shape", YTilde.shape)
-    print ("    forces type ", str(type(forces)))
-    print ("    w0 type     ", str(type(w0)))
-    print ("    yTilde type ", str(type(yTilde)))
-    print ("    YTilde type ", str(type(YTilde)))
+    #print ("BIOEN_LOG_POSTERIOR -- needs to be fixed")
+    #print ("    forces shape", forces.shape)
+    #print ("    w0 shape    ", w0.shape)
+    #print ("    yTilde shape", yTilde.shape)
+    #print ("    YTilde shape", YTilde.shape)
+    #print ("    forces type ", str(type(forces)))
+    #print ("    w0 type     ", str(type(w0)))
+    #print ("    yTilde type ", str(type(yTilde)))
+    #print ("    YTilde type ", str(type(YTilde)))
 
 
     forces = forces.T
     w = get_weights_from_forces(w0, yTilde, forces)
 
-    print ("    w shape", w.shape)
-    print ("    w type ", str(type(YTilde)))
+    #print ("    w shape", w.shape)
+    #print ("    w type ", str(type(YTilde)))
     chiSqr = common.chiSqrTerm(w, yTilde, YTilde)
     # selecting non-zero weights because lim_{w->0} w log(w) = 0
     ind = np.where(w > 0)[0]
 
     result =  theta * np.dot((np.log(w[ind] / w0[ind])).T, w[ind])[0, 0] + chiSqr
-    print ("current fmin is" , result)
+
+    #print ("current fmin is" , result)
 
     return result
     #return theta * np.dot((np.log(w[ind] / w0[ind])).T, w[ind])[0, 0] + chiSqr
@@ -303,15 +304,15 @@ def grad_bioen_log_posterior_base(forces, w0, yTilde, YTilde, theta, use_c=True)
     Returns
     -------
     """
-    print("GRAD_BIOEN_LOG_POSTERIOR_BASE - NEEDS TO BE FIXED!!!!!")
-    print ("    forces shape", forces.shape)
-    print ("    w0 shape    ", w0.shape)
-    print ("    yTilde shape", yTilde.shape)
-    print ("    YTilde shape", YTilde.shape)
-    print ("    forces type ", str(type(forces)))
-    print ("    w0 type     ", str(type(w0)))
-    print ("    yTilde type ", str(type(yTilde)))
-    print ("    YTilde type ", str(type(YTilde)))
+    #print("GRAD_BIOEN_LOG_POSTERIOR_BASE - NEEDS TO BE FIXED!!!!!")
+    #print ("    forces shape", forces.shape)
+    #print ("    w0 shape    ", w0.shape)
+    #print ("    yTilde shape", yTilde.shape)
+    #print ("    YTilde shape", YTilde.shape)
+    #print ("    forces type ", str(type(forces)))
+    #print ("    w0 type     ", str(type(w0)))
+    #print ("    yTilde type ", str(type(yTilde)))
+    #print ("    YTilde type ", str(type(YTilde)))
     forces = forces.T
 
     w = get_weights_from_forces(w0, yTilde, forces)
@@ -461,18 +462,18 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
 
 
             #### HERE CRASHES with ndarray  ###
-            print("#########################")
-            print("type forces", str(type(forces)))
-            print("type w0    ", str(type(w0)))
-            print("type yTilde", str(type(yTilde)))
-            print("type YTilde", str(type(YTilde)))
-            print("type theta ", str(type(theta)))
-            print("#########################")
-            print("shape forces", forces.shape)
-            print("shape w0    ", w0.shape)
-            print("shape yTilde", yTilde.shape)
-            print("shape YTilde", YTilde.shape)
-            print("#########################")
+            #print("#########################")
+            #print("type forces", str(type(forces)))
+            #print("type w0    ", str(type(w0)))
+            #print("type yTilde", str(type(yTilde)))
+            #print("type YTilde", str(type(YTilde)))
+            #print("type theta ", str(type(theta)))
+            #print("#########################")
+            #print("shape forces", forces.shape)
+            #print("shape w0    ", w0.shape)
+            #print("shape yTilde", yTilde.shape)
+            #print("shape YTilde", YTilde.shape)
+            #print("#########################")
             res = sopt.fmin_l_bfgs_b(bioen_log_posterior_base,
                                      forces,
                                      args=(w0, yTilde, YTilde, theta),
