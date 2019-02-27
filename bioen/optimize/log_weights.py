@@ -33,7 +33,63 @@ def bioen_log_prior(w, s, g, G, theta):
       log_prior value
     """
     w0, s0 = getWeights(G)
-    return (theta * ((g.T * w) - (G.T * w) - np.log(s) + np.log(s0)))[0, 0]
+
+    print("DEB log_prior (shape G, w0, s0)" , G.shape, w0.shape, s0.shape)
+    print("DEB log_prior (G)" , G)
+    print("DEB log_prior (w0)" , w0)
+    print("DEB log_prior (s0)" , s0)
+
+
+    #### HERE IS THE ERROR
+    print("DEB log_prior (w type)" , str(type(w)))
+    print("DEB log_prior (s type)" , str(type(s)))
+    print("DEB log_prior (g type)" , str(type(g)))
+    print("DEB log_prior (G type)" , str(type(G)))
+    print("DEB log_prior (w shape)" , w.shape)
+    print("DEB log_prior (s shape)" , s.shape)
+    print("DEB log_prior (g shape)" , g.shape)
+    print("DEB log_prior (G shape)" , G.shape)
+
+
+    if (isinstance(G, np.matrixlib.defmatrix.matrix)):
+        #result = (theta * ((g.T * w) - (G.T * w) - np.log(s) + np.log(s0)))[0, 0]
+        var1= g.T * w
+        var2= G.T * w
+        var3= np.log(s)
+        var4= np.log(s0)
+   
+        oper1 = var1 - var2 
+        oper2 = oper1 - var3 
+        oper3 = oper2 + var4 
+
+        mul1 = theta * oper3
+        
+        result = mul1[0,0]
+   
+    else:
+        
+        var1= np.dot(g.T,w)
+        var2= np.dot(G.T,w)
+        var3= np.log(s)
+        var4= np.log(s0)
+   
+        oper1 = var1 - var2 
+        oper2 = oper1 - var3 
+        oper3 = oper2 + var4 
+
+        mul1 = theta * oper3
+        
+        result = mul1[0,0]
+ 
+    print("DEB log_prior (log s)" , var3)
+    print("DEB log_prior (log s0)" , var4)
+
+
+    print("DEB log_prior (result)" , result.shape)
+    print("DEB log_prior (result)" , result)
+
+    return result
+    #return (theta * ((g.T * w) - (G.T * w) - np.log(s) + np.log(s0)))[0, 0]
 
 
 def init_log_weights(w0):
@@ -293,9 +349,15 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     #val1 = bioen_log_prior(w, s, g, G, theta)
     #val2 = common.chiSqrTerm(w, yTilde, YTilde)
 
+
     result = val1 + val2
-    #print ("BIOEN_LOG_POSTERIOR_BASE RESULT IS ", result )
-    #print ("BIOEN_LOG_POSTERIOR_BASE shape IS ", result.shape )
+
+
+    print ("DEB val1 and val2", val1, val2)
+
+
+
+
     return result
     #return val1 + val2
 
@@ -331,30 +393,14 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
         yTildeAve = yTilde * w
         for mu in range(w.shape[0]):
             #tmp[mu] = w[mu] * (yTildeAve.T - YTilde) * (yTilde[:, mu] - yTildeAve)
-
-
-            #print ("yTilde    shape " , yTilde.shape)
-            #print ("yTildeAve shape " , yTildeAve.shape)
-            #print ("yTilde    type " , str(type(yTilde)))
-            #print ("yTildeAve type " , str(type(yTildeAve)))
-
             var1 = w[mu]
             var2 = (yTildeAve.T - YTilde)
             inter = yTilde[:,mu]
-            #print ("inter shape " , inter.shape)
             var3 = (inter - yTildeAve)
             var4 = var1 * var2
             var5 = var4 * var3
             var5 = var5[0,0] 
-
-            #print ("var1 shape " , var1.shape)
-            #print ("var2 shape " , var2.shape)
-            #print ("var3 shape " , var3.shape)
-            #print ("var4 shape " , var4.shape)
-            #print ("var5 shape " , var5.shape)
             tmp[mu] = var5
-
-
 
         tmp = np.array(tmp)
         value = np.asarray((np.asarray(w.T) * np.asarray(theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
@@ -366,8 +412,6 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
         yTildeAve = np.dot (yTilde,w)
         for mu in range(w.shape[0]):
             #tmp[mu] = w[mu] * (yTildeAve.T - YTilde) * (yTilde[:, mu] - yTildeAve)
-
-
             var1 = w[mu]
             var2 = yTildeAve.T - YTilde
             inter = yTilde[:,mu]
@@ -393,9 +437,9 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     #value = np.asarray((np.asarray(w.T) * np.asarray(theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
 
 
-
-    #print ("GRAD_BIOEN_LOG_POSTERIOR_BASE value  ", value)
-    #print ("GRAD_BIOEN_LOG_POSTERIOR_BASE shape  ", value.shape)
+    print ("DEB value shape", value.shape)
+    print ("DEB value type ", str(type(value)))
+    print ("DEB value      ", value)
 
     return value
 
