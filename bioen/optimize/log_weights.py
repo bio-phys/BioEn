@@ -421,21 +421,17 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
         yTildeAve = np.dot (yTilde,w)
         for mu in range(w.shape[0]):
             #tmp[mu] = w[mu] * (yTildeAve.T - YTilde) * (yTilde[:, mu] - yTildeAve)
-            var1 = w[mu]
-            var2 = yTildeAve.T - YTilde
-            inter = yTilde[:,mu]
-            inter = np.expand_dims(inter, axis=1)
-            var3 = (inter - yTildeAve)
-            var4 = np.dot(var1,var2)
-            var5 = np.dot(var4,var3)
+            inter = np.expand_dims(yTilde[:,mu], axis=1)
+            tmp[mu] = np.dot(np.dot(w[mu],yTildeAve.T - YTilde), inter - yTildeAve)
 
-            tmp[mu] = var5
 
-        tmp = np.array(tmp)
-        var1 = w.T * np.array(g - g.T * w - G + G.T *w).T + tmp
-        value = np.asfortranarray(var1[0,:])
+        #value = np.asarray((np.asarray(w.T) * np.asarray(theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
+        #value = w.T * (theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
+        op1 =  g - np.dot(g.T,w)
+        op2 =  G + np.dot(G.T,w)
+        op3 = np.dot( w.T, op1 - op2) + tmp
+        value = op3[0,:]
 
-    #print("EXIT DONE")
 
     #g[:, 0] = gPrime[:, np.newaxis]
     #w, s = getWeights(g)
@@ -600,10 +596,10 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
 
 
             print("FIND OPTIMUM FOR LOGW --------------------------------- LBFGS - START DEBUG HERE")
-            print("g (type, shape) :      ", str(type(g))     , g.shape)
-            print("G (type, shape) :      ", str(type(G))     , G.shape)
-            print("yTilde (type, shape) : ", str(type(yTilde)), yTilde.shape)
-            print("YTilde (type, shape) : ", str(type(YTilde)), YTilde.shape)
+            #print("g (type, shape) :      ", str(type(g))     , g.shape)
+            #print("G (type, shape) :      ", str(type(G))     , G.shape)
+            #print("yTilde (type, shape) : ", str(type(yTilde)), yTilde.shape)
+            #print("YTilde (type, shape) : ", str(type(YTilde)), YTilde.shape)
 
             res = sopt.fmin_l_bfgs_b(bioen_log_posterior_base,
                                      gPrime,
@@ -613,15 +609,6 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                                      pgtol=cfg["params"]["pgtol"],
                                      maxiter=cfg["params"]["max_iterations"],
                                      disp=cfg["verbose"])
-
-            #res = sopt.fmin_l_bfgs_b(bioen_log_posterior_base,
-            #                         gPrime,
-            #                         args=(g, G, yTilde, YTilde, theta),
-            #                         fprime=grad_bioen_log_posterior_base,
-            #                         epsilon=cfg["params"]["epsilon"],
-            #                         pgtol=cfg["params"]["pgtol"],
-            #                         maxiter=cfg["params"]["max_iterations"],
-            #                         disp=cfg["verbose"])
 
         elif cfg["algorithm"].lower() == 'bfgs' or cfg["algorithm"].lower() == "fmin_bfgs":
 
