@@ -432,7 +432,7 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
             tmp[mu] = var5
 
         tmp = np.array(tmp)
-        var1 = np.array(g - g.T * w - G + G.T *w).T + tmp
+        var1 = w.T * np.array(g - g.T * w - G + G.T *w).T + tmp
         value = np.asfortranarray(var1[0,:])
 
     #print("EXIT DONE")
