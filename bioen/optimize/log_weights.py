@@ -429,7 +429,7 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
         #value = w.T * (theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
         op1 =  g - np.dot(g.T,w)
         op2 =  G + np.dot(G.T,w)
-        op3 = np.dot( w.T, op1 - op2) + tmp
+        op3 = np.dot( w.T, theta * (op1 - op2)) + tmp
         value = op3[0,:]
 
 
