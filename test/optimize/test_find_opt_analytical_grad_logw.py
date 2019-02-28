@@ -40,18 +40,15 @@ def available_tests():
         exp['GSL'] = { 'bfgs' : {} }
         return exp
 
-    #exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-    exp['scipy_py'] = { 'bfgs':{}  }
-    #exp['scipy_py'] = { 'lbfgs':{}  }
-    #exp['scipy_py'] = { 'cg':{}  }
+    exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
-    exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    #exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
-    if (optimize.util.library_gsl()):
-        exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
+    #if (optimize.util.library_gsl()):
+    #    exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
 
-    if (optimize.util.library_lbfgs()):
-        exp['LBFGS'] = { 'lbfgs':{} }
+    #if (optimize.util.library_lbfgs()):
+    #    exp['LBFGS'] = { 'lbfgs':{} }
 
     return exp
 
