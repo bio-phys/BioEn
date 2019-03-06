@@ -5,7 +5,6 @@ import pytest
 import numpy as np
 from bioen import optimize
 from bioen import fileio as fio
-import pickle
 
 # tolerance for value comparison
 tol = 5.e-14
@@ -14,9 +13,6 @@ tol_grad = 5.e-8
 
 def run_func_forces(use_c=True):
     # bbfgs.use_c_bioen(use_c)
-
-    #with open("./data/data_deer_test_forces_M808xN10.pkl", 'r') as ifile:
-    #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
 
     filename="./data/data_deer_test_forces_M808xN10.pkl"
     new_mydict = fio.load_dict(filename)
@@ -30,10 +26,6 @@ def run_func_forces(use_c=True):
 def run_grad_forces(use_c=True):
     # bbfgs.use_c_bioen(use_c)
 
-
-    #with open("./data/data_deer_test_forces_M808xN10.pkl", 'r') as ifile:
-    #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
-    
     filename="./data/data_deer_test_forces_M808xN10.pkl"
     new_mydict = fio.load_dict(filename)
     [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")

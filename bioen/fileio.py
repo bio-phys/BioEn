@@ -9,7 +9,16 @@ import numpy as np
 
 import h5py
 
+## Utility to list elements within a h5 file
+######################################################
+def show_keys(file_obj):
+    hdf5_obj = openHDF5(file_obj, mode='r')
+    print "Show keys -> Datasets in file ", hdf5_obj.filename
+    for val in hdf5_obj.keys():
+        print("--> " + val)
 
+## Utility to get a list of elements from dictionary
+## To obtain the same behavior as in previous pickle mechanism
 ######################################################
 def get_list_from_dict (new_mydict, *args):
     mylist = []
@@ -19,7 +28,11 @@ def get_list_from_dict (new_mydict, *args):
 
 
 
-
+## General function to open h5py file.
+## Accepted:
+##      string: filename
+##      pickle_obj:
+##      h5py_obj:
 ######################################################
 def openHDF5 (file_obj, mode ='rb'):
 
@@ -32,19 +45,14 @@ def openHDF5 (file_obj, mode ='rb'):
         print('Pickle is deprecated, using HDF5 file instead : ' + fm_hdf5 )
 
         hdf5_obj = h5py.File(fm_hdf5, mode)
-        
-    elif (isinstance(file_obj, h5py._hl.files.File)) : 
-        #print ('File type is hdf5 file')
+
+    elif (isinstance(file_obj, h5py._hl.files.File)) :
         return file_obj
 
     elif (isinstance(file_obj, str)):
-        #print ('File_obj is string')
-
         extension = os.path.splitext(file_obj)[1]
         basename = os.path.splitext(file_obj)[0]
         fm_hdf5= basename + ".h5"
-
-
         hdf5_obj = h5py.File(fm_hdf5, mode)
 
 
@@ -55,37 +63,44 @@ def openHDF5 (file_obj, mode ='rb'):
 
     return hdf5_obj
 
-
-
-
+### dump and load serve for storing a single element
 ######################################################
-def dump(py_obj, file_obj, dataset):
+def dump(file_obj, py_obj,  dataset='data'):
 
     # it can be a ifile object, string or hdf5 object
     hdf5_obj = openHDF5(file_obj, mode='w')
 
-    file_obj.create_dataset(dataset, data=py_obj)
+    hdf5_obj.create_dataset(dataset, data=py_obj)
 
     hdf5_obj.close()
 
     return
 
 ######################################################
-def load (file_obj, dataset):
+def load (file_obj, dataset='data'):
 
     hdf5_obj = openHDF5(file_obj, mode='r')
 
-    return file_obj.get(dataset).value
-     
-######################################################
+    mykeys = hdf5_obj.keys()
+
+    if ( not dataset in hdf5_obj.keys() ) :
+        raise ("Error; data set '" + dataset + "' does not exists")
+
+    return hdf5_obj.get(dataset).value
+
+## dump_by_kw and lload_by_kw, allow to specify several
+## data to be saved as arguments
+## useful when converintg old pickle files into h5
+#####################################################
 def dump_by_kw(file_obj, *args, **kwargs):
-   
+
     hdf5_obj = openHDF5(file_obj, mode='w')
 
     for key, value in kwargs.iteritems():
         hdf5_obj.create_dataset(key, data=value)
 
-######################################################
+## load limits the loaded content from the file
+#####################################################
 def load_by_kw(file_obj, *args):
 
     hdf5_obj = openHDF5(file_obj, mode='r')
@@ -98,20 +113,17 @@ def load_by_kw(file_obj, *args):
             result_dict[arg] = hdf5_obj[arg].value
         else:
             print "Dataset ", arg , " is not present in this file"
-    
- 
+
+
     return result_dict
 
 
-### SHOW KEYS IN HDF5
-######################################################
-def show_keys(hdf5_obj):
-    print "Show keys -> Datasets in file ", hdf5_obj.filename
-    for val in hdf5_obj.keys():
-        print("--> " + val)
-
 
 #### WRITE DICTIONARY
+## Should be the standard way to load and store
+## data. Always working with dictionaries because
+## they have key and value
+## It should work for nested dictionaries.
 ######################################################
 def dump_rec_dict(file_obj,key, value, group):
 
@@ -120,13 +132,13 @@ def dump_rec_dict(file_obj,key, value, group):
             locgroup = group.create_group(lockey)
             dump_rec_dict(file_obj,lockey,locvalue,locgroup)
 
-    else: 
+    else:
         group.create_dataset(key, data=value)
 
 
 ######################################################
 def dump_dict(file_obj, mydict):
-   
+
     hdf5_obj = openHDF5(file_obj, mode='w')
 
     for key, value in mydict.iteritems():
@@ -146,7 +158,7 @@ def load_rec_dict(file_obj,group):
     result_dict = {}
 
     for key,value in group.iteritems():
-        
+
         if (isinstance(value, h5py.Dataset)):
             #result_dict[key] = value.value
             result_dict = value.value
@@ -155,16 +167,18 @@ def load_rec_dict(file_obj,group):
 
     return result_dict
 
+
+
+
 ######################################################
 def load_dict(file_obj):
-  
+
     hdf5_obj = openHDF5(file_obj, mode='r')
 
     result_dict = {}
 
     for key,value in hdf5_obj.iteritems():
         if (isinstance(value, h5py.Dataset)):
-            #result_dict[key] = value.value
             result_dict[key] = value.value
         if (isinstance(value, h5py.Group)):
             result_dict[key] = load_rec_dict(file_obj, value)

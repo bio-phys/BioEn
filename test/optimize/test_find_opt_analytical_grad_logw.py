@@ -4,7 +4,6 @@ import sys
 import numpy as np
 from bioen import optimize
 from bioen import fileio as fio
-import pickle
 
 # relative tolerance for value comparison
 #tol = 1.e-14
@@ -14,16 +13,13 @@ tol_min = 1.e-1
 verbose = False
 create_reference_values = False
 
-myfio=True
-#myfio=False
-
 filenames = [
     "./data/data_potra_part_2_logw_M205xN10.pkl",  # realistic test case provided by Katrin, has small theta
-#    "./data/data_16x15.pkl",                       # synthetic test case
-#    "./data/data_deer_test_logw_M808xN10.pkl",
-#    "./data/data_potra_part_2_logw_M205xN10.pkl",
-#    #    "./data/data_potra_part_1_logw_M808xN80.pkl",   ## (*)(1)
-#    #    "./data/data_potra_part_2_logw_M808xN10.pkl"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
+    "./data/data_16x15.pkl",                       # synthetic test case
+    "./data/data_deer_test_logw_M808xN10.pkl",
+    "./data/data_potra_part_2_logw_M205xN10.pkl",
+    #    "./data/data_potra_part_1_logw_M808xN80.pkl",   ## (*)(1)
+    #    "./data/data_potra_part_2_logw_M808xN10.pkl"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
 ]
 
 
@@ -42,13 +38,13 @@ def available_tests():
 
     exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
-    #exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
-    #if (optimize.util.library_gsl()):
-    #    exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
+    if (optimize.util.library_gsl()):
+        exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
 
-    #if (optimize.util.library_lbfgs()):
-    #    exp['LBFGS'] = { 'lbfgs':{} }
+    if (optimize.util.library_lbfgs()):
+        exp['LBFGS'] = { 'lbfgs':{} }
 
     return exp
 
@@ -69,45 +65,8 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
     for minimizer in exp:
         for algorithm in exp[minimizer]:
 
-
-            ### compare
-            #with open(file_name, 'r') as ifile:
-            #    [pGInit, pG, py, pyTilde, pYTilde, pw0, ptheta] = pickle.load(ifile)
-
-            #new_mydict = fio.load_dict(file_name)
-            #[hGInit, hG, hy, hyTilde, hYTilde, hw0, htheta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
-
-            #print ("COMPARISON OF PICKLE AND H5PY") 
-
-            #eval_diff = optimize.util.compute_relative_difference_for_values(ptheta, htheta)
-            #print ("Theta diff ", eval_diff) 
-
-            #print("p type " , str(type(py)))
-            #print("p shape " , py.shape)
-            #print("h type " , str(type(hy)))
-            #print("h shape " , hy.shape)
-            #print (py)
-            #print (hy)
-            #dg, idx = optimize.util.compute_relative_difference_for_arrays(py, hy)
-            #print("relative difference of gradient = y {} (maximum at index {})".format(dg, idx))
-
-            #dg, idx = optimize.util.compute_relative_difference_for_arrays(pyTilde, hyTilde)
-            #print("relative difference of gradient = yTilde {} (maximum at index {})".format(dg, idx))
-            #dg, idx = optimize.util.compute_relative_difference_for_arrays(pYTilde, hYTilde)
-            #print("relative difference of gradient = YTilde {} (maximum at index {})".format(dg, idx))
-            #dg, idx = optimize.util.compute_relative_difference_for_arrays(pw0, hw0)
-            #print("relative difference of gradient = w0 {} (maximum at index {})".format(dg, idx))
-            
-
-            if not myfio :
-                with open(file_name, 'r') as ifile:
-                    [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
-            else:
-                new_mydict = fio.load_dict(file_name)
-                [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
-
-
-
+            new_mydict = fio.load_dict(file_name)
+            [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
             minimizer_tag = minimizer
             use_c_functions = True
@@ -151,22 +110,18 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
                 fmin_fin = exp[minimizer][algorithm]['fmin_fin']
 
                 print(" === CREATING REFERENCE VALUES ===")
-                ref_file_name = os.path.splitext(file_name)[0] + ".ref"
-                with open(ref_file_name, "wb") as f:
-                    pickle.dump(fmin_fin, f)
-                    #fio.dump(fmin_fin, f)
+                ref_file_name = os.path.splitext(file_name)[0] + ".ref.h5"
+                fio.dump(ref_file_name, fmin_min, "reference")
                 print(" [%8s][%4s] -- fmin: %.16f --> %s" % (minimizer, algorithm, fmin_fin, ref_file_name))
                 print("=" * 34, " END TEST ", "=" * 34)
                 print("%" * 80)
     else:
 
-        # get reference value
-        ref_file_name = os.path.splitext(file_name)[0] + ".ref"
+        ref_file_name = os.path.splitext(file_name)[0] + ".ref.h5"
         available_reference = False
         if (os.path.isfile(ref_file_name)):
             available_reference = True
-            with open(ref_file_name, "rb") as f:
-                fmin_reference = pickle.load(f)
+            fmin_reference = fio.load(ref_file_name, "reference")
 
         # print results
         print("=" * 80)
@@ -201,16 +156,8 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
         print(" === RETURNED GRADIENT EVALUATION ===")
 
         # re-evaluation of minimum for the returned vector
-    
-        if not myfio :
-            with open(file_name, 'r') as ifile:
-                [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
-        else:
-            new_mydict = fio.load_dict(file_name)
-            [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
-
-
-
+        new_mydict = fio.load_dict(file_name)
+        [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
         for minimizer in exp:
             for algorithm in exp[minimizer]:
@@ -250,8 +197,8 @@ def test_find_opt_analytical_grad():
     optimize.minimize.set_fast_openmp_flag(0)
     for file_name in filenames:
         caching_options = ["False"]
-        #if (not create_reference_values):
-        #    caching_options = ["False", "True"]
+        if (not create_reference_values):
+            caching_options = ["False", "True"]
 
         for caching in caching_options:
             run_test_optimum_logw(file_name=file_name, caching=caching)

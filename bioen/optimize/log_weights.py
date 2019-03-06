@@ -34,23 +34,6 @@ def bioen_log_prior(w, s, g, G, theta):
     """
     w0, s0 = getWeights(G)
 
-    #print("DEB log_prior (shape G, w0, s0)" , G.shape, w0.shape, s0.shape)
-    #print("DEB log_prior (G)" , G)
-    #print("DEB log_prior (w0)" , w0)
-    #print("DEB log_prior (s0)" , s0)
-
-
-    #### HERE IS THE ERROR
-    #print("DEB log_prior (w type)" , str(type(w)))
-    #print("DEB log_prior (s type)" , str(type(s)))
-    #print("DEB log_prior (g type)" , str(type(g)))
-    #print("DEB log_prior (G type)" , str(type(G)))
-    #print("DEB log_prior (w shape)" , w.shape)
-    #print("DEB log_prior (s shape)" , s.shape)
-    #print("DEB log_prior (g shape)" , g.shape)
-    #print("DEB log_prior (G shape)" , G.shape)
-
-
     if (isinstance(G, np.matrixlib.defmatrix.matrix)):
         #result = (theta * ((g.T * w) - (G.T * w) - np.log(s) + np.log(s0)))[0, 0]
         var1= g.T * w
@@ -81,15 +64,8 @@ def bioen_log_prior(w, s, g, G, theta):
 
         result = mul1[0,0]
 
-    #print("DEB log_prior (log s)" , var3)
-    #print("DEB log_prior (log s0)" , var4)
-
-
-    #print("DEB log_prior (result)" , result.shape)
-    #print("DEB log_prior (result)" , result)
 
     return result
-    #return (theta * ((g.T * w) - (G.T * w) - np.log(s) + np.log(s0)))[0, 0]
 
 
 def init_log_weights(w0):
@@ -131,8 +107,6 @@ def getWeights(g):
     s = tmp.sum()
     w = (np.array(tmp / s))
 
-    #print ("    @ getWeights --> w is " ,w.shape)
-    #print ("    @ getWeights --> w is " ,str(type(w)))
     return w, s
 
 
@@ -329,7 +303,6 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     -------
     L: BioEn loglikelihood
     """
-    #print ("BIOEN_LOG_POSTERIOR_BASE")
 
     if (isinstance(g, np.matrixlib.defmatrix.matrix)):
         g[:, 0] = gPrime[:, np.newaxis]
@@ -339,6 +312,7 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     else:
         gPrime = np.expand_dims(gPrime, axis=1)
         g[:, 0] = gPrime[:, 0]
+        #g[:, 0] = gPrime[:, np.newaxis]
         w, s = getWeights(g)
         val1 = bioen_log_prior(w, s, g, G, theta)
         val2 = common.chiSqrTerm(w, yTilde, YTilde)
@@ -348,18 +322,7 @@ def bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     #val1 = bioen_log_prior(w, s, g, G, theta)
     #val2 = common.chiSqrTerm(w, yTilde, YTilde)
 
-
     result = val1 + val2
-
-
-    #print ("DEB val1 and val2", val1, val2)
-    #print ("DEB result ", result)
-    #print ("DEB result type", str(type(result)))
-    #print ("DEB result shape", result.shape)
-
-
-
-
 
     return result
     #return val1 + val2
@@ -384,16 +347,8 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     array_like, vector with N components
     """
 
-    #print ("GRAD_BIOEN_LOG_POSTERIOR_BASE")
-    #print ("    gPrime type and shape " , str(type(gPrime)), gPrime.shape)
-    #print ("    g      type and shape " , str(type(g))     , g.shape)
-    #print ("    G      type and shape " , str(type(G))     , G.shape)
-    #print ("    yTilde type and shape " , str(type(yTilde)), yTilde.shape)
-    #print ("    YTilde type and shape " , str(type(YTilde)), YTilde.shape)
-
     value = 0.
     if (isinstance(yTilde, np.matrixlib.defmatrix.matrix)):
-        #print("DATA TYPE DETECTED -- matrix like")
         g[:, 0] = gPrime[:, np.newaxis]
         w, s = getWeights(g)
 
@@ -411,25 +366,29 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
             tmp[mu] = var5
 
         tmp = np.array(tmp)
-        value = np.asarray((np.asarray(w.T) * np.asarray(theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
+
+        value = np.asarray((np.asarray(w.T) * np.asarray(theta * ((g - (g.T * w)) - (G + (G.T * w))).T) + tmp))[0][:]
     else:
-        #print("DATA TYPE DETECTED -- array like")
-        g = np.expand_dims(gPrime,axis=1)
+        g = gPrime[:, np.newaxis]
         w, s = getWeights(g)
 
         tmp = np.zeros(w.shape[0])
         yTildeAve = np.dot (yTilde,w)
         for mu in range(w.shape[0]):
             #tmp[mu] = w[mu] * (yTildeAve.T - YTilde) * (yTilde[:, mu] - yTildeAve)
-            inter = np.expand_dims(yTilde[:,mu], axis=1)
-            tmp[mu] = np.dot(np.dot(w[mu],yTildeAve.T - YTilde), inter - yTildeAve)
+            var1 = w[mu]
+            var2 = (yTildeAve.T - YTilde)
+            inter = yTilde[:,mu]
+            inter = inter[:,np.newaxis]
+            var3 = (inter - yTildeAve)
+            var4 = np.dot(var1, var2)
+            var5 = np.dot(var4, var3)
+            tmp[mu] = var5
 
-
-        #value = np.asarray((np.asarray(w.T) * np.asarray(theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
-        #value = w.T * (theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
         op1 =  g - np.dot(g.T,w)
         op2 =  G + np.dot(G.T,w)
-        op3 = np.dot( w.T, theta * (op1 - op2)) + tmp
+        op3 = ( w.T * np.dot(theta,op1 - op2).T) + tmp
+
         value = op3[0,:]
 
 
@@ -446,15 +405,6 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
 
     return value
 
-
-#num_iters = 0
-#def myprintiter(x):
-#    global num_iters
-#    num_iters += 1
-#    print("ITER", num_iters)
-#    #print(" shape of x", x.shape)
-#    #print(" type of x", str(type(x)))
-#    print ("x ---->", x)
 
 def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
     """
@@ -594,13 +544,6 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                 print("\t", "maxiter     ", cfg["params"]["max_iterations"])
                 print("\t", "=" * 25)
 
-
-            print("FIND OPTIMUM FOR LOGW --------------------------------- LBFGS - START DEBUG HERE")
-            #print("g (type, shape) :      ", str(type(g))     , g.shape)
-            #print("G (type, shape) :      ", str(type(G))     , G.shape)
-            #print("yTilde (type, shape) : ", str(type(yTilde)), yTilde.shape)
-            #print("YTilde (type, shape) : ", str(type(YTilde)), YTilde.shape)
-
             res = sopt.fmin_l_bfgs_b(bioen_log_posterior_base,
                                      gPrime,
                                      args=(g, G, yTilde, YTilde, theta),
@@ -620,18 +563,6 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                 print("\t", "maxiter     ", cfg["params"]["max_iterations"])
                 print("\t", "=" * 25)
 
-            print("FIND OPTIMUM FOR LOGW --------------------------------- BFGS - START DEBUG HERE")
-            #res = sopt.fmin_bfgs(bioen_log_posterior_base,
-            #                     gPrime,
-            #                     args=(g, G, yTilde, YTilde, theta),
-            #                     fprime=grad_bioen_log_posterior_base,
-            #                     epsilon=cfg["params"]["epsilon"],
-            #                     gtol=cfg["params"]["gtol"],
-            #                     callback=myprintiter,
-            #                     maxiter=5,
-            #                     disp=1,
-            #                     full_output=True)
-
             res = sopt.fmin_bfgs(bioen_log_posterior_base,
                                  gPrime,
                                  args=(g, G, yTilde, YTilde, theta),
@@ -642,15 +573,6 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                                  disp=cfg["verbose"],
                                  full_output=True)
 
-            #res = sopt.fmin_bfgs(bioen_log_posterior_base,
-            #                     gPrime,
-            #                     args=(g, G, yTilde, YTilde, theta),
-            #                     fprime=grad_bioen_log_posterior_base,
-            #                     epsilon=cfg["params"]["epsilon"],
-            #                     gtol=cfg["params"]["gtol"],
-            #                     maxiter=cfg["params"]["max_iterations"],
-            #                     disp=cfg["verbose"],
-            #                     full_output=True)
 
         elif cfg["algorithm"].lower() == 'cg' or cfg["algorithm"].lower() == 'fmin_cg':
 
@@ -662,7 +584,6 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
                 print("\t", "maxiter     ", cfg["params"]["max_iterations"])
                 print("\t", "=" * 25)
 
-            print("FIND OPTIMUM FOR LOGW --------------------------------- CG - START DEBUG HERE")
             res = sopt.fmin_cg(bioen_log_posterior_base,
                                gPrime,
                                args=(g, G, yTilde, YTilde, theta),
@@ -682,7 +603,6 @@ def find_optimum(GInit, G, y, yTilde, YTilde, theta, cfg):
     end = time.time()
 
 
-    #print("xxxxxxxxxxxxxxxxxxxxxxxxxx HERE IT IS DONE xxxxxx")
     if cfg["verbose"]:
         print('time elapsed ', (end - start))
 

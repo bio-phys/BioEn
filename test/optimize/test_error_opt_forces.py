@@ -5,7 +5,6 @@ import numpy as np
 from bioen import optimize
 from bioen import fileio as fio
 import pytest
-import pickle
 
 
 # relative tolerance for value comparison
@@ -47,14 +46,8 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
 
     exp = available_tests()
 
-    # load exp. data from file
-    #with open(file_name, 'rb') as ifile:
-    #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
-
     new_mydict = fio.load_dict(file_name)
     [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
-
-
 
 
     for minimizer in exp:
