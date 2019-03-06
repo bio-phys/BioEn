@@ -316,6 +316,12 @@ We recommend to have a close look at the files in the folders ``./test/generic/`
 For further options and more information, type::
 
 	bioen --help
+FAQs
+====
+
+Q: All my optimization yield "fmin_final    =  0.0". What is going on?
+
+A: This could indicate that the GSL path was not properly set before installing the package. 
 
 
 Help
