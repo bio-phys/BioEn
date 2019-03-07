@@ -34,7 +34,7 @@ def gen_synthetic_data(M, N, YTrue, sig_exp):
     """
     # np.random.seed(0)
     YObs = np.random.normal(YTrue, sig_exp)
-    YObs = np.matrix(YObs)
+    YObs = np.array(YObs)
     # Experimentally observed values scaled by the inverse of the experimental error
     YTilde = YObs / sig_exp
     return YObs, YTilde
@@ -59,7 +59,7 @@ def gen_sythetic_ensemble(M, N, YTrue, sig_exp, sig_sim):
     # Values of observables for simulation ensemble.
     # Also distributed around true values, but with different standard deviation.
     # np.random.seed(0)
-    y = np.matrix(np.random.normal(np.repeat(np.transpose([YTrue]), N, axis=1), sig_sim))
+    y = np.array(np.random.normal(np.repeat(np.transpose([YTrue]), N, axis=1), sig_sim))
     # Values of ensemble observables scaled by the inverse of the experimental error
     yTilde = y.copy()
     sig_exp_mat = np.transpose(np.repeat([sig_exp], N, axis=0))
@@ -80,7 +80,7 @@ def init_forces(M, val=0):
     forces:
 
     """
-    forces = np.matrix(np.zeros((M, 1)))
+    forces = np.array(np.zeros((M, 1)))
     forces[:, 0] = val
     return forces
 
@@ -107,13 +107,12 @@ def get_weights_from_forces(w0, y, forces):
     return w / w.sum()
 
 
-def bioen_chi2_s_forces(forces, w0, y, yTilde, YTilde):
+def bioen_chi2_s_forces(forces, w0, yTilde, YTilde):
     """
     Parameters
     ----------
     forcesInit: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
 
@@ -178,6 +177,7 @@ def check_params_forces(forcesInit, w0, y, yTilde, YTilde):
 
 
 # FORCES function insterace selector
+# TODO: y parameter should be removed (only used on the optimizer)
 def bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, caching=False):
     """
     Interface to select between C+GSL and Python versions for the objective
@@ -187,7 +187,6 @@ def bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, cachin
     ----------
     forcesInit: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter,
@@ -198,14 +197,15 @@ def bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, cachin
       fmin value
     """
     if use_c:
-        log_posterior = c_bioen.bioen_log_posterior_forces(forces, w0, y, yTilde, YTilde, theta)
+        log_posterior = c_bioen.bioen_log_posterior_forces(forces, w0, yTilde, YTilde, theta)
     else:
-        log_posterior = bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta)
+        log_posterior = bioen_log_posterior_base(forces, w0, yTilde, YTilde, theta)
 
     return log_posterior
 
 
 # FORCES gradient interface selector
+# TODO: y parameter should be removed (only used on the optimizer)
 def grad_bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, caching=False):
     """
     Interface to select between C+GSL and Python versions for the gradient
@@ -215,7 +215,7 @@ def grad_bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, c
     ----------
     forces: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
+    y: MxN matrix, M observables calculate for the M structures    #### unused
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter,
@@ -226,15 +226,15 @@ def grad_bioen_log_posterior(forces, w0, y, yTilde, YTilde, theta, use_c=True, c
     """
 
     if use_c:
-        fprime = c_bioen.grad_bioen_log_posterior_forces(forces, w0, y, yTilde, YTilde, theta)
+        fprime = c_bioen.grad_bioen_log_posterior_forces(forces, w0, yTilde, YTilde, theta)
     else:
-        fprime = grad_bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta)
+        fprime = grad_bioen_log_posterior_base(forces, w0, yTilde, YTilde, theta)
 
     return fprime
 
 
 # FORCES function
-def bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta, use_c=True):
+def bioen_log_posterior_base(forces, w0, yTilde, YTilde, theta, use_c=True):
     """
     Legacy Python version of bioen_log_posterior forces method
 
@@ -242,7 +242,6 @@ def bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta, use_c=True):
     ----------
     forcesInit: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter
@@ -263,7 +262,7 @@ def bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta, use_c=True):
 
 
 # FORCES gradient
-def grad_bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta, use_c=True):
+def grad_bioen_log_posterior_base(forces, w0, yTilde, YTilde, theta, use_c=True):
     """
     Legacy Python version of grad_bioen_log_posterior forces method
 
@@ -271,7 +270,6 @@ def grad_bioen_log_posterior_base(forces, w0, y, yTilde, YTilde, theta, use_c=Tr
     ----------
     forces: 1xM matrix
     w0: array of length N
-    y: MxN matrix, M observables calculate for the M structures
     yTilde: MxN matrix, M observables y_i / sigma_i for the M structures
     YTilde: 1xM matrix, experimental observables
     theta: float, confidence parameter,
@@ -329,7 +327,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
         caching = common.set_caching_heuristics(m, n)
     cfg["cache_ytilde_transposed"] = caching
 
-    fmin_initial = c_bioen.bioen_log_posterior_forces(forcesInit,  w0, y, yTilde, YTilde, theta)
+    fmin_initial = c_bioen.bioen_log_posterior_forces(forcesInit,  w0, yTilde, YTilde, theta)
     if cfg["verbose"]:
         print("fmin_initial", fmin_initial)
 
@@ -341,12 +339,12 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
     if cfg["minimizer"].upper() == 'LIBLBFGS' or cfg["minimizer"].upper() == "LBFGS":
         common.print_highlighted("FORCES -- Library L-BFGS/C", cfg["verbose"])
 
-        res = c_bioen.bioen_opt_lbfgs_forces(forces, w0, y, yTilde, YTilde, theta, cfg)
+        res = c_bioen.bioen_opt_lbfgs_forces(forces, w0, yTilde, YTilde, theta, cfg)
 
     elif cfg["minimizer"].upper() == 'GSL':
         common.print_highlighted("FORCES -- Library GSL/C", cfg["verbose"])
 
-        res = c_bioen.bioen_opt_bfgs_forces(forces, w0, y, yTilde, YTilde, theta, cfg)
+        res = c_bioen.bioen_opt_bfgs_forces(forces, w0, yTilde, YTilde, theta, cfg)
 
     elif cfg["minimizer"].upper() == 'SCIPY' and cfg["use_c_functions"] == True:
         common.print_highlighted("FORCES -- Library scipy/C", cfg["verbose"])
@@ -364,7 +362,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                 print("\t", "=" * 25)
             res = sopt.fmin_l_bfgs_b(c_bioen.bioen_log_posterior_forces,
                                      forces,
-                                     args=(w0, y, yTilde, YTilde, theta, caching),
+                                     args=(w0, yTilde, YTilde, theta, caching),
                                      fprime=c_bioen.grad_bioen_log_posterior_forces,
                                      epsilon=cfg["params"]["epsilon"],
                                      pgtol=cfg["params"]["pgtol"],
@@ -382,7 +380,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                 print("\t", "=" * 25)
             res = sopt.fmin_bfgs(c_bioen.bioen_log_posterior_forces,
                                  forces,
-                                 args=(w0, y, yTilde, YTilde, theta, caching),
+                                 args=(w0, yTilde, YTilde, theta, caching),
                                  fprime=c_bioen.grad_bioen_log_posterior_forces,
                                  epsilon=cfg["params"]["epsilon"],
                                  gtol=cfg["params"]["gtol"],
@@ -401,7 +399,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                 print("\t", "=" * 25)
             res = sopt.fmin_cg(c_bioen.bioen_log_posterior_forces,
                                forces,
-                               args=(w0, y, yTilde, YTilde, theta, caching),
+                               args=(w0, yTilde, YTilde, theta, caching),
                                fprime=c_bioen.grad_bioen_log_posterior_forces,
                                epsilon=cfg["params"]["epsilon"],
                                gtol=cfg["params"]["gtol"],
@@ -425,7 +423,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                 print("\t", "=" * 25)
             res = sopt.fmin_l_bfgs_b(bioen_log_posterior_base,
                                      forces,
-                                     args=(w0, y, yTilde, YTilde, theta),
+                                     args=(w0, yTilde, YTilde, theta),
                                      fprime=grad_bioen_log_posterior_base,
                                      epsilon=cfg["params"]["epsilon"],
                                      pgtol=cfg["params"]["pgtol"],
@@ -442,7 +440,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                 print("\t", "=" * 25)
             res = sopt.fmin_bfgs(bioen_log_posterior_base,
                                  forces,
-                                 args=(w0, y, yTilde, YTilde, theta),
+                                 args=(w0, yTilde, YTilde, theta),
                                  fprime=grad_bioen_log_posterior_base,
                                  epsilon=cfg["params"]["epsilon"],
                                  gtol=cfg["params"]["gtol"],
@@ -460,7 +458,7 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
                 print("\t", "=" * 25)
             res = sopt.fmin_cg(bioen_log_posterior_base,
                                forces,
-                               args=(w0, y, yTilde, YTilde, theta),
+                               args=(w0, yTilde, YTilde, theta),
                                fprime=grad_bioen_log_posterior_base,
                                epsilon=cfg["params"]["epsilon"],
                                gtol=cfg["params"]["gtol"],
@@ -491,6 +489,6 @@ def find_optimum(forcesInit, w0, y, yTilde, YTilde, theta, cfg):
         print("fmin_final             =", fmin_final)
         print("========================")
 
-    S, chiSqr = bioen_chi2_s_forces(forces_opt, w0, y, yTilde, YTilde)
+    S, chiSqr = bioen_chi2_s_forces(forces_opt, w0, yTilde, YTilde)
 
     return wopt, yopt, forces_opt, fmin_initial, fmin_final, chiSqr, S

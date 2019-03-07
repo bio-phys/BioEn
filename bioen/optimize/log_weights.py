@@ -52,7 +52,7 @@ def init_log_weights(w0):
     GInit:
     """
     G = getGs(w0)
-    GInit = getGs(np.matrix(w0))
+    GInit = getGs(np.array(w0))
     g = GInit.copy()
     gPrime = np.asarray(g[:-1].T)[0]
     return gPrime, g, G, GInit
@@ -73,7 +73,7 @@ def getWeights(g):
     """
     tmp = np.exp(g)
     s = tmp.sum()
-    w = (np.matrix(tmp / s))
+    w = (np.array(tmp / s))
     return w, s
 
 
@@ -136,7 +136,7 @@ def grad_chiSqrTerm(gPrime, g, G, yTilde, YTilde, theta):
     yTildeAve = yTilde * w
     for mu in range(w.shape[0]):
         tmp[mu] = w[mu] * (yTildeAve.T - YTilde) * (yTilde[:, mu] - yTildeAve)
-    tmp = np.matrix(tmp)
+    tmp = np.array(tmp)
     return np.asarray(tmp)[0][:-1]
 
 
@@ -290,7 +290,7 @@ def grad_bioen_log_posterior_base(gPrime, g, G, yTilde, YTilde, theta):
     yTildeAve = yTilde * w
     for mu in range(w.shape[0]):
         tmp[mu] = w[mu] * (yTildeAve.T - YTilde) * (yTilde[:, mu] - yTildeAve)
-    tmp = np.matrix(tmp)
+    tmp = np.array(tmp)
     value = np.asarray((np.asarray(w.T) * np.asarray(theta * (g - g.T * w - G + G.T * w).T) + tmp))[0][:]
     return value
 

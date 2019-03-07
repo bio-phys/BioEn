@@ -17,7 +17,7 @@
 //
 // Main repository: https://gitlab.mpcdf.mpg.de/khr/ompmagic
 
-#define OMP_SCHEDULE schedule(static, 8)
+#define OMP_SCHEDULE schedule(static)
 
 // handle traditional OpenMP thread parallel regions and loops
 #if USE_OMP_THREADS == 1
