@@ -33,11 +33,12 @@ Dependencies and Software Requirements
 ======================================
 
 * Python 2.7
-* Python packages: sys, numpy, scipy, MDAnalysis, pandas
+* Python packages: numpy, scipy, MDAnalysis, pandas
 * GCC (>= 4.9)
 * GSL (>= 2.1)
 * LIBLBFGS (>= 1.10)
 
+Copies of GSL and LIBLBFGS are included in the source distribution of BioEn.
 To run Jupyter notebooks ``*.ipynb`` in ./examples/ you need additionally
 
 * Jupyter (https://jupyter.org/)
@@ -49,66 +50,49 @@ Installation
 
 Dependencies
 ---------------------
+
 In addition to the multidimensional minimizers from SciPy, BioEN supports the
-minimizers provided by the GSL library and by the LIBLBFGS library which may
-increase the performance significantly.
+minimizers provided by the GSL library and by the LIBLBFGS library which do
+increase the performance significantly. To obtain these libraries, the
+following options are possible:
 
-Copies of the source codes of GSL and LIBLBFGS including a script to build
-and install them are provided in the directory 'third-party'. The
-installations are placed into the '~/.local' directory where BioEN's
-'setup.py' will find and use them.
+1. In the directory 'third-party',
+   copies of the source codes of GSL and LIBLBFGS including a script to build
+   and install them are provided. After having
+   run the build script './install_dependencies.sh', both the libraries are
+   placed into the '~/.local' directory where BioEN's 'setup.py' will find and
+   use them automatically.
 
-Alternatively, you may install GSL and LIBLBFGS to the default location using
-the package manager of your operating system.
+2. Alternatively, you may install GSL and LIBLBFGS to a default location using
+   the package manager of your operating system, where 'setup.py' will find them
+   typically, as well.
 
-Finally, on some HPC systems, GSL and LIBLBFGS may already be provided via
-environment modules. In this case, load the respective modules before
-installing BioEN. In particular, the environment variables 'GSL_HOME' and
-'LIBLBFGS_HOME' are evaluated by 'setup.py' and assumed to contain the
-path to a valid installation of GSL or LIBLBFGS.
+3. Finally, on some HPC systems, GSL and LIBLBFGS may already be provided via
+   environment modules. In this case, load the respective modules before
+   installing BioEN.
+
+Note that the environment variables 'GSL_HOME' and 'LIBLBFGS_HOME' are
+evaluated by 'setup.py'. If set, they are assumed to contain the path to a
+valid installation of GSL or LIBLBFGS which will then be used. Setting these
+variables is only necessary if the libraries were installed to a non standard
+location, e.g. with Homebrew on the Mac.
 
 
 Installation
 ---------------------
-Once the dependencies are available, install the package with::
 
-	BIOEN_OPENMP=1 python setup.py install
+Once the dependencies are available (see above), install the package as follows::
 
-BIOEN_OPENMP set to 1 enables OPENMP. On OSX use BIOEN_OPENMP=0.
+	BIOEN_OPENMP=1 python setup.py install [--user]
 
-You can use the --user flag for a local installation, which does not require admin/sudo rights. When you install BioEn locally, please check whether $HOME/.local/bin is on your path. You can add the folder to the path, e.g., by adding export PATH=$HOME/.local/bin:$PATH to your .bashrc file. In a conda-environment install the package without the --user flag.
+BIOEN_OPENMP set to 1 enables OpenMP parallelism. On OSX use BIOEN_OPENMP=0.
 
-You may have to set the path to your GSL installation, before running the setup command.
+You can use the optional '--user' flag for a local installation which does
+not require root privileges. When you install BioEn locally, please make sure
+that '$HOME/.local/bin' is on your path. You can add the folder to the path,
+e.g., by adding 'export PATH=$HOME/.local/bin:$PATH' to your '.bashrc' file.
+In a conda-environment, install the package without the '--user' flag.
 
-Installation on Linux
----------------------
-
-If you have sudo rights you can install GSL via a package manager such as apt-get.
-
-Installing to GSL if you do not have sudo rights is also simple. Download and unpack GSL and cd to folder with unpacked files.::
-
-        configure  --prefix="~/gsl_install"
-        make
-
-
-If you have installed GSL into a non-standard location, you have to set the GSL path.::
-
-       export GSL_HOME=~/gsl_install
-
-Installation on Mac
--------------------
-On a Mac, GSL might have been installed via homebrew::
-
-        brew install gsl
-
-You can find the path to your GSL installation typing::
-
-        brew info gsl
-
-
-into a terminal and then set the path::
-
-        export GSL_HOME=/usr/local/Cellar/gsl/1.16
 
 Usage
 =====
