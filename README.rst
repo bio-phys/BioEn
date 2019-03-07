@@ -321,7 +321,7 @@ FAQs
 
 Q: All my optimization yield "fmin_final    =  0.0". What is going on?
 
-A: This could indicate that the GSL path was not properly set before installing the package. 
+A: This could indicate that the path to fast libraries was not properly set before installing the package. 
 
 
 Help
