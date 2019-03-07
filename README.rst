@@ -54,7 +54,7 @@ Dependencies
 In addition to the multidimensional minimizers from SciPy, BioEN supports the
 minimizers provided by the GSL library and by the LIBLBFGS library which do
 increase the performance significantly. To obtain these libraries, the
-following options are possible:
+following options are possible, where option 1 is recommended for most users:
 
 1. In the directory 'third-party',
    copies of the source codes of GSL and LIBLBFGS including a script to build
