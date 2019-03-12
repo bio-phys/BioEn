@@ -28,7 +28,8 @@ def available_tests():
         return exp
 
     #exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-        
+
+
     exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
     if (optimize.util.library_gsl()):
