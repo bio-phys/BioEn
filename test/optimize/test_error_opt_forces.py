@@ -17,10 +17,9 @@ create_reference_values = False
 
 
 filenames = [
-    "./data/data_deer_test_forces_M808xN10.pkl",
-    "./data/data_forces_M64xN64.pkl"
+    "./data/data_deer_test_forces_M808xN10.h5",
+    "./data/data_forces_M64xN64.h5"
 ]
-
 
 def available_tests():
     exp = {}
@@ -46,7 +45,7 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
 
     exp = available_tests()
 
-    new_mydict = fio.load_dict(file_name)
+    new_mydict = fio.load(file_name)
     [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
 
 

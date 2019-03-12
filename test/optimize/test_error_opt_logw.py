@@ -16,12 +16,12 @@ verbose = False
 create_reference_values = False
 
 filenames = [
-    "./data/data_potra_part_2_logw_M205xN10.pkl",  # realistic test case provided by Katrin, has small theta
-    "./data/data_16x15.pkl",                       # synthetic test case
-    "./data/data_deer_test_logw_M808xN10.pkl",
-    "./data/data_potra_part_2_logw_M205xN10.pkl",
-    #    "./data/data_potra_part_1_logw_M808xN80.pkl",   ## (*)(1)
-    #    "./data/data_potra_part_2_logw_M808xN10.pkl"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
+    "./data/data_potra_part_2_logw_M205xN10.h5",  # realistic test case provided by Katrin, has small theta
+    "./data/data_16x15.h5",                       # synthetic test case
+    "./data/data_deer_test_logw_M808xN10.h5",
+    "./data/data_potra_part_2_logw_M205xN10.h5",
+    #    "./data/data_potra_part_1_logw_M808xN80.h5",   ## (*)(1)
+    #    "./data/data_potra_part_2_logw_M808xN10.h5"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
 ]
 
 def available_tests():
@@ -49,7 +49,7 @@ def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=
     exp = available_tests()
 
     # load exp. data from file
-    new_mydict = fio.load_dict(file_name)
+    new_mydict = fio.load(file_name)
     [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
     # run all available optimizations

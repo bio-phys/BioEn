@@ -9,7 +9,7 @@ from bioen import fileio as fio
 tol = 5.e-14
 
 filenames = [
-    "./data/data_deer_test_forces_M808xN10.pkl"
+    "./data/data_deer_test_forces_M808xN10.h5"
 ]
 
 
@@ -23,7 +23,7 @@ def check_forces_reproducibility(file_name, n_iter=500):
     params['algorithm'] = "bfgs2"
     params['verbose'] = False
 
-    new_mydict = fio.load_dict(file_name)
+    new_mydict = fio.load(file_name)
     [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
 
 

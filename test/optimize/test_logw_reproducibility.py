@@ -9,7 +9,7 @@ from bioen import fileio as fio
 tol = 5.e-14
 
 filenames = [
-    "./data/data_deer_test_logw_M808xN10.pkl"
+    "./data/data_deer_test_logw_M808xN10.h5"
 ]
 
 
@@ -23,7 +23,7 @@ def check_logw_reproducibility(file_name, n_iter=500):
     params['algorithm'] = "bfgs2"
     params['verbose'] = False
 
-    new_mydict = fio.load_dict(file_name)
+    new_mydict = fio.load(file_name)
     [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
 
@@ -52,3 +52,11 @@ def check_logw_reproducibility(file_name, n_iter=500):
 def test_logw_reproducibility():
     optimize.minimize.set_fast_openmp_flag(0)
     check_logw_reproducibility(filenames[0])
+
+
+
+optimize.minimize.set_fast_openmp_flag(0)
+check_logw_reproducibility(filenames[0])
+
+
+

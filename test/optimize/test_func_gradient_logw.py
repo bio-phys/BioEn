@@ -15,8 +15,8 @@ tol_grad = 5.e-12
 def run_func(use_c=True):
     # bbfgs.use_c_bioen(use_c)
 
-    filename="./data/data_deer_test_logw_M808xN10.pkl"
-    new_mydict = fio.load_dict(filename)
+    filename="./data/data_deer_test_logw_M808xN10.h5"
+    new_mydict = fio.load(filename)
     [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
 
@@ -29,8 +29,8 @@ def run_func(use_c=True):
 def run_grad(use_c=True):
     # bbfgs.use_c_bioen(use_c)
 
-    filename="./data/data_deer_test_logw_M808xN10.pkl"
-    new_mydict = fio.load_dict(filename)
+    filename="./data/data_deer_test_logw_M808xN10.h5"
+    new_mydict = fio.load(filename)
     [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
 
