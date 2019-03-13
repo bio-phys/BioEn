@@ -1,4 +1,3 @@
-
 13/03/19 - The Fileio implementation helps to overcome the previous limitation
 of the IO pickle format by using hdf5 files.
 
@@ -98,10 +97,14 @@ Three steps transition:
         #    [forces_init, w0, y, yTilde, YTilde, theta] = pickle.load(ifile)
 
         # Fileio pickle
+        
+        from bioen import fileio as fio
         [forces_init, w0, y, yTilde, YTilde, theta] = fio.load('./data/data_forces_M64xN64.pkl')
 
 3) Replace the filename extension from '.pkl' to '.h5' and call the data type conversor (dict-list/dict-list) 
 
+
+        from bioen import fileio as fio
         mydict = fio.load('data.h5')
         [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
