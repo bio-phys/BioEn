@@ -8,6 +8,7 @@ else:
 import numpy as np
 
 import h5py
+import unittest
 
 
 #########################################################
@@ -96,36 +97,27 @@ def load (filename):
     result: a list for pickle, a dictionary for hdf5
     """
 
-    try:
-        if (not isinstance(filename, str)):
-            raise ValueError()
-    except ValueError as e:
-        print ("Filename parameter not valid" )
-        return []
+    if (not isinstance(filename, str)):
+        raise ValueError("Filename parameter not valid")
 
     result = {}
 
     extension = os.path.splitext(filename)[1]
 
-    try:
-        if extension == ".pkl":
-            with open(filename, 'rb') as ifile:
-                result = pickle.load(ifile)
+    
+    if extension == ".pkl":
+        with open(filename, 'rb') as ifile:
+            result = pickle.load(ifile)
 
-        elif extension == ".h5":
-            with h5py.File(filename, "r" ) as hdf5_obj:
-                for key,value in hdf5_obj.iteritems():
-                    if (isinstance(value, h5py.Dataset)):
-                        result[key] = value.value
-                    if (isinstance(value, h5py.Group)):
-                        result[key] = load_rec_dict(file_obj, value)
-        else:
-            raise ValueError()
-    except ValueError as e:
-        print ("Error; filename extension not recognized (only '.h5' or '.pkl')" )
-    except IOError as e:
-        print ("I/O Error; filename " + filename + " can not be opened")
-        return []
+    elif extension == ".h5":
+        with h5py.File(filename, "r" ) as hdf5_obj:
+            for key,value in hdf5_obj.iteritems():
+                if (isinstance(value, h5py.Dataset)):
+                    result[key] = value.value
+                if (isinstance(value, h5py.Group)):
+                    result[key] = load_rec_dict(hdf5_obj, value)
+    else:
+        raise ValueError("Error; filename extension not recognized (only '.h5' or '.pkl')" )
 
     return result
 
@@ -173,42 +165,32 @@ def dump(filename, data):
     result: a list for pickle, a dictionary for hdf5
     """
 
-    try:
-        if (not isinstance(filename, str)):
-            raise ValueError()
-    except ValueError as e:
-        print ("Filename parameter not valid" )
-        return []
+    if (not isinstance(filename, str)):
+        raise ValueError("Filename parameter not valid")
 
     extension = os.path.splitext(filename)[1]
 
-    try:
-        # if filename is pkl use pickle
-        if extension == ".pkl":
-            with open(filename, 'wb') as ifile:
-                pickle.dump(data, ifile)
+    # if filename is pkl use pickle
+    if extension == ".pkl":
+        with open(filename, 'wb') as ifile:
+            pickle.dump(data, ifile)
 
 
-        # if filename is h5 use h5py
-        elif extension == ".h5":
+    # if filename is h5 use h5py
+    elif extension == ".h5":
 
-            with h5py.File(filename, "w" ) as hdf5_obj:
+        with h5py.File(filename, "w" ) as hdf5_obj:
 
-                for key, value in data.iteritems():
+            for key, value in data.iteritems():
 
-                    if (isinstance(value, dict) ):
-                        mygroup = hdf5_obj.create_group(key)
-                        dump_rec_dict(file_obj,key, value, mygroup)
-                    else:
-                        hdf5_obj.create_dataset(key, data=value)
+                if (isinstance(value, dict) ):
+                    mygroup = hdf5_obj.create_group(key)
+                    dump_rec_dict(hdf5_obj,key, value, mygroup)
+                else:
+                    hdf5_obj.create_dataset(key, data=value)
 
-        else:
-            raise ValueError()
-    except ValueError as e:
-        print ("Error; filename extension not recognized (only '.h5' or '.pkl')" )
-    except IOError as e:
-        print ("I/O Error; filename " + filename + " can not be writen")
-        return []
+    else:
+        raise ValueError("Error; filename extension not recognized (only '.h5' or '.pkl')" )
 
     return
 
@@ -240,27 +222,18 @@ def convert_to_hdf5(filename_pickle, filename_h5, *args):
             mylist.append(arg)
 
     ## load pickle content
-    try:
-        ext = os.path.splitext(filename_pickle)[1]
-        if (ext != ".pkl"):
-            raise ValueError()
-        with open(filename_pickle, 'rb') as ifile:
-            x = pickle.load(ifile)
-    except ValueError as e:
-        print ("Error; pickle file name must have '.pkl' extension" )
-        return []
-    except IOError as e:
-        print ("I/O Error; filename " + filename_pickle + " can not be opened")
-        return []
-        
+    ext = os.path.splitext(filename_pickle)[1]
+    if (ext != ".pkl"):
+        raise ValueError("Error; pickle file name must have '.pkl' extension")
+
+    with open(filename_pickle, 'rb') as ifile:
+        x = pickle.load(ifile)
 
     ## check if #elem match
-    try:
-        if (len(mylist) != len(x)):
-            raise ValueError()
-    except ValueError as e:
-        print ("Error; List of arguments (length " + str(len(mylist)) + "), and pickle (length " + str(len(x)) +") do not match")
-        return 
+    if (len(mylist) != len(x)):
+        raise ValueError("Error; List of arguments (length " + str(len(mylist)) + "), and pickle (length " + str(len(x)) +") do not match")
+
+    assertEqual(len(mylist) , len(x))
 
     mydict = {}
     ## create dictionary
@@ -268,13 +241,10 @@ def convert_to_hdf5(filename_pickle, filename_h5, *args):
         mydict[mylist[i]] = x[i]
 
     ## store dictionary
-    try:
-        ext = os.path.splitext(filename_h5)[1]
-        if (ext != ".h5"):
-            raise ValueError()
-        dump(filename_h5,mydict)
-    except ValueError as e:
-        print ("Error; hdf5 file name must have '.h5' extension" )
-        return []
+    ext = os.path.splitext(filename_h5)[1]
+    if (ext != ".h5"):
+        raise ValueError("Error; hdf5 file name must have '.h5' extension")
+
+    dump(filename_h5,mydict)
 
     return
