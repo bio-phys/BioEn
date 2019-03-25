@@ -21,13 +21,6 @@ For a detailed description of the procedures and the algorithm, we refer to [Hum
 
 .. image::  /img/bioen.png
 
-Help
-====
-
-Please, if you have an issue with the software, open an issue here on the github repository https://github.com/bio-phys/bioen/issues.
-
-If you have any questions or suggestions, please contact bioen@biophys.mpg.de.
-
 Overview of the BioEn software
 ------------------------------
 
@@ -35,6 +28,13 @@ The BioEn software consists of two Python packages:
 
 * `optimize <https://github.com/bio-phys/BioEn/tree/master/bioen/optimize>`_ provides algorithms to solve the optimization problem underlying ensemble refinement by reweighting. This package can be used independently of BioEn/analyze.
 * `analyze <https://github.com/bio-phys/BioEn/tree/master/bioen/analyze>`_ uses BioEn/optimize to integrate a wide range of experimental data and simulations in a user friendly way.
+
+Help
+====
+
+Please, if you have an issue with the software, open an issue here on the github repository https://github.com/bio-phys/bioen/issues.
+
+If you have any questions or suggestions, please contact bioen@biophys.mpg.de.
 
 Dependencies and Software Requirements
 ======================================
