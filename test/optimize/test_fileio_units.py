@@ -1,3 +1,6 @@
+"""Unit tests for the fileio module.
+"""
+
 from bioen import fileio as fio
 import os
 
