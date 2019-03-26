@@ -25,7 +25,7 @@ def get_dict_from_list(**kwargs):
     """
 
     mydict = {}
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
         mydict[key] = value
     return mydict
 
@@ -70,7 +70,7 @@ def load_rec_dict(group):
 
     mydict = {}
 
-    for key, value in group.iteritems():
+    for key, value in group.items():
         if (isinstance(value, h5py.Dataset)):
             mydict = value.value
         if (isinstance(value, h5py.Group)):
@@ -103,7 +103,7 @@ def load(filename):
             result = pickle.load(ifile)
     elif extension == ".h5":
         with h5py.File(filename, "r") as hdf5_obj:
-            for key, value in hdf5_obj.iteritems():
+            for key, value in hdf5_obj.items():
                 if (isinstance(value, h5py.Dataset)):
                     result[key] = value.value
                 if (isinstance(value, h5py.Group)):
@@ -129,7 +129,7 @@ def dump_rec_dict(file_obj, key, value, group):
     -------
     """
     if (isinstance(value, dict)):
-        for lockey, locvalue in value.iteritems():
+        for lockey, locvalue in value.items():
             locgroup = group.create_group(lockey)
             dump_rec_dict(file_obj, lockey, locvalue, locgroup)
     else:
@@ -159,7 +159,7 @@ def dump(filename, data):
             pickle.dump(data, ifile)
     elif extension == ".h5":
         with h5py.File(filename, "w") as hdf5_obj:
-            for key, value in data.iteritems():
+            for key, value in data.items():
                 if (isinstance(value, dict)):
                     mygroup = hdf5_obj.create_group(key)
                     dump_rec_dict(hdf5_obj, key, value, mygroup)
