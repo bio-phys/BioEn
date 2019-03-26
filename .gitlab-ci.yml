@@ -104,7 +104,8 @@ test_py27_lnx_haswell:
     script:
         # run the included unit test cases
         - cd test/optimize
-        - for NT in 1 2 4 8 12 16 24 48; do OMP_NUM_THREADS=$NT py.test -sv; done
+        # - for NT in 1 2 4 8 12 16 24 48; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
         - cd -
         - cd test/deer
         - ./run_bioen_deer.sh
@@ -153,7 +154,8 @@ test_py27_lnx_skylake:
     script:
         # run the included unit test cases
         - cd test/optimize
-        - for NT in 1 2 4 8 10 20 40; do OMP_NUM_THREADS=$NT py.test -sv; done
+        # - for NT in 1 2 4 8 10 20 40; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
         - cd -
         - cd test/deer
         - ./run_bioen_deer.sh
