@@ -1,14 +1,14 @@
+"""Test if the logw minimizer throws an error when invalid parameters are passed.
+"""
+
 from __future__ import print_function
 import os
-import sys
-import numpy as np
 from bioen import optimize
 from bioen import fileio as fio
 import pytest
 
 
 # relative tolerance for value comparison
-#tol = 1.e-14
 tol = 5.e-14
 tol_min = 1.e-1
 
@@ -20,21 +20,19 @@ filenames = [
     "./data/data_16x15.h5",                       # synthetic test case
     "./data/data_deer_test_logw_M808xN10.h5",
     "./data/data_potra_part_2_logw_M205xN10.h5",
-    #    "./data/data_potra_part_1_logw_M808xN80.h5",   ## (*)(1)
-    #    "./data/data_potra_part_2_logw_M808xN10.h5"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
 ]
+
 
 def available_tests():
     exp = {}
 
     if (optimize.util.library_gsl()):
-        exp['GSL'] = { 'bfgs2':{}  }
+        exp['GSL'] = {'bfgs2': {}}
 
     if (optimize.util.library_lbfgs()):
-        exp['LBFGS'] = { 'lbfgs':{} }
+        exp['LBFGS'] = {'lbfgs': {}}
 
     return exp
-
 
 
 def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=False):
@@ -50,7 +48,8 @@ def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=
 
     # load exp. data from file
     new_mydict = fio.load(file_name)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
+        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
     # run all available optimizations
     for minimizer in exp:
