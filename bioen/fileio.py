@@ -1,14 +1,12 @@
 
+import h5py
+import numpy as np
 import os
 import sys
 if sys.version_info >= (3,):
     import pickle
 else:
     import cPickle as pickle
-import numpy as np
-
-import h5py
-import unittest
 
 
 #########################################################
@@ -31,7 +29,9 @@ def get_dict_from_list(**kwargs):
     return mydict
 
 #########################################################
-def get_list_from_dict (mydict, *args):
+
+
+def get_list_from_dict(mydict, *args):
     """
     Utility to return a list from a dictionary
 
@@ -56,7 +56,7 @@ def get_list_from_dict (mydict, *args):
 
 
 #########################################################
-def load_rec_dict(file_obj,group):
+def load_rec_dict(file_obj, group):
     """
     Recursive function to extract elements from a h5 group
 
@@ -72,7 +72,7 @@ def load_rec_dict(file_obj,group):
 
     mydict = {}
 
-    for key,value in group.iteritems():
+    for key, value in group.iteritems():
 
         if (isinstance(value, h5py.Dataset)):
             mydict = value.value
@@ -83,8 +83,8 @@ def load_rec_dict(file_obj,group):
 
 
 #########################################################
-### works like load_dict
-def load (filename):
+# works like load_dict
+def load(filename):
     """
     Loads data from a pickle file or an hdf5 file
 
@@ -104,23 +104,21 @@ def load (filename):
 
     extension = os.path.splitext(filename)[1]
 
-    
     if extension == ".pkl":
         with open(filename, 'rb') as ifile:
             result = pickle.load(ifile)
 
     elif extension == ".h5":
-        with h5py.File(filename, "r" ) as hdf5_obj:
-            for key,value in hdf5_obj.iteritems():
+        with h5py.File(filename, "r") as hdf5_obj:
+            for key, value in hdf5_obj.iteritems():
                 if (isinstance(value, h5py.Dataset)):
                     result[key] = value.value
                 if (isinstance(value, h5py.Group)):
                     result[key] = load_rec_dict(hdf5_obj, value)
     else:
-        raise ValueError("Error; filename extension not recognized (only '.h5' or '.pkl')" )
+        raise ValueError("Error; filename extension not recognized (only '.h5' or '.pkl')")
 
     return result
-
 
 
 #########################################################
@@ -138,12 +136,14 @@ def load (filename):
     -------
 
     """
-def dump_rec_dict(file_obj,key, value, group):
 
-    if (isinstance(value, dict) ):
+
+def dump_rec_dict(file_obj, key, value, group):
+
+    if (isinstance(value, dict)):
         for lockey, locvalue in value.iteritems():
             locgroup = group.create_group(lockey)
-            dump_rec_dict(file_obj,lockey,locvalue,locgroup)
+            dump_rec_dict(file_obj, lockey, locvalue, locgroup)
 
     else:
         group.create_dataset(key, data=value)
@@ -151,6 +151,8 @@ def dump_rec_dict(file_obj,key, value, group):
     return
 
 #########################################################
+
+
 def dump(filename, data):
     """
     Stores data into a pickle file or an hdf5 file
@@ -175,22 +177,21 @@ def dump(filename, data):
         with open(filename, 'wb') as ifile:
             pickle.dump(data, ifile)
 
-
     # if filename is h5 use h5py
     elif extension == ".h5":
 
-        with h5py.File(filename, "w" ) as hdf5_obj:
+        with h5py.File(filename, "w") as hdf5_obj:
 
             for key, value in data.iteritems():
 
-                if (isinstance(value, dict) ):
+                if (isinstance(value, dict)):
                     mygroup = hdf5_obj.create_group(key)
-                    dump_rec_dict(hdf5_obj,key, value, mygroup)
+                    dump_rec_dict(hdf5_obj, key, value, mygroup)
                 else:
                     hdf5_obj.create_dataset(key, data=value)
 
     else:
-        raise ValueError("Error; filename extension not recognized (only '.h5' or '.pkl')" )
+        raise ValueError("Error; filename extension not recognized (only '.h5' or '.pkl')")
 
     return
 
@@ -213,7 +214,7 @@ def convert_to_hdf5(filename_pickle, filename_h5, *args):
     mydict = {}
     mylist = []
 
-    ## tuple to list
+    # tuple to list
     for arg in args:
         if (isinstance(arg, list)):
             for ind in arg:
@@ -221,7 +222,7 @@ def convert_to_hdf5(filename_pickle, filename_h5, *args):
         else:
             mylist.append(arg)
 
-    ## load pickle content
+    # load pickle content
     ext = os.path.splitext(filename_pickle)[1]
     if (ext != ".pkl"):
         raise ValueError("Error; pickle file name must have '.pkl' extension")
@@ -229,22 +230,23 @@ def convert_to_hdf5(filename_pickle, filename_h5, *args):
     with open(filename_pickle, 'rb') as ifile:
         x = pickle.load(ifile)
 
-    ## check if #elem match
+    # check if #elem match
     if (len(mylist) != len(x)):
-        raise ValueError("Error; List of arguments (length " + str(len(mylist)) + "), and pickle (length " + str(len(x)) +") do not match")
+        raise ValueError("Error; List of arguments (length " + str(len(mylist)) +
+                         "), and pickle (length " + str(len(x)) + ") do not match")
 
-    assertEqual(len(mylist) , len(x))
+    assert(len(mylist) == len(x))
 
     mydict = {}
-    ## create dictionary
+    # create dictionary
     for i in range(len(mylist)):
         mydict[mylist[i]] = x[i]
 
-    ## store dictionary
+    # store dictionary
     ext = os.path.splitext(filename_h5)[1]
     if (ext != ".h5"):
         raise ValueError("Error; hdf5 file name must have '.h5' extension")
 
-    dump(filename_h5,mydict)
+    dump(filename_h5, mydict)
 
     return
