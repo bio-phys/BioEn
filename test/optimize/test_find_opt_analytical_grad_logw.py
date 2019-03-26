@@ -35,16 +35,16 @@ def available_tests():
         exp['GSL'] = { 'bfgs' : {} }
         return exp
 
-    #exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
 
-    #exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
-    exp['scipy_c']  = { 'bfgs':{} }
+    exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    # exp['scipy_c']  = { 'bfgs':{} }
 
-    #if (optimize.util.library_gsl()):
-    #    exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
+    if (optimize.util.library_gsl()):
+        exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
 
-    #if (optimize.util.library_lbfgs()):
-    #    exp['LBFGS'] = { 'lbfgs':{} }
+    if (optimize.util.library_lbfgs()):
+        exp['LBFGS'] = { 'lbfgs':{} }
 
     return exp
 
@@ -203,4 +203,3 @@ def test_find_opt_analytical_grad():
 
         for caching in caching_options:
             run_test_optimum_logw(file_name=file_name, caching=caching)
-
