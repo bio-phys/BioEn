@@ -3,5 +3,6 @@
 *.o
 *.so
 .unison
+.vscode
 bioen/githash.py
 
