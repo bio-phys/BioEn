@@ -1,5 +1,3 @@
-import os
-import sys
 import numpy as np
 from bioen import optimize
 from bioen import fileio as fio
@@ -24,8 +22,8 @@ def check_logw_reproducibility(file_name, n_iter=500):
     params['verbose'] = False
 
     new_mydict = fio.load(file_name)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
-
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
+        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
     fmin_list = []
     gopt_sum_list = []
@@ -54,9 +52,5 @@ def test_logw_reproducibility():
     check_logw_reproducibility(filenames[0])
 
 
-
 optimize.minimize.set_fast_openmp_flag(0)
 check_logw_reproducibility(filenames[0])
-
-
-

@@ -1,5 +1,3 @@
-import os
-import sys
 import numpy as np
 from bioen import optimize
 from bioen import fileio as fio
@@ -24,9 +22,8 @@ def check_forces_reproducibility(file_name, n_iter=500):
     params['verbose'] = False
 
     new_mydict = fio.load(file_name)
-    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(new_mydict,"forces_init", "w0", "y", "yTilde", "YTilde", "theta")
-
-
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(
+        new_mydict, "forces_init", "w0", "y", "yTilde", "YTilde", "theta")
 
     fmin_list = []
     forces_sum_list = []

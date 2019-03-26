@@ -1,6 +1,4 @@
 from __future__ import print_function
-import os
-import sys
 import pytest
 import numpy as np
 from bioen import optimize
@@ -13,12 +11,10 @@ tol_grad = 5.e-12
 
 
 def run_func(use_c=True):
-    # bbfgs.use_c_bioen(use_c)
-
-    filename="./data/data_deer_test_logw_M808xN10.h5"
+    filename = "./data/data_deer_test_logw_M808xN10.h5"
     new_mydict = fio.load(filename)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
-
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
+        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
@@ -27,12 +23,10 @@ def run_func(use_c=True):
 
 
 def run_grad(use_c=True):
-    # bbfgs.use_c_bioen(use_c)
-
-    filename="./data/data_deer_test_logw_M808xN10.h5"
+    filename = "./data/data_deer_test_logw_M808xN10.h5"
     new_mydict = fio.load(filename)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
-
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
+        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
 
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
@@ -41,6 +35,7 @@ def run_grad(use_c=True):
 
 
 fast_openmp_values = [0, 1]
+
 
 @pytest.mark.parametrize("fast_openmp", fast_openmp_values)
 def test_func_gradient(fast_openmp):
@@ -56,10 +51,6 @@ def test_func_gradient(fast_openmp):
     # run Python-based routines
     log_posterior_py = run_func(use_c=False)
     fprime_py = run_grad(use_c=False)
-
-    # print ""
-    # print "Min.C :", log_posterior_c
-    # print "Min.Py:",log_posterior_py
 
     df = optimize.util.compute_relative_difference_for_values(log_posterior_c, log_posterior_py)
     dg, idx = optimize.util.compute_relative_difference_for_arrays(fprime_c, fprime_py)
