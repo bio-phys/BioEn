@@ -1,8 +1,4 @@
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 import pandas as pd
 

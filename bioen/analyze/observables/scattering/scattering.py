@@ -1,16 +1,9 @@
 from __future__ import print_function
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import os
 import numpy as np
-# disable FutureWarning, intended to warn H5PY developers, but may confuse our users
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
-import h5py
 from ... import utils
+from .... import fileio
 
 
 class Scattering:
@@ -29,36 +22,46 @@ class Scattering:
         for key in kwargs:
             setattr(self, key, kwargs[key])
 
+        # TODO: unify input file names in_pkl and in_hd5
+
         # all input data in pkl format
         if self.in_pkl is not None:
-            with open(self.in_pkl, 'r') as fp:
-                [self.coeff, self.nrestraints, self.exp_tmp,
-                 self.exp_err_tmp, self.sim_tmp] = pickle.load(fp)
+            [self.coeff, self.nrestraints, self.exp_tmp,
+             self.exp_err_tmp, self.sim_tmp] = fileio.load(self.in_pkl)
         # all input data in hd5 format
         elif self.in_hd5 is not None:
-            with open(self.in_hd5, 'r') as fp:
-                [self.nrestraints, self.exp_tmp,
-                 self.exp_err_tmp, self.sim_tmp] = h5py.File(fp, 'r')
+            # with open(self.in_hd5, 'r') as fp:
+            #     [self.nrestraints, self.exp_tmp,
+            #      self.exp_err_tmp, self.sim_tmp] = h5py.File(fp, 'r')
+            [self.coeff, self.nrestraints, self.exp_tmp,
+             self.exp_err_tmp, self.sim_tmp] = fileio.load(self.in_hd5,
+                hdf5_keys=["coeff", "nrestraints", "exp_tmp", "exp_err_tmp", "sim_tmp"])
         # input data provided in different files
         else:
             self.coeff = get_coeff(self.coeff)
             self.nrestraints, self.exp_tmp, self.exp_err_tmp = get_exp_tmp(self)
             # simulated data provided in pkl format
             if self.in_sim_pkl is not None:
-                with open(self.in_sim_pkl, 'r') as fp:
-                    [self.sim_tmp] = pickle.load(fp)
+                [self.sim_tmp] = fileio.load(self.in_sim_pkl)
             # simulated data provided in hd5 data
             elif self.in_sim_hd5 is not None:
-                with open(self.in_sim_hd5, 'r') as fp:
-                    [self.sim_tmp] = h5py.File(fp, 'r')
+                [self.sim_tmp] = fileio.load(self.in_sim_hd5, hdf5_keys=["sim_tmp"])
             else:
                 self.sim_tmp = get_sim_tmp(self)
 
+        # TODO: unify output file names in_pkl and in_hd5
+
         # save data as output pkl and use it for the next run
         if self.out_pkl is not None:
-            with open(self.out_pkl, 'wb') as fp:
-                pickle.dump([self.nrestraints, self.exp_tmp,
-                             self.exp_err_tmp, self.sim_tmp], fp)
+            fileio.dump(self.out_pkl,
+                        [self.nrestraints, self.exp_tmp,
+                         self.exp_err_tmp, self.sim_tmp])
+        # elif self.out_hd5 is not None:
+        #     fileio.dump(self.out_hd5,
+        #                 {"nrestraints": self.nrestraints,
+        #                  "exp_tmp": self.exp_tmp,
+        #                  "exp_err_tmp": self.exp_err_tmp,
+        #                  "sim_tmp": self.sim_tmp})
 
 
 def get_coeff(coeff):

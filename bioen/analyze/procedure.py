@@ -2,17 +2,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
-from timeit import default_timer as time
 import numpy as np
 import scipy.optimize as sopt
 import pandas as pd
+from timeit import default_timer as time
 
 from . import utils
 from .. import optimize
+from .. import fileio
 
 
 def start_reweighting(options, obs):
@@ -123,17 +120,41 @@ def start_reweighting(options, obs):
             d["exp_err"] = exp_err_wopt
             output_all_pkl[theta] = d
 
+    # TODO: add HDF5 output of dataframe
     if options.output_pkl_fn is not None:
         df = pd.DataFrame.from_dict(output_all_pkl)
         df.to_pickle(options.output_pkl_fn)
 
     if options.output_pkl_input_fn is not None:
         if options.opt_method == 'log_weights':
-            pickle.dump([log_wopt, log_w0, sim_init, sim, exp, w0, theta],
-                        open(options.output_pkl_input_fn, "wb"))
+            fileio.dump(options.output_pkl_input_fn,
+                        [log_wopt, log_w0, sim_init, sim, exp, w0, theta])
         elif options.opt_method == 'forces':
-            pickle.dump([forces_init, w0, sim_init, sim, exp, w0, theta],
-                        open(options.output_pkl_input_fn, "wb"))
+            fileio.dump(options.output_pkl_input_fn,
+                        [forces_init, w0, sim_init, sim, exp, w0, theta])
+
+    # TODO: enable HDF5 output, which would look as follows
+    #
+    # if options.output_hd5_input_fn is not None:
+    #     if options.opt_method == 'log_weights':
+    #         fileio.dump(options.output_hd5_input_fn,
+    #                     {"log_wopt": log_wopt,
+    #                      "log_w0": log_w0,
+    #                      "sim_init": sim_init,
+    #                      "sim": sim,
+    #                      "exp": exp,
+    #                      "w0": w0,
+    #                      "theta": theta})
+    #     elif options.opt_method == 'forces':
+    #         fileio.dump(options.output_hd5_input_fn,
+    #                     {"forces_init": forces_init,
+    #                      "w0": w0,
+    #                      "sim_init": sim_init,
+    #                      "sim": sim,
+    #                      "exp": exp,
+    #                      "w0": w0,
+    #                      "theta": theta})
+
 
     if options.output_weights_fn is not None:
         w_out = open(options.output_weights_fn, 'w')

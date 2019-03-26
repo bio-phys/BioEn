@@ -1,7 +1,7 @@
 import sys
-import cPickle as pickle
 import numpy as np
 from ... import utils
+from .... import fileio
 
 
 class Generic:
@@ -22,10 +22,9 @@ class Generic:
             setattr(self, key, kwargs[key])
 
         if self.in_pkl is not None:
-            with open(self.in_pkl, 'r') as fp:
-                [self.data_ids, self.nrestraints, self.exp_tmp,
-                 self.exp_tmp_dict, self.exp_err_tmp, self.exp_err_tmp_dict,
-                 self.sim_tmp] = pickle.load(fp)
+            [self.data_ids, self.nrestraints, self.exp_tmp,
+             self.exp_tmp_dict, self.exp_err_tmp, self.exp_err_tmp_dict,
+             self.sim_tmp] = fileio.load(self.in_pkl)
         else:
             self.data_ids = get_data_ids(self.data_ids)
             (self.nrestraints, self.exp_tmp, self.exp_tmp_dict,
@@ -33,10 +32,10 @@ class Generic:
             self.sim_tmp, self.sim_tmp_dict = get_sim_tmp(self)
 
             if self.out_pkl is not None:
-                with open(self.out_pkl, 'wb') as fp:
-                    pickle.dump([self.data_ids, self.nrestraints, self.exp_tmp,
-                                 self.exp_tmp_dict, self.exp_err_tmp, self.exp_err_tmp_dict,
-                                 self.sim_tmp], fp)
+                fileio.dump(self.out_pkl,
+                            [self.data_ids, self.nrestraints, self.exp_tmp,
+                                self.exp_tmp_dict, self.exp_err_tmp, self.exp_err_tmp_dict,
+                                self.sim_tmp])
 
 
 def get_data_ids(data_ids):
