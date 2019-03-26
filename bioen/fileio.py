@@ -59,7 +59,7 @@ def dump(filename, data):
     elif extension == ".h5":
         dump_hdf5(filename, data)
     else:
-        raise ValueError("Error; filename extension not recognized (only '.h5' or '.pkl')")
+        raise ValueError("filename extension not recognized (only '.h5' or '.pkl')")
 
 
 def convert_to_hdf5(filename_pickle, filename_h5, *args):
@@ -92,12 +92,11 @@ def convert_to_hdf5(filename_pickle, filename_h5, *args):
     if (ext != ".pkl"):
         raise ValueError("pickle file name must have '.pkl' extension")
 
-    with open(filename_pickle, 'rb') as ifile:
-        x = pickle.load(ifile)
+    x = load_pickle(filename_pickle)
 
     # check if #elem match
     if (len(mylist) != len(x)):
-        raise ValueError("List of arguments (length " + str(len(mylist)) +
+        raise ValueError("list of arguments (length " + str(len(mylist)) +
                          "), and pickle (length " + str(len(x)) + ") do not match")
 
     mydict = {}
@@ -110,7 +109,7 @@ def convert_to_hdf5(filename_pickle, filename_h5, *args):
     if (ext != ".h5"):
         raise ValueError("hdf5 file name must have '.h5' extension")
 
-    dump(filename_h5, mydict)
+    dump_hdf5(filename_h5, mydict)
 
 
 # --- low level functions below ---
