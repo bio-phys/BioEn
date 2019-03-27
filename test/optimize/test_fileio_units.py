@@ -1,52 +1,54 @@
 """Unit tests for the fileio module.
 """
 
-from bioen import fileio as fio
 import os
+import pytest
+import tempfile
+from bioen import fileio as fio
 
 
-def test_get_dict_from_list():
-    mydict = fio.get_dict_from_list(var1='a_string', var2=32, var3=[2, 3, 4])
-
-    assert(mydict['var1'] == 'a_string')
-    assert(mydict['var2'] == 32)
-    assert(mydict['var3'] == [2, 3, 4])
-
-
-def test_get_list_from_dict():
-    mydict = {"var1": "a_string", "var2": 32, "var3": [2, 3, 4]}
-    mylist = fio.get_list_from_dict(mydict, "var1", "var3", "var2")
-
-    assert(mylist == ['a_string', [2, 3, 4], 32])
-    assert(mylist[0] == 'a_string')
-    assert(mylist[2] == 32)
-    assert(mylist[1][1] == 3)
-    assert(True)
+@pytest.fixture
+def temp_hdf5_file_name():
+    hdf5_file = tempfile.NamedTemporaryFile(mode='w', suffix=".h5", delete=False)
+    hdf5_file.close()
+    return hdf5_file.name
 
 
-def test_dump():
-    filename = 'file_test_dump.h5'
-    mynested = {"var1": "a_string", "var2": 32, "var3": [2, 3, 4]}
-    mydict = {"label": "value", "nested": mynested}
-    fio.dump(filename, mydict)
-
-    assert(os.path.isfile(filename))
-    os.remove(filename)
-
-
-def test_load():
-    filename = 'file_test_dump.h5'
+def test_dump_load_dict(temp_hdf5_file_name):
+    filename = temp_hdf5_file_name
 
     mynested = {"var1": "a_string", "var2": 32, "var3": [2, 3, 4]}
     mydict = {"label": "value", "nested": mynested}
     fio.dump(filename, mydict)
 
-    mydict = fio.load(filename)
-    assert(True)
+    mydict = fio.load(filename, hdf5_deep_mode=True)
     assert(mydict["label"] == 'value')
     assert(mydict["nested"]["var1"] == "a_string")
     assert(mydict["nested"]["var2"] == 32)
     assert(mydict["nested"]["var3"][0] == 2)
     assert(mydict["nested"]["var3"][1] == 3)
     assert(mydict["nested"]["var3"][2] == 4)
+    os.remove(filename)
+
+
+def test_dump_load_list_labeled(temp_hdf5_file_name):
+    filename = temp_hdf5_file_name
+
+    data = [1, 2, 3, 5.0]
+    keys = ["one", "two", "three", "five.zero"]
+    fio.dump(filename, data, hdf5_keys=keys)
+    check = fio.load(filename, hdf5_keys=keys)
+    for i, item in enumerate(check):
+        assert(item == data[i])
+    os.remove(filename)
+
+
+def test_dump_load_list_unlabeled(temp_hdf5_file_name):
+    filename = temp_hdf5_file_name
+
+    data = [1, 2, 3, 5.0]
+    fio.dump(filename, data)
+    check = fio.load(filename)
+    for i, item in enumerate(check):
+        assert(item == data[i])
     os.remove(filename)

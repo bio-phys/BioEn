@@ -64,9 +64,8 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
     # Run the optimizer for all the available tests
     for minimizer in exp:
         for algorithm in exp[minimizer]:
-
-            new_mydict = fio.load(file_name)
-            [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+            [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(file_name,
+                hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
             minimizer_tag = minimizer
             use_c_functions = True
@@ -121,8 +120,8 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
         available_reference = False
         if (os.path.isfile(ref_file_name)):
             available_reference = True
-            x = fio.load(ref_file_name)
-            [fmin_reference] = fio.get_list_from_dict(x,"reference")
+            x = fio.load(ref_file_name, hdf5_deep_mode=True)
+            fmin_reference = x["reference"]
 
         # print results
         print("=" * 80)
@@ -157,8 +156,8 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
         print(" === RETURNED GRADIENT EVALUATION ===")
 
         # re-evaluation of minimum for the returned vector
-        new_mydict = fio.load(file_name)
-        [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(new_mydict,"GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+        [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(file_name,
+            hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
         for minimizer in exp:
             for algorithm in exp[minimizer]:

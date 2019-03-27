@@ -21,9 +21,8 @@ def check_forces_reproducibility(file_name, n_iter=500):
     params['algorithm'] = "bfgs2"
     params['verbose'] = False
 
-    new_mydict = fio.load(file_name)
-    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(
-        new_mydict, "forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.load(file_name,
+        hdf5_keys=["forces_init", "w0", "y", "yTilde", "YTilde", "theta"])
 
     fmin_list = []
     forces_sum_list = []

@@ -9,13 +9,13 @@ from bioen import fileio as fio
 tol = 5.e-14
 tol_grad = 5.e-12
 
+filename = "./data/data_deer_test_logw_M808xN10.h5"
+fast_openmp_values = [0, 1]
+
 
 def run_func(use_c=True):
-    filename = "./data/data_deer_test_logw_M808xN10.h5"
-    new_mydict = fio.load(filename)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
-        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
-
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(filename,
+        hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
     log_posterior = optimize.log_weights.bioen_log_posterior(gPrime, g, G, yTilde, YTilde, theta, use_c=use_c)
@@ -23,18 +23,13 @@ def run_func(use_c=True):
 
 
 def run_grad(use_c=True):
-    filename = "./data/data_deer_test_logw_M808xN10.h5"
-    new_mydict = fio.load(filename)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
-        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(filename,
+        hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
     fprime = optimize.log_weights.grad_bioen_log_posterior(gPrime, g, G, yTilde, YTilde, theta, use_c=use_c)
     return fprime
-
-
-fast_openmp_values = [0, 1]
 
 
 @pytest.mark.parametrize("fast_openmp", fast_openmp_values)

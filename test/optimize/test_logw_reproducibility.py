@@ -21,9 +21,8 @@ def check_logw_reproducibility(file_name, n_iter=500):
     params['algorithm'] = "bfgs2"
     params['verbose'] = False
 
-    new_mydict = fio.load(file_name)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
-        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(file_name,
+        hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
     fmin_list = []
     gopt_sum_list = []

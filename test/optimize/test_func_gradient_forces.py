@@ -8,28 +8,22 @@ from bioen import fileio as fio
 tol = 5.e-14
 tol_grad = 5.e-8
 
+filename = "./data/data_deer_test_forces_M808xN10.h5"
+fast_openmp_values = [0, 1]
+
 
 def run_func_forces(use_c=True):
-    filename = "./data/data_deer_test_forces_M808xN10.h5"
-    new_mydict = fio.load(filename)
-    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(
-        new_mydict, "forces_init", "w0", "y", "yTilde", "YTilde", "theta")
-
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.load(filename,
+        hdf5_keys=["forces_init", "w0", "y", "yTilde", "YTilde", "theta"])
     log_posterior = optimize.forces.bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
     return log_posterior
 
 
 def run_grad_forces(use_c=True):
-    filename = "./data/data_deer_test_forces_M808xN10.h5"
-    new_mydict = fio.load(filename)
-    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(
-        new_mydict, "forces_init", "w0", "y", "yTilde", "YTilde", "theta")
-
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.load(filename,
+        hdf5_keys=["forces_init", "w0", "y", "yTilde", "YTilde", "theta"])
     fprime = optimize.forces.grad_bioen_log_posterior(forces_init, w0, y, yTilde, YTilde, theta, use_c)
     return fprime
-
-
-fast_openmp_values = [0, 1]
 
 
 @pytest.mark.parametrize("fast_openmp", fast_openmp_values)

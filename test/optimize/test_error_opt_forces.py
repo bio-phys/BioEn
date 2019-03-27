@@ -36,9 +36,8 @@ def run_test_error_forces(file_name=filenames[0], caching=False):
 
     exp = available_tests()
 
-    new_mydict = fio.load(file_name)
-    [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(
-        new_mydict, "forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+    [forces_init, w0, y, yTilde, YTilde, theta] = fio.load(file_name,
+        hdf5_keys=["forces_init", "w0", "y", "yTilde", "YTilde", "theta"])
 
     for minimizer in exp:
         for algorithm in exp[minimizer]:

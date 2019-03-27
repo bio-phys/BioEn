@@ -47,9 +47,8 @@ def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=
     exp = available_tests()
 
     # load exp. data from file
-    new_mydict = fio.load(file_name)
-    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.get_list_from_dict(
-        new_mydict, "GInit", "G", "y", "yTilde", "YTilde", "w0", "theta")
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(file_name,
+        hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
     # run all available optimizations
     for minimizer in exp:

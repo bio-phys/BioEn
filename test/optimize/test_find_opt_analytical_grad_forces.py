@@ -54,10 +54,8 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
 
     for minimizer in exp:
         for algorithm in exp[minimizer]:
-
-            new_mydict = fio.load(file_name)
-            [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(
-                new_mydict, "forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+            [forces_init, w0, y, yTilde, YTilde, theta] = fio.load(file_name,
+                hdf5_keys=["forces_init", "w0", "y", "yTilde", "YTilde", "theta"])
 
             minimizer_tag = minimizer
             use_c_functions = True
@@ -114,8 +112,8 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
         if (os.path.isfile(ref_file_name)):
             available_reference = True
             #fmin_reference = fio.load(ref_file_name,"reference")
-            x = fio.load(ref_file_name)
-            [fmin_reference] = fio.get_list_from_dict(x, "reference")
+            x = fio.load(ref_file_name, hdf5_deep_mode=True)
+            fmin_reference = x["reference"]
 
         # print results
         print("-" * 80)
@@ -149,9 +147,8 @@ def run_test_optimum_forces(file_name=filenames[0], caching=False):
         print(" === RETURNED GRADIENT EVALUATION ===")
         # re-evaluation of minimum for the the returned vector
 
-        new_mydict = fio.load(file_name)
-        [forces_init, w0, y, yTilde, YTilde, theta] = fio.get_list_from_dict(
-            new_mydict, "forces_init", "w0", "y", "yTilde", "YTilde", "theta")
+        [forces_init, w0, y, yTilde, YTilde, theta] = fio.load(file_name,
+            hdf5_keys=["forces_init", "w0", "y", "yTilde", "YTilde", "theta"])
 
         for minimizer in exp:
             for algorithm in exp[minimizer]:
