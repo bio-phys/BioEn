@@ -125,6 +125,7 @@ def start_reweighting(options, obs):
         df = pd.DataFrame.from_dict(output_all_pkl)
         df.to_pickle(options.output_pkl_fn)
 
+    # TODO: enable HDF5 output (trivial)
     if options.output_pkl_input_fn is not None:
         if options.opt_method == 'log_weights':
             fileio.dump(options.output_pkl_input_fn,
@@ -132,29 +133,6 @@ def start_reweighting(options, obs):
         elif options.opt_method == 'forces':
             fileio.dump(options.output_pkl_input_fn,
                         [forces_init, w0, sim_init, sim, exp, w0, theta])
-
-    # TODO: enable HDF5 output, which would look as follows
-    #
-    # if options.output_hd5_input_fn is not None:
-    #     if options.opt_method == 'log_weights':
-    #         fileio.dump(options.output_hd5_input_fn,
-    #                     {"log_wopt": log_wopt,
-    #                      "log_w0": log_w0,
-    #                      "sim_init": sim_init,
-    #                      "sim": sim,
-    #                      "exp": exp,
-    #                      "w0": w0,
-    #                      "theta": theta})
-    #     elif options.opt_method == 'forces':
-    #         fileio.dump(options.output_hd5_input_fn,
-    #                     {"forces_init": forces_init,
-    #                      "w0": w0,
-    #                      "sim_init": sim_init,
-    #                      "sim": sim,
-    #                      "exp": exp,
-    #                      "w0": w0,
-    #                      "theta": theta})
-
 
     if options.output_weights_fn is not None:
         w_out = open(options.output_weights_fn, 'w')

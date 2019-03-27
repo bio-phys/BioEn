@@ -22,7 +22,9 @@ class Scattering:
         for key in kwargs:
             setattr(self, key, kwargs[key])
 
-        # TODO: unify input file names in_pkl and in_hd5
+        # TODO: unify input file names in_pkl and in_hd5,
+        # branches are then not necessary to differentiate between HDF5 and Pickle,
+        # keys are also not necessary in case you're not using them at all
 
         # all input data in pkl format
         if self.in_pkl is not None:
@@ -30,9 +32,6 @@ class Scattering:
              self.exp_err_tmp, self.sim_tmp] = fileio.load(self.in_pkl)
         # all input data in hd5 format
         elif self.in_hd5 is not None:
-            # with open(self.in_hd5, 'r') as fp:
-            #     [self.nrestraints, self.exp_tmp,
-            #      self.exp_err_tmp, self.sim_tmp] = h5py.File(fp, 'r')
             [self.coeff, self.nrestraints, self.exp_tmp,
              self.exp_err_tmp, self.sim_tmp] = fileio.load(self.in_hd5,
                 hdf5_keys=["coeff", "nrestraints", "exp_tmp", "exp_err_tmp", "sim_tmp"])
@@ -49,19 +48,13 @@ class Scattering:
             else:
                 self.sim_tmp = get_sim_tmp(self)
 
-        # TODO: unify output file names in_pkl and in_hd5
+        # TODO: unify output file names in_pkl and in_hd5, see also previous comment
 
         # save data as output pkl and use it for the next run
         if self.out_pkl is not None:
             fileio.dump(self.out_pkl,
                         [self.nrestraints, self.exp_tmp,
                          self.exp_err_tmp, self.sim_tmp])
-        # elif self.out_hd5 is not None:
-        #     fileio.dump(self.out_hd5,
-        #                 {"nrestraints": self.nrestraints,
-        #                  "exp_tmp": self.exp_tmp,
-        #                  "exp_err_tmp": self.exp_err_tmp,
-        #                  "sim_tmp": self.sim_tmp})
 
 
 def get_coeff(coeff):
