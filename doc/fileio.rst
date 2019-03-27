@@ -1,5 +1,5 @@
-fileio
-======
+fileio, TODO: update to newest implementation
+=============================================
 
 The Fileio implementation helps to overcome the previous limitation of
 the IO pickle format by using hdf5 files.
