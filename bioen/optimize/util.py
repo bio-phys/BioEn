@@ -110,7 +110,7 @@ def load_template_config_yaml(file_name, minimizer):
     minimizer = minimizer.lower()
 
     with open(file_name, "r") as fp:
-        cfg = yaml.load(fp)
+        cfg = yaml.safe_load(fp)
 
     packed_params = {}
 
