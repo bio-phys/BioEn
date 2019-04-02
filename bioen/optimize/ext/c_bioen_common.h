@@ -62,23 +62,24 @@ typedef struct params_t {
 typedef struct gsl_config_params {
     double step_size;
     double tol;
-    size_t max_iterations;
-    size_t algorithm;
+    int max_iterations;
+    int algorithm;
 } gsl_config_params;
 
 typedef struct lbfgs_config_params {
-    size_t linesearch;
-    size_t max_iterations;
+    int    linesearch;
+    int    max_iterations;
     double delta;
     double epsilon;
     double ftol;
     double gtol;
+    double wolfe;
     int past;
     int max_linesearch;
 } lbfgs_config_params;
 
 typedef struct caching_params {
-    size_t lcaching;
+    int    lcaching;
     double *yTildeT;
     double *tmp_n;
     double *tmp_m;

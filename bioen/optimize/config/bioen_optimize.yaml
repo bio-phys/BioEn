@@ -35,16 +35,13 @@ lbfgs:
     # http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html
     # http://www.chokkan.org/software/liblbfgs/group__liblbfgs__api.html
     # The most important parameters are (TODO: select which to expose here):
-    #linesearch: 1           # 1
     linesearch: 2           # 1
     max_iterations: 5000    # 5000
-    #delta: 0.0              # 0.0
-    delta: 1.e-6              # 0.0
-    #epsilon: 1.e-5          # 1.e-5
+    delta: 1.e-6            # 0.0
     epsilon: 1.e-6          # 1.e-5
-    #ftol: 1.e-4             # 1.e-4
     ftol: 1.e-5             # 1.e-4
     gtol: 0.9               # 0.9
+    wolfe: 0.9              # 0.9
     past: 10                # 10
     max_linesearch: 100     # 100 
 

@@ -451,7 +451,7 @@ double _opt_bfgs_forces(struct params_t func_params,
                gsl_multimin_algorithm_names[config.algorithm]);
         printf("\ttol                      : %f\n", config.tol);
         printf("\tstep_size                : %f\n", config.step_size);
-        printf("\tmax_iteration            : %zd\n", config.max_iterations);
+        printf("\tmax_iteration            : %d\n", config.max_iterations);
         printf("\t=========================\n");
     }
 
@@ -602,10 +602,11 @@ double _opt_lbfgs_forces(
 
     opt_param.linesearch        = config.linesearch;
     opt_param.max_iterations    = config.max_iterations;
-    opt_param.delta             = config.delta;      // default: 0?
-    opt_param.epsilon           = config.epsilon;  // default: 1e5
-    opt_param.ftol              = config.ftol;        // default: 1e-4
+    opt_param.delta             = config.delta;
+    opt_param.epsilon           = config.epsilon;
+    opt_param.ftol              = config.ftol;
     opt_param.gtol              = config.gtol;
+    opt_param.wolfe             = config.wolfe;
     opt_param.past              = config.past;
     opt_param.max_linesearch    = config.max_linesearch;  // default: 20
 
@@ -619,6 +620,7 @@ double _opt_lbfgs_forces(
         printf("\tepsilon                  : %lf\n", opt_param.epsilon);
         printf("\tftol                     : %lf\n", opt_param.ftol);
         printf("\tgtol                     : %lf\n", opt_param.gtol);
+        printf("\twolfe                    : %lf\n", opt_param.wolfe);
         printf("\tpast                     : %d\n",  opt_param.past);
         printf("\tmax_linesearch           : %d\n",  opt_param.max_linesearch);
         printf("\t=========================\n");
