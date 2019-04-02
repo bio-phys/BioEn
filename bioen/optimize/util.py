@@ -152,4 +152,6 @@ def load_template_config_yaml(file_name, minimizer):
 
     packed_params["use_c_functions"] = use_c_functions
 
+    # print(packed_params)
+
     return packed_params

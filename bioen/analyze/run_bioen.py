@@ -63,7 +63,7 @@ def main_function():
     parser.add_option('--optimization_minimizer',
                       dest='opt_minimizer',
                       default='scipy',
-                      choices=['scipy', 'GSL'],
+                      choices=['scipy', 'GSL', 'lbfgs'],
                       help='Choose for the minimzer of the optimization: '
                       'scipy (default), GSL or LBFGS.')
     parser.add_option('--optimization_algorithm',

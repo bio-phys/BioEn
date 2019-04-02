@@ -386,7 +386,7 @@ double _opt_bfgs_logw(struct params_t func_params,
                gsl_multimin_algorithm_names[config.algorithm]);
         printf("\ttol                      : %f\n", config.tol);
         printf("\tstep_size                : %f\n", config.step_size);
-        printf("\tmax_iteration            : %zd\n", config.max_iterations);
+        printf("\tmax_iteration            : %d\n", config.max_iterations);
         printf("\t=========================\n");
     }
 
@@ -612,6 +612,7 @@ double _opt_lbfgs_logw(struct params_t func_params,
     lbfgs_param.epsilon = config.epsilon;  // default: 1e-4
     lbfgs_param.ftol = config.ftol;        // default: 1e-7
     lbfgs_param.gtol = config.gtol;
+    lbfgs_param.wolfe = config.wolfe;
     lbfgs_param.past = config.past;                      // default 10
     lbfgs_param.max_linesearch = config.max_linesearch;  // default: 20
 
@@ -625,6 +626,7 @@ double _opt_lbfgs_logw(struct params_t func_params,
         printf("\tepsilon                  : %lf\n", lbfgs_param.epsilon);
         printf("\tftol                     : %lf\n", lbfgs_param.ftol);
         printf("\tgtol                     : %lf\n", lbfgs_param.gtol);
+        printf("\twolfe                    : %lf\n", lbfgs_param.wolfe);
         printf("\tpast                     : %d\n", lbfgs_param.past);
         printf("\tmax_linesearch           : %d\n", lbfgs_param.max_linesearch);
         printf("\t=========================\n");

@@ -106,14 +106,17 @@ cdef extern from "c_bioen_kernels_forces.h":
                                             const int) # n_int
 
 
-# GSL status codes, see <gsl_errno.h>:
-# We add '-2' since even though GSL would do more iterations,
-# the result is often OK.
+# --- GSL status codes, see <gsl_errno.h> ---
+# gsl_continue: iteration has not converged
+# Though GSL would do more iterations, the result is often OK.
 gsl_continue = -2
-gsl_success = [gsl_continue, 0]
+# gsl_errno: iteration is not making progress towards solution
+# Though GSL would do more iterations, the result is often OK.
+gsl_enoprog = 27
+gsl_success = [gsl_continue, gsl_enoprog, 0]
 gsl_continue_msg = "Note: GSL might require more iterations, please check the parameters of the minimizer."
 
-# LBFGS status codes, see <lbfgs.h>:
+# --- LBFGS status codes, see <lbfgs.h> ---
 lbfgs_success = [0, 1, 2]
 
 
@@ -128,21 +131,22 @@ cdef extern from "c_bioen_common.h":
     struct gsl_config_params  "gsl_config_params":
         double step_size        "step_size"
         double tol              "tol"
-        size_t max_iterations   "max_iterations"
-        size_t algorithm        "algorithm"
+        int    max_iterations   "max_iterations"
+        int    algorithm        "algorithm"
 
     struct lbfgs_config_params  "lbfgs_config_params":
-        size_t linesearch       "linesearch"
-        size_t max_iterations   "max_iterations"
+        int    linesearch       "linesearch"
+        int    max_iterations   "max_iterations"
         double delta            "delta"
         double epsilon          "epsilon"
         double ftol             "ftol"
         double gtol             "gtol"
+        double wolfe            "wolfe"
         int    past             "past"
         int    max_linesearch   "max_linesearch"
 
     struct caching_params  "caching_params":
-        size_t lcaching         "lcaching"
+        int     lcaching        "lcaching"
         double* yTildeT         "yTildeT"
         double* tmp_n           "tmp_n"
         double* tmp_m           "tmp_m"
@@ -480,6 +484,7 @@ def bioen_opt_lbfgs_logw(np.ndarray g,
     c_params.epsilon        = params["params"]["epsilon"]
     c_params.ftol           = params["params"]["ftol"]
     c_params.gtol           = params["params"]["gtol"]
+    c_params.wolfe          = params["params"]["wolfe"]
     c_params.past           = params["params"]["past"]
     c_params.max_linesearch = params["params"]["max_linesearch"]
 
@@ -750,6 +755,7 @@ def bioen_opt_lbfgs_forces(np.ndarray forces, np.ndarray w0,
     c_conf_params.epsilon        = params["params"]["epsilon"]
     c_conf_params.ftol           = params["params"]["ftol"]
     c_conf_params.gtol           = params["params"]["gtol"]
+    c_conf_params.wolfe          = params["params"]["wolfe"]
     c_conf_params.past           = params["params"]["past"]
     c_conf_params.max_linesearch = params["params"]["max_linesearch"]
 
