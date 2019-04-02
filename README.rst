@@ -39,7 +39,7 @@ BioEn integrates a broad range of experimental data to refine ensembles
 of structures. For a detailed description of the procedures and the
 algorithm, we refer to [Hummer2015].
 
-|image|
+.. image::  /img/bioen.png
 
 Overview of the BioEn software
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
