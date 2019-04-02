@@ -46,13 +46,15 @@ Overview of the BioEn software
 
 The BioEn software consists of two Python packages:
 
--  `BioEn/optimize <https://github.com/bio-phys/BioEn/optimize>`__
-   provides algorithms to solve the optimization problem underlying
-   ensemble refinement by reweighting. This package can be used
-   independently of BioEn/analyze.
--  `BioEn/analyze <https://github.com/bio-phys/BioEn/analyze>`__ uses
-   BioEn/optimize to integrate a wide range of experimental data and
-   simulations in a user friendly way.
+* `optimize <https://github.com/bio-phys/BioEn/tree/master/bioen/optimize>`_ provides algorithms to solve the optimization problem underlying ensemble refinement by reweighting. This package can be used independently of the 'analyze' package.
+* `analyze <https://github.com/bio-phys/BioEn/tree/master/bioen/analyze>`_ uses the 'optimize' package to integrate a wide range of experimental data and simulations in a user friendly way.
+
+Help
+----
+
+Please, if you have an issue with the software, open an issue on the github repository https://github.com/bio-phys/bioen/issues.
+
+If you have any questions or suggestions, please contact bioen@biophys.mpg.de.
 
 Dependencies and Software Requirements
 --------------------------------------
@@ -456,14 +458,4 @@ Q: All my optimization yield "fmin\_final = 0.0". What is going on?
 A: This could indicate that the path to fast libraries was not properly
 set before installing the package.
 
-Help
-----
-
-Please, if you have an issue with the software, open an issue here on
-the github repository https://github.com/bio-phys/bioen/issues.
-
-If you have any questions or suggestions, please contact
-bioen@biophys.mpg.de.
-
-.. |image| image:: /img/bioen.png
 
