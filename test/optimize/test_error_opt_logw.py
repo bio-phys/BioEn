@@ -1,17 +1,14 @@
+"""Test if the logw minimizer throws an error when invalid parameters are passed.
+"""
+
 from __future__ import print_function
 import os
-import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
-import numpy as np
 from bioen import optimize
+from bioen import fileio as fio
 import pytest
 
 
 # relative tolerance for value comparison
-#tol = 1.e-14
 tol = 5.e-14
 tol_min = 1.e-1
 
@@ -19,25 +16,23 @@ verbose = False
 create_reference_values = False
 
 filenames = [
-    "./data/data_potra_part_2_logw_M205xN10.pkl",  # realistic test case provided by Katrin, has small theta
-    "./data/data_16x15.pkl",                       # synthetic test case
-    "./data/data_deer_test_logw_M808xN10.pkl",
-    "./data/data_potra_part_2_logw_M205xN10.pkl",
-    #    "./data/data_potra_part_1_logw_M808xN80.pkl",   ## (*)(1)
-    #    "./data/data_potra_part_2_logw_M808xN10.pkl"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
+    "./data/data_potra_part_2_logw_M205xN10.h5",  # realistic test case provided by Katrin, has small theta
+    "./data/data_16x15.h5",                       # synthetic test case
+    "./data/data_deer_test_logw_M808xN10.h5",
+    "./data/data_potra_part_2_logw_M205xN10.h5",
 ]
+
 
 def available_tests():
     exp = {}
 
     if (optimize.util.library_gsl()):
-        exp['GSL'] = { 'bfgs2':{}  }
+        exp['GSL'] = {'bfgs2': {}}
 
     if (optimize.util.library_lbfgs()):
-        exp['LBFGS'] = { 'lbfgs':{} }
+        exp['LBFGS'] = {'lbfgs': {}}
 
     return exp
-
 
 
 def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=False):
@@ -52,8 +47,8 @@ def run_test_error_opt_logw(file_name=filenames[0], library='scipy/py', caching=
     exp = available_tests()
 
     # load exp. data from file
-    with open(file_name, 'r') as ifile:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(file_name,
+        hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
     # run all available optimizations
     for minimizer in exp:

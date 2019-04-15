@@ -58,8 +58,8 @@ def compute_relative_difference_for_values(a, b):
     -------
     d: relative difference
     """
-    # if (b == 0):
-    #     return abs(a)
+    if (b == 0):
+         return abs(a)
     d = abs(a - b)/abs(b)
     return d
 
@@ -80,6 +80,10 @@ def compute_relative_difference_for_arrays(a, b):
 
     """
     nonzero_idx = np.where(b != 0.0)
+
+    if (np.size(nonzero_idx) == 0):
+        return 0.0, 0
+
     nonzero_msk = np.zeros(b.shape, dtype=bool)
     nonzero_msk[nonzero_idx] = True
     d_array = np.absolute(a[nonzero_msk] - b[nonzero_msk])/np.absolute(b[nonzero_msk])
@@ -106,7 +110,7 @@ def load_template_config_yaml(file_name, minimizer):
     minimizer = minimizer.lower()
 
     with open(file_name, "r") as fp:
-        cfg = yaml.load(fp)
+        cfg = yaml.safe_load(fp)
 
     packed_params = {}
 

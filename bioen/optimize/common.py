@@ -16,8 +16,28 @@ def chiSqrTerm(w, yTilde, YTilde):
     -------
 
     """
-    v = (yTilde * w).T - YTilde
-    return .5 * (v * v.T)[0, 0]
+    result = 0.
+
+    #print ("Shape yTilde", yTilde.shape)
+    #print ("Shape yTilde", str(type(yTilde)))
+    #print ("Shape YTilde", YTilde.shape)
+    #print ("Shape YTilde", str(type(YTilde)))
+    #print ("Shape w     ", w.shape)
+    #print ("Shape w     ", str(type(w)))
+    if (isinstance(yTilde, np.matrixlib.defmatrix.matrix)):
+        v = (yTilde * w).T - YTilde
+        result = .5 * (v * v.T)[0, 0]
+    else:
+        v = np.dot(yTilde,w).T - YTilde
+        #print ("Shape v     ", v.shape)
+        #print ("Shape v     ", str(type(v)))
+        result = np.dot(.5,np.dot(v,v.T))[0, 0]
+    
+    #v = (yTilde * w).T - YTilde
+    #result = .5 * (v * v.T)[0, 0]
+
+    return result
+
 
 
 def getAve(w, y):
@@ -33,7 +53,14 @@ def getAve(w, y):
     -------
     array like
     """
-    return np.asarray((y * w).T)[0]
+    #result = []
+    if (isinstance(y, np.matrixlib.defmatrix.matrix)):
+        result = np.asarray((y * w).T)[0]
+    else:
+        result = np.dot(y, w)[:,0]
+  
+    #result = np.asarray((y * w).T)[0]
+    return result
 
 
 def print_highlighted(str, verbose=True):

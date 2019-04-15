@@ -4,10 +4,6 @@ from __future__ import print_function
 
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 
 from . import util

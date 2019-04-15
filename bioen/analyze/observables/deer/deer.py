@@ -1,11 +1,8 @@
 from __future__ import print_function
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 from ... import utils
+from .... import fileio
 
 
 class Deer:
@@ -25,24 +22,22 @@ class Deer:
             setattr(self, key, kwargs[key])
 
         if self.in_pkl is not None:
-            with open(self.in_pkl, 'r') as fp:
-                [self.labels, self.moddepth, self.nrestraints, self.exp_tmp,
-                 self.exp_err_tmp, self.sim_tmp] = pickle.load(fp)
+            [self.labels, self.moddepth, self.nrestraints, self.exp_tmp,
+                self.exp_err_tmp, self.sim_tmp] = fileio.load(self.in_pkl)
         else:
             self.labels = get_labels(self.labels)
             self.moddepth = get_moddepth(self.moddepth, self.labels)
             self.nrestraints, self.exp_tmp, self.exp_err_tmp = get_exp_tmp(self)
             if self.in_sim_pkl is not None:
-                with open(self.in_sim_pkl, 'r') as fp:
-                    [self.sim_tmp] = pickle.load(fp)
+                [self.sim_tmp] = fileio.load(self.in_sim_pkl)
             else:
                 self.sim_tmp = get_sim_tmp(self)
 
         # save data as output pkl and use it for the next run
         if self.out_pkl is not None:
-            with open(self.out_pkl, 'wb') as fp:
-                pickle.dump([self.labels, self.moddepth, self.nrestraints,
-                             self.exp_tmp, self.exp_err_tmp, self.sim_tmp], fp)
+            fileio.dump(self.out_pkl,
+                        [self.labels, self.moddepth, self.nrestraints,
+                         self.exp_tmp, self.exp_err_tmp, self.sim_tmp])
 
 
 def get_labels(labels):

@@ -32,6 +32,11 @@ TBD
 
 .. see redesign.rst for the optimize part
 
+.. toctree::
+   :maxdepth: 2
+
+   fileio.rst
+
 
 Source documentation
 ====================

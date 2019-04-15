@@ -37,6 +37,44 @@ test_py27_lnx_nehalem:
         - python setup.py clean || true
 
 
+test_py36_lnx_nehalem:
+    tags:
+        # - DISABLE
+        - centos
+    variables:
+        GSL_HOME: /opt/gsl/2.4
+        LBFGS_HOME: /opt/liblbfgs/1.10
+        BIOEN_OPENMP: 1
+        BIOEN_FAST_CFLAGS: 0
+        # OMP_STACKSIZE: 64M
+    before_script:
+        - source /opt/anaconda/anavars3.sh
+        - rm -f ~/.local/lib/python3.6/site-packages/bioen.egg-link
+        - python setup.py develop --user
+    script:
+        # run the included unit test cases
+        - cd test/optimize
+        - for NT in 1 2; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - cd -
+        - cd test/deer
+        - ./run_bioen_deer.sh
+        - cd -
+        - cd test/generic
+        - ./run_bioen.sh
+        - cd -
+        - cd test/scattering
+        - ./run_bioen_saxs.sh
+        - cd -
+        - python setup.py build_sphinx
+        - python setup.py sdist --formats=gztar
+    after_script:
+        # 'after_script' starts with a clean state
+        - source /opt/anaconda/anavars3.sh
+        - python setup.py develop --user --uninstall || true
+        - rm -f ~/.local/lib/python3.6/site-packages/bioen.egg-link
+        - python setup.py clean || true
+
+
 # "testmac" CI runner on the Mac at MPCDF PC service
 # note: runner needs to be started manually inside a screen session
 test_py27_mac:
@@ -104,7 +142,8 @@ test_py27_lnx_haswell:
     script:
         # run the included unit test cases
         - cd test/optimize
-        - for NT in 1 2 4 8 12 16 24 48; do OMP_NUM_THREADS=$NT py.test -sv; done
+        # - for NT in 1 2 4 8 12 16 24 48; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
         - cd -
         - cd test/deer
         - ./run_bioen_deer.sh
@@ -153,7 +192,8 @@ test_py27_lnx_skylake:
     script:
         # run the included unit test cases
         - cd test/optimize
-        - for NT in 1 2 4 8 10 20 40; do OMP_NUM_THREADS=$NT py.test -sv; done
+        # - for NT in 1 2 4 8 10 20 40; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
         - cd -
         - cd test/deer
         - ./run_bioen_deer.sh

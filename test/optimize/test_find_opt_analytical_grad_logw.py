@@ -1,13 +1,9 @@
 from __future__ import print_function
 import os
 import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import numpy as np
 from bioen import optimize
-
+from bioen import fileio as fio
 
 # relative tolerance for value comparison
 #tol = 1.e-14
@@ -18,14 +14,13 @@ verbose = False
 create_reference_values = False
 
 filenames = [
-    "./data/data_potra_part_2_logw_M205xN10.pkl",  # realistic test case provided by Katrin, has small theta
-    "./data/data_16x15.pkl",                       # synthetic test case
-    "./data/data_deer_test_logw_M808xN10.pkl",
-    "./data/data_potra_part_2_logw_M205xN10.pkl",
-    #    "./data/data_potra_part_1_logw_M808xN80.pkl",   ## (*)(1)
-    #    "./data/data_potra_part_2_logw_M808xN10.pkl"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
+    "./data/data_potra_part_2_logw_M205xN10.h5",  # realistic test case provided by Katrin, has small theta
+    "./data/data_16x15.h5",                       # synthetic test case
+    "./data/data_deer_test_logw_M808xN10.h5",
+    "./data/data_potra_part_2_logw_M205xN10.h5",
+    #    "./data/data_potra_part_1_logw_M808xN80.h5",   ## (*)(1)
+    #    "./data/data_potra_part_2_logw_M808xN10.h5"  # ## (*)(2) with default values (tol,step_size) gsl/conj_pr gives NaN
 ]
-
 
 # (*) require specific tunning of parameters.
 # (*)(1) scipy_py/cg and scipy_c/cg
@@ -41,7 +36,9 @@ def available_tests():
         return exp
 
     exp['scipy_py'] = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+
     exp['scipy_c']  = { 'bfgs':{}, 'lbfgs':{} ,'cg':{} }
+    # exp['scipy_c']  = { 'bfgs':{} }
 
     if (optimize.util.library_gsl()):
         exp['GSL'] = { 'conjugate_fr':{}, 'conjugate_pr':{}, 'bfgs2':{}, 'bfgs':{}, 'steepest_descent':{} }
@@ -67,10 +64,8 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
     # Run the optimizer for all the available tests
     for minimizer in exp:
         for algorithm in exp[minimizer]:
-
-            # load exp. data from file
-            with open(file_name, 'r') as ifile:
-                [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+            [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(file_name,
+                hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
             minimizer_tag = minimizer
             use_c_functions = True
@@ -114,21 +109,19 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
                 fmin_fin = exp[minimizer][algorithm]['fmin_fin']
 
                 print(" === CREATING REFERENCE VALUES ===")
-                ref_file_name = os.path.splitext(file_name)[0] + ".ref"
-                with open(ref_file_name, "wb") as f:
-                    pickle.dump(fmin_fin, f)
+                ref_file_name = os.path.splitext(file_name)[0] + ".ref.h5"
+                fio.dump(ref_file_name, fmin_min, "reference")
                 print(" [%8s][%4s] -- fmin: %.16f --> %s" % (minimizer, algorithm, fmin_fin, ref_file_name))
                 print("=" * 34, " END TEST ", "=" * 34)
                 print("%" * 80)
     else:
 
-        # get reference value
-        ref_file_name = os.path.splitext(file_name)[0] + ".ref"
+        ref_file_name = os.path.splitext(file_name)[0] + ".ref.h5"
         available_reference = False
         if (os.path.isfile(ref_file_name)):
             available_reference = True
-            with open(ref_file_name, "rb") as f:
-                fmin_reference = pickle.load(f)
+            x = fio.load(ref_file_name, hdf5_deep_mode=True)
+            fmin_reference = x["reference"]
 
         # print results
         print("=" * 80)
@@ -161,9 +154,10 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
 
         print("-" * 80)
         print(" === RETURNED GRADIENT EVALUATION ===")
+
         # re-evaluation of minimum for the returned vector
-        with open(file_name, 'r') as ifile:
-            [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+        [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(file_name,
+            hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
 
         for minimizer in exp:
             for algorithm in exp[minimizer]:
@@ -200,12 +194,11 @@ def run_test_optimum_logw(file_name=filenames[0], library='scipy/py', caching=Fa
 def test_find_opt_analytical_grad():
     """Entry point for py.test."""
     print("")
-    optimize.minimize.set_fast_openmp_flag(0)
+    optimize.minimize.set_fast_openmp_flag(1)
     for file_name in filenames:
         caching_options = ["False"]
-        if (not create_reference_values):
-            caching_options = ["False", "True"]
+        #if (not create_reference_values):
+        #    caching_options = ["False", "True"]
 
         for caching in caching_options:
             run_test_optimum_logw(file_name=file_name, caching=caching)
-

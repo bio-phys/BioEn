@@ -1,24 +1,21 @@
 from __future__ import print_function
-import os
-import sys
-if sys.version_info >= (3,):
-    import pickle
-else:
-    import cPickle as pickle
 import pytest
 import numpy as np
 from bioen import optimize
+from bioen import fileio as fio
 
 
 # relative tolerance for value comparison
 tol = 5.e-14
 tol_grad = 5.e-12
 
+filename = "./data/data_deer_test_logw_M808xN10.h5"
+fast_openmp_values = [0, 1]
+
 
 def run_func(use_c=True):
-    # bbfgs.use_c_bioen(use_c)
-    with open("./data/data_deer_test_logw_M808xN10.pkl", 'r') as ifile:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(filename,
+        hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
     log_posterior = optimize.log_weights.bioen_log_posterior(gPrime, g, G, yTilde, YTilde, theta, use_c=use_c)
@@ -26,16 +23,14 @@ def run_func(use_c=True):
 
 
 def run_grad(use_c=True):
-    # bbfgs.use_c_bioen(use_c)
-    with open("./data/data_deer_test_logw_M808xN10.pkl", 'r') as ifile:
-        [GInit, G, y, yTilde, YTilde, w0, theta] = pickle.load(ifile)
+    [GInit, G, y, yTilde, YTilde, w0, theta] = fio.load(filename,
+        hdf5_keys=["GInit", "G", "y", "yTilde", "YTilde", "w0", "theta"])
+
     g = GInit.copy()
     gPrime = np.asarray(g[:].T)[0]
     fprime = optimize.log_weights.grad_bioen_log_posterior(gPrime, g, G, yTilde, YTilde, theta, use_c=use_c)
     return fprime
 
-
-fast_openmp_values = [0, 1]
 
 @pytest.mark.parametrize("fast_openmp", fast_openmp_values)
 def test_func_gradient(fast_openmp):
@@ -51,10 +46,6 @@ def test_func_gradient(fast_openmp):
     # run Python-based routines
     log_posterior_py = run_func(use_c=False)
     fprime_py = run_grad(use_c=False)
-
-    # print ""
-    # print "Min.C :", log_posterior_c
-    # print "Min.Py:",log_posterior_py
 
     df = optimize.util.compute_relative_difference_for_values(log_posterior_c, log_posterior_py)
     dg, idx = optimize.util.compute_relative_difference_for_arrays(fprime_c, fprime_py)
