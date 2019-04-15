@@ -59,7 +59,7 @@ If you have any questions or suggestions, please contact bioen@biophys.mpg.de.
 Dependencies and Software Requirements
 --------------------------------------
 
--  Python 2.7
+-  Python 2.7 or Python 3
 -  Python packages: numpy, scipy, MDAnalysis, pandas
 -  GCC (>= 4.9)
 -  GSL (>= 2.1)
