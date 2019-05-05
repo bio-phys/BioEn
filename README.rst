@@ -28,9 +28,9 @@ References
        Precision DEER Distances from Spin-Label Reweighting, J. Phys.
        Chem. Lett. 9 19 5748-5752 (2018).
        https://doi.org/10.1021/acs.jpclett.8b02439
-    -  [Köfinger-submitted] Koefinger J., Stelzl L. S. Reuter K.,
+    -  [Köfinger2019] Koefinger J., Stelzl L. S. Reuter K.,
        Allande C., Reichel K., Hummer G., Efficient Ensemble Refinement
-       by Reweighting https://doi.org/10.26434/chemrxiv.7461413.v1
+       by Reweighting J. Chem. Theory Comput. Article ASAP https://doi.org/10.1021/acs.jctc.8b01231 
 
 Description
 -----------
