@@ -1,6 +1,10 @@
 BioEn - Bayesian Inference Of ENsembles
 =======================================
 
+.. image::  /img/bioen_logo.png
+    :align: center
+    :scale: 50%
+
 Authors
     César Allande, Jürgen Köfinger, Katrin Reichel, Klaus Reuter, Lukas
     S. Stelzl
