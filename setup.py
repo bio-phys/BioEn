@@ -266,6 +266,7 @@ setup(
               "bioen.analyze",
               "bioen.analyze.observables",
               "bioen.analyze.observables.generic",
+              "bioen.analyze.observables.cd_data",
               "bioen.analyze.observables.deer",
               "bioen.analyze.observables.scattering",
               "bioen.analyze.show_plot",
