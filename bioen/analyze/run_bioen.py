@@ -135,7 +135,7 @@ def main_function():
                       dest='experiments',
                       default=None,
                       help='Required: provide at least one of the following experimental '
-                      'methods: deer, scattering, generic.')
+                      'methods: generic, cd, deer, scattering.')
     parser.add_option('--input_pkl',
                       dest='input_pkl_fn',
                       default=None,
@@ -193,6 +193,54 @@ def main_function():
                       default=1.0,
                       help='Weight of the generic data (in case of ensemble refinement '
                       'weighting with different experimental data).')
+    
+    # circular dichroism
+    parser.add_option('--cd_sim_path',
+                      dest='cd_sim_path',
+                      default=None,
+                      help='Path of files with simulated data CD data.')
+    parser.add_option('--cd_sim_prefix',
+                      dest='cd_sim_prefix',
+                      type='string',
+                      default='sim',
+                      help='Prefix of files with simulated CD data (e.g. sim (default).')
+    parser.add_option('--cd_sim_suffix',
+                      dest='cd_sim_suffix',
+                      type='string',
+                      default='cd',
+                      help='Suffix of files with simulated CD data (e.g. cd (default).')
+    parser.add_option('--cd_exp_path',
+                      dest='cd_exp_path',
+                      default=None,
+                      help='Path of files with experimental data for CD data input.')
+    parser.add_option('--cd_exp_prefix',
+                      dest='cd_exp_prefix',
+                      type='string',
+                      default='exp',
+                      help='Prefix of files with experimental data for CD data input. '
+                      ' (e.g. exp (default).')
+    parser.add_option('--cd_exp_suffix',
+                      dest='cd_exp_suffix',
+                      type='string',
+                      default='cd',
+                      help='Suffix of files with experimental data for CD data input. '
+                      '(e.g. cd (default).')
+    parser.add_option('--cd_data_input_pkl',
+                      dest='cd_in_pkl',
+                      type='string',
+                      default=None,
+                      help='Input pkl file with experimental and simulated CD data.')
+    parser.add_option('--cd_data_output_pkl',
+                      dest='cd_out_pkl',
+                      type='string',
+                      default=None,
+                      help='Output pkl file with experimental and simulated CD data.')
+    parser.add_option('--cd_data_weight',
+                      dest='cd_data_weight',
+                      type=float,
+                      default=1.0,
+                      help='Weight of the CD data (in case of ensemble refinement '
+                      'with different experimental data).')
 
     # deer
     parser.add_option('--deer_sim_path',
@@ -358,7 +406,7 @@ def main_function():
                       default=None,
                       help='Input hd5 with dictionary of simulated scattering data '
                       '(e.g. sim_tmp[nmodel][label].')
-
+    
     parser.add_option('--number_of_iterations',
                       dest='iterations',
                       type=int,
@@ -366,6 +414,7 @@ def main_function():
                       help='Define number of iterations for reweighting. It is useful if'
                       'nuisance parameter is relevant with the exerimental data'
                       '(e.g. DEER/PELDOR or SAXS).')
+
 
     # options for a simple check of the BioEn reweighting
     parser.add_option('--simple_plot',
