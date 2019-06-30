@@ -42,23 +42,23 @@ def get_exp_tmp(self):
     exp_tmp[:,1] --> raw data
     exp_tmp[:,2] --> fit of raw data
     """
-    exp_tmp = np.genfromtxt("{}/{}-{}-{}-{}.dat".format(self.exp_path, self.exp_prefix,
-                                                    self.exp_suffix), comments="#")
-    nrestraints += exp_tmp[:, 0].shape[0]
-
+    exp_tmp = np.genfromtxt("{0}/{1}-{2}.dat".format(self.exp_path, self.exp_prefix,
+                                                  self.exp_suffix), comments="#")
+    nrestraints = exp_tmp[:, 0].shape[0]
+    
     if any(extension in self.noise[-4:] for extension in [".dat", ".txt"]):
-        tmp = np.genfromtxt(self.nois), comments="#")
+        tmp = np.genfromtxt(self.noise, comments="#")
         wavelength_err_tmp = tmp[:,0]
         exp_err_tmp = tmp[:,1]
         # check if exp_tmp and exp_err_tmp have the same length of data
         if len(exp_tmp[:,0]) != len(exp_err_tmp):
             msg = "ERROR: Please check number of data points (number of lines) " +\
-                  "in CD experimental data file and noise file (should be the same)". 
+                  "in CD experimental data file and noise file (should be the same)." 
             raise RuntimeError(msg)
         # check if exp_tmp and exp_err_tmp have the same wavelength
         if np.sum(exp_tmp[:,0] - wavelength_err_tmp) != 0.0:
             msg = "ERROR: Please check wavelength content in CD experimental data " +\
-                  "file and noise file (should be the same)". 
+                  "file and noise file (should be the same)." 
             raise RuntimeError(msg)
     elif self.noise == "exp_fit_dif":
         exp_err_tmp = np.array([np.abs(exp_tmp[:, 1] - exp_tmp[:, 2])])
@@ -83,19 +83,19 @@ def get_sim_tmp(self):
 
     sim_tmp = dict()
     for model in self.models_list:
-        sim_tmp_2 = np.genfromtxt("{0}/{1}{2}-{3}-{4}-{5}.dat".format(self.sim_path,
+        sim_tmp_2 = np.genfromtxt("{0}/{1}{2}-{3}.dat".format(self.sim_path,
                                                                       self.sim_prefix, 
                                                                       int(model), 
                                                                       self.sim_suffix))
         if len(self.exp_tmp[:,0]) != len(sim_tmp_2[:,0]):
             msg = "ERROR: Please check number of data points (number of lines) " +\
                   "in CD experimental data file and simulated data file " +\
-                  "(should be the same)". 
+                  "(should be the same)." 
             raise RuntimeError(msg)
         # check if exp_tmp and exp_err_tmp have the same wavelength
         if np.sum(self.exp_tmp[:,0] - sim_tmp_2[:,0]) != 0.0:
             msg = "ERROR: Please check wavelength content in CD experimental data " +\
-                  "file and CD simulated data file (should be the same)". 
+                  "file and CD simulated data file (should be the same)." 
             raise RuntimeError(msg)
         sim_tmp[model] = sim_tmp_2[:,1]
 
