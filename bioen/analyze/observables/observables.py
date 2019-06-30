@@ -45,12 +45,14 @@ class Observables:
             self.observables['generic'] = generic.Generic(kwargs)
     
         if 'cd' in self.experiments:
+            kwargs = dict()
             kwargs['sim_path']    = options.cd_sim_path
             kwargs['sim_prefix']  = options.cd_sim_prefix
             kwargs['sim_suffix']  = options.cd_sim_suffix
             kwargs['exp_path']    = options.cd_exp_path
             kwargs['exp_prefix']  = options.cd_exp_prefix
             kwargs['exp_suffix']  = options.cd_exp_suffix
+            kwargs['noise']       = options.cd_noise
             kwargs['in_pkl']      = options.cd_in_pkl
             kwargs['out_pkl']     = options.cd_out_pkl
             kwargs['data_weight'] = options.cd_data_weight
@@ -256,7 +258,7 @@ class Observables:
             if experiment == 'scattering':
                 c = self.observables['scattering'].coeff
                 sim_tmp = np.zeros((len(self.observables['scattering'].exp_err_tmp),
-                                   len(self.models_list)))
+                                    len(self.models_list)))
                 for j, nmodel in enumerate(self.models_list):
                     s = self.observables['scattering'].sim_tmp[nmodel]
                     sim_tmp[:,j] = np.array(c * s)
@@ -270,7 +272,12 @@ class Observables:
                 sim_wopt['generic'] = sim_tmp_1
             
             if experiment == 'cd':
-                sim_wopt['cd'] = self.observables['cd'].sim_tmp_dict * np.matrix(wopt)
+                sim_tmp = np.zeros((len(self.observables['cd'].exp_err_tmp),
+                                    len(self.models_list)))
+                for j, nmodel in enumerate(self.models_list):
+                    s = self.observables['cd'].sim_tmp[nmodel]
+                    sim_tmp[:,j] = np.array(s)
+                sim_wopt['cd'] = np.matrix(sim_tmp)*wopt
         return sim_wopt
 
 
@@ -334,5 +341,5 @@ def get_proc_exp(self):
         elif experiment == 'generic':
             exp.extend((np.array(exp_tmp, dtype=np.float64)) / exp_err_tmp)
         elif experiment == 'cd':
-            exp.extend((np.array(exp_tmp, dtype=np.float64)) / exp_err_tmp)
+            exp.extend((np.array(exp_tmp[:,2], dtype=np.float64)) / exp_err_tmp)
     return np.matrix(np.array(exp).reshape(1, self.nrestraints))
