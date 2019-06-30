@@ -73,32 +73,30 @@ def get_exp_tmp(self):
 
 def get_sim_tmp(self):
     """
-    Provides dictionary of simulated data.
+    Provides dictionary of simulated CD data.
     """
-
-    sim_tmp_1 = []
-    sim_tmp_dict = dict()
-    for flex_id in self.exp_tmp_dict.keys():
-        fn = "{}/{}-{}-{}.dat".format(self.sim_path, self.sim_prefix, flex_id, self.sim_suffix)
-
-        try:
-            sim_generic = np.genfromtxt(fn, comments='#')
-        except:
-            print('ERROR: Cannot find simulated data file \'{}\''.format(fn))
-            raise
-
-        if len(sim_generic) != self.nmodels:
-            msg = "ERROR: Number of data points in file \'{}\' ".format(fn) + \
-                  "and number of models (--number_of_models {}) are not the same.".format(self.nmodels)
-            raise RuntimeError(msg)
-
-        sim_tmp_1.append(sim_generic)
-        sim_tmp_dict[flex_id] = sim_generic
-
-    sim_tmp_1 = np.array(sim_tmp_1)
+    if len(self.models_list) != self.nmodels:
+        msg = "ERROR: Number of models (--number_of_models {}) ".format(self.nmodels) +\
+              "and number of IDs available in file '\{}\' ".format(len(self.models_list)) +\
+              "are not the same."
+        raise RuntimeError(msg)
 
     sim_tmp = dict()
-    for nmodel in range(0, self.nmodels):
-        sim_tmp[nmodel] = sim_tmp_1[:, nmodel]
+    for model in self.models_list:
+        sim_tmp_2 = np.genfromtxt("{0}/{1}{2}-{3}-{4}-{5}.dat".format(self.sim_path,
+                                                                      self.sim_prefix, 
+                                                                      int(model), 
+                                                                      self.sim_suffix))
+        if len(self.exp_tmp[:,0]) != len(sim_tmp_2[:,0]):
+            msg = "ERROR: Please check number of data points (number of lines) " +\
+                  "in CD experimental data file and simulated data file " +\
+                  "(should be the same)". 
+            raise RuntimeError(msg)
+        # check if exp_tmp and exp_err_tmp have the same wavelength
+        if np.sum(self.exp_tmp[:,0] - sim_tmp_2[:,0]) != 0.0:
+            msg = "ERROR: Please check wavelength content in CD experimental data " +\
+                  "file and CD simulated data file (should be the same)". 
+            raise RuntimeError(msg)
+        sim_tmp[model] = sim_tmp_2[:,1]
 
-    return sim_tmp, sim_tmp_dict
+    return sim_tmp
