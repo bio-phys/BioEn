@@ -116,6 +116,9 @@ def start_reweighting(options, obs):
                 elif experiment in ['generic']:
                     exp_wopt[experiment] = obs.observables[experiment].exp_tmp_dict
                     exp_err_wopt[experiment] = obs.observables[experiment].exp_err_tmp_dict
+                elif experiment in ['cd']:
+                    exp_wopt[experiment] = obs.observables[experiment].exp_tmp
+                    exp_err_wopt[experiment] = obs.observables[experiment].exp_err_tmp
             d["exp"] = exp_wopt
             d["exp_err"] = exp_err_wopt
             output_all_pkl[theta] = d

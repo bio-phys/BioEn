@@ -225,6 +225,16 @@ def main_function():
                       default='cd',
                       help='Suffix of files with experimental data for CD data input. '
                       '(e.g. cd (default).')
+    parser.add_option('--cd_noise',
+                      dest='cd_noise',
+                      type='string',
+                      default='0.01',
+                      help='Define noise level (sigma) of the DEER data. '
+                      'Define either single value for all data points (e.g. 0.01 (default)), '
+                      'the difference between experimental measurement and fit (\"exp_fit_dif\"), '
+                      'the standard deviation of the difference between experimental measurement , '
+                      'and fit (\"exp_fit_std\"), or a file with sigmas for each data point '
+                      '(e.g. <path_to_file>/err.dat).')
     parser.add_option('--cd_data_input_pkl',
                       dest='cd_in_pkl',
                       type='string',
@@ -450,7 +460,7 @@ def main_function():
         obs = observables.Observables(options)
 
         logging.basicConfig(level=logging.INFO)
-        logging.info('BioEn weight refinement starts with')
+        logging.info('BioEn weight refinement runs with')
         logging.info('    optimization method: {}'.format(options.opt_method))
         logging.info('    optimization algorithm: {}'.format(options.opt_algorithm))
         logging.info('    optimization minimizer: {}'.format(options.opt_minimizer))
