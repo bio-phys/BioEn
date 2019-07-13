@@ -375,14 +375,26 @@ def main_function():
                       'Define either single value for all data points (e.g. 0.01 (default)), '
                       'provide the third column in the exp data file (\"exp-file\"), '
                       'or a file with error for each data point (e.g. <path_to_file>/err.dat).')
-    parser.add_option('--scattering_coefficient',
-                      dest='scattering_coeff',
-                      type='string',
+    parser.add_option('--scattering_scaling_factor',
+                      dest='scattering_scaling_factor',
+                      type=float,
                       default='0.0002',
-                      help='Define initial value for the nuiscance parameter of the '
-                      'scattering data. Define either single value (e.g. 0.0002 (default)) '
+                      help='Define initial value for the scaling factor of the scattering data. '
+                      'Define either single value (e.g. 0.0002 (default)) '
                       'or let BioEn perform an initial optimization for the nuisance parameter '
                       '(\"initial-optimization\").')
+    parser.add_option('--scattering_additive_constant',
+                      dest='scattering_additive_constant',
+                      type=float,
+                      default='0.0002',
+                      help='If needed, define initial value for additive constant for the '
+                      'scattering data.')
+    parser.add_option('--scattering_solvent',
+                      dest='scattering_solvent',
+                      type=float,
+                      default='0.0002',
+                      help='If needed, define initial value for the solvent for the '
+                      'scattering data.')
     parser.add_option('--scattering_data_weight',
                       dest='scattering_data_weight',
                       type=float,

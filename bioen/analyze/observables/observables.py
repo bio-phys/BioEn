@@ -91,6 +91,9 @@ class Observables:
             kwargs['exp_suffix']  = options.scattering_exp_suffix
             kwargs['coeff']       = options.scattering_coeff
             kwargs['noise']       = options.scattering_noise
+            kwargs['scaling_factor']    = options.scattering_scaling_factor
+            kwargs['additive_constant'] = options.scattering_additive_constant
+            kwargs['solvent']     = options.scattering_solvent
             kwargs['data_weight'] = options.scattering_data_weight
             kwargs['in_pkl']      = options.scattering_in_pkl
             kwargs['in_hd5']      = options.scattering_in_hd5
