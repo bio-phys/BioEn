@@ -63,8 +63,8 @@ def main_function():
     parser.add_option('--optimization_minimizer',
                       dest='opt_minimizer',
                       default='scipy',
-                      choices=['scipy', 'GSL', 'lbfgs'],
-                      help='Choose for the minimzer of the optimization: '
+                      choices=['scipy', 'GSL', 'gsl', 'lbfgs'],
+                      help='Choose for the minimizer of the optimization: '
                       'scipy (default), GSL or LBFGS.')
     parser.add_option('--optimization_algorithm',
                       dest='opt_algorithm',
@@ -73,6 +73,11 @@ def main_function():
                       'scipy: bfgs, lbfgs, cg; '
                       'GSL: conjugate_fr, conjugate_pr, bfgs, bfgs, steepest_descent; '
                       'LBFGS: lbfgs.')
+    parser.add_option('--optimization_parameters',
+                      dest='opt_parameter_mod',
+                      default='',
+                      help='Adapt specific parameters of the minimizer to override the defaults specified in <bioen_optimize.yaml>. '
+                      'Example argument: gsl:step_size=0.01;gsl:tol=0.001')
     parser.add_option('--optimization_verbose',
                       action='store_true',
                       dest='opt_verbose',
@@ -476,6 +481,7 @@ def main_function():
         logging.info('    optimization method: {}'.format(options.opt_method))
         logging.info('    optimization algorithm: {}'.format(options.opt_algorithm))
         logging.info('    optimization minimizer: {}'.format(options.opt_minimizer))
+        logging.info('    optimization parameter modification: {}'.format(options.opt_parameter_mod))
         start_time = time.time()
         procedure.start_reweighting(options, obs)
         end_time = time.time()

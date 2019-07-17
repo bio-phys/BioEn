@@ -6,7 +6,8 @@ path_sim="files/simulated_data"
 path_output="files/output_bioen"
 
 bioen \
-    --optimization_minimizer GSL \
+    --optimization_minimizer gsl \
+    --optimization_parameters gsl:step_size=0.01,gsl:tol=0.001,gsl:max_iterations=4000 \
     --experiments cd \
     --number_of_models 100 \
     --models_list ${path_sim}/models-cd.dat \
@@ -21,3 +22,8 @@ bioen \
     --output_pkl ${path_output}/bioen_results_cd.pkl \
     --output_weights ${path_output}/bioen_results_weights.dat \
     --output_models_weights ${path_output}/bioen_results_models_weights.dat
+
+###  You can adapt the parameters for GSL as follows, overriding the default parameter file <bioen_optimize.yaml>, for example:
+#    --optimization_minimizer gsl \
+#    --optimization_parameters gsl:step_size=0.01,gsl:tol=0.001,gsl:max_iterations=2000 \
+#    --optimization_verbose \

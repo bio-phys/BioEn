@@ -21,7 +21,7 @@ def start_reweighting(options, obs):
     obs: object, contains all information from the observables
     """
 
-    params = optimize.minimize.Parameters(options.opt_minimizer)
+    params = optimize.minimize.Parameters(options.opt_minimizer, options.opt_parameter_mod)
     params['cache_ytilde_transposed'] = True
     params['use_c_functions'] = True
     params['algorithm'] = options.opt_algorithm
