@@ -275,7 +275,7 @@ setup(
     cmdclass={'clean': CleanCommand, 'build_ext': build_ext},
     ext_modules=ext,
     include_package_data=True,
-    install_requires=['numpy', 'scipy', 'cython', 'pyyaml'],
+    install_requires=['numpy', 'scipy', 'cython', 'pyyaml', 'pandas', 'MDAnalysis'],
     entry_points={'console_scripts':
                   ['bioen = bioen.analyze.run_bioen:main']},
     zip_safe=False,

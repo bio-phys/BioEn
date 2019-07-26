@@ -63,7 +63,7 @@ Dependencies and Software Requirements
 --------------------------------------
 
 -  Python 2.7 or Python 3
--  Python packages: numpy, scipy, Cython, MDAnalysis, pandas
+-  Python packages: numpy, scipy, Cython, pyyaml, MDAnalysis, pandas
 -  GCC (>= 4.9)
 -  GSL (>= 2.1)
 -  LIBLBFGS (>= 1.10)
