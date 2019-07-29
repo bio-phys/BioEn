@@ -133,7 +133,7 @@ class Observables:
                         sim_l.extend((1 - moddepth + moddepth * sim_tmp[nmodel][ln]) /
                                       exp_err_tmp[ln])
                 if experiment == 'scattering':
-                    c = self.observables['scattering'].coeff
+                    c = self.observables['scattering'].scaling_factor
                     sim_l.extend((c * sim_tmp[nmodel]) / exp_err_tmp)
                 if experiment == 'generic':
                     sim_l.extend(sim_tmp[nmodel] / exp_err_tmp)
@@ -210,9 +210,9 @@ class Observables:
                     self.observables['deer'].moddepth[ln] = m_opt
 
             if experiment == 'scattering':
-                c = self.observables['scattering'].coeff
+                c = self.observables['scattering'].scaling_factor
                 c_opt, idx = leastsq(self.coeff_fit, c, args=(wopt))
-                self.observables['scattering'].coeff = c_opt
+                self.observables['scattering'].scaling_factor = c_opt
         return self.get_proc_sim()
 
 
@@ -223,8 +223,8 @@ class Observables:
                 if self.observables['deer'].moddepth[ln] == "initial-optimization":
                     self.observables['deer'].moddepth[ln] = 0.15
         elif 'scattering' in self.experiments:
-            if self.observables['scattering'].coeff == "initial-optimization":
-                self.observables['scattering'].coeff = 0.0002
+            if self.observables['scattering'].scaling_factor == "initial-optimization":
+                self.observables['scattering'].scaling_factor = 0.0002
         return self.update_sim(wopt)
 
 
@@ -258,7 +258,7 @@ class Observables:
                 sim_wopt['deer'] = sim_deer
 
             if experiment == 'scattering':
-                c = self.observables['scattering'].coeff
+                c = self.observables['scattering'].scaling_factor
                 sim_tmp = np.zeros((len(self.observables['scattering'].exp_err_tmp),
                                     len(self.models_list)))
                 for j, nmodel in enumerate(self.models_list):

@@ -112,7 +112,7 @@ def start_reweighting(options, obs):
                 elif experiment in ['scattering']:
                     exp_wopt[experiment] = obs.observables[experiment].exp_tmp
                     exp_err_wopt[experiment] = obs.observables[experiment].exp_err_tmp
-                    d["coefficient"] = obs.observables['scattering'].coeff
+                    d["scaling_factor"] = obs.observables['scattering'].scaling_factor
                 elif experiment in ['generic']:
                     exp_wopt[experiment] = obs.observables[experiment].exp_tmp_dict
                     exp_err_wopt[experiment] = obs.observables[experiment].exp_err_tmp_dict
