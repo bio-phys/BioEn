@@ -28,16 +28,16 @@ class Scattering:
 
         # all input data in pkl format
         if self.in_pkl is not None:
-            [self.coeff, self.nrestraints, self.exp_tmp,
+            [self.scaling_factor, self.nrestraints, self.exp_tmp,
              self.exp_err_tmp, self.sim_tmp] = fileio.load(self.in_pkl)
         # all input data in hd5 format
         elif self.in_hd5 is not None:
-            [self.coeff, self.nrestraints, self.exp_tmp,
+            [self.scaling_factor, self.nrestraints, self.exp_tmp,
              self.exp_err_tmp, self.sim_tmp] = fileio.load(self.in_hd5,
                 hdf5_keys=["coeff", "nrestraints", "exp_tmp", "exp_err_tmp", "sim_tmp"])
         # input data provided in different files
         else:
-            self.coeff = get_coeff(self.coeff)
+            self.scaling_factor = get_coeff(self.scaling_factor)
             self.nrestraints, self.exp_tmp, self.exp_err_tmp = get_exp_tmp(self)
             # simulated data provided in pkl format
             if self.in_sim_pkl is not None:
@@ -74,7 +74,7 @@ def get_coeff(coeff):
         coeff_new = "initial-optimization"
     else:
         try:
-            coeff_new = float(self.coeff)
+            coeff_new = float(self.scaling_factor)
         except ValueError:
             print("Please provide information on the value of the nuisance parameter: "
                   "either single value (float) or let BioEn perform an initial "
