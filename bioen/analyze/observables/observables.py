@@ -89,7 +89,6 @@ class Observables:
             kwargs['exp_path']    = options.scattering_exp_path
             kwargs['exp_prefix']  = options.scattering_exp_prefix
             kwargs['exp_suffix']  = options.scattering_exp_suffix
-            kwargs['coeff']       = options.scattering_coeff
             kwargs['noise']       = options.scattering_noise
             kwargs['scaling_factor']    = options.scattering_scaling_factor
             kwargs['additive_constant'] = options.scattering_additive_constant

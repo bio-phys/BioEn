@@ -382,7 +382,7 @@ def main_function():
                       'or a file with error for each data point (e.g. <path_to_file>/err.dat).')
     parser.add_option('--scattering_scaling_factor',
                       dest='scattering_scaling_factor',
-                      type=float,
+                      type='string',
                       default='0.0002',
                       help='Define initial value for the scaling factor of the scattering data. '
                       'Define either single value (e.g. 0.0002 (default)) '
