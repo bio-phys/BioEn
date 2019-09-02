@@ -16,7 +16,7 @@ bioen \
     --scattering_exp_prefix lyz \
     --scattering_exp_suffix exp \
     --scattering_noise exp-file \
-    --scattering_coefficient initial-optimization \
+    --scattering_scaling_factor initial-optimization \
     --output_pkl out-scattering.pkl 
     #--optimizationDebug \
 

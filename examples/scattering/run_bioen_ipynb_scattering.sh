@@ -14,7 +14,7 @@ bioen \
     --theta theta.dat \
     --number_of_iterations 10 \
     --scattering_input_pkl ${path_input}/input-bioen-scattering.pkl \
-    --scattering_coefficient initial-optimization \
+    --scattering_scaling_factor initial-optimization \
     --output_pkl ${path_output}/bioen-scattering.pkl 
 
 
