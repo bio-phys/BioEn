@@ -63,8 +63,8 @@ def main_function():
     parser.add_option('--optimization_minimizer',
                       dest='opt_minimizer',
                       default='scipy',
-                      choices=['scipy', 'GSL', 'lbfgs'],
-                      help='Choose for the minimzer of the optimization: '
+                      choices=['scipy', 'GSL', 'gsl', 'lbfgs'],
+                      help='Choose for the minimizer of the optimization: '
                       'scipy (default), GSL or LBFGS.')
     parser.add_option('--optimization_algorithm',
                       dest='opt_algorithm',
@@ -73,6 +73,11 @@ def main_function():
                       'scipy: bfgs, lbfgs, cg; '
                       'GSL: conjugate_fr, conjugate_pr, bfgs, bfgs, steepest_descent; '
                       'LBFGS: lbfgs.')
+    parser.add_option('--optimization_parameters',
+                      dest='opt_parameter_mod',
+                      default='',
+                      help='Adapt specific parameters of the minimizer to override the defaults specified in <bioen_optimize.yaml>. '
+                      'Example argument: gsl:step_size=0.01;gsl:tol=0.001')
     parser.add_option('--optimization_verbose',
                       action='store_true',
                       dest='opt_verbose',
@@ -135,7 +140,7 @@ def main_function():
                       dest='experiments',
                       default=None,
                       help='Required: provide at least one of the following experimental '
-                      'methods: deer, scattering, generic.')
+                      'methods: generic, cd, deer, scattering.')
     parser.add_option('--input_pkl',
                       dest='input_pkl_fn',
                       default=None,
@@ -193,6 +198,64 @@ def main_function():
                       default=1.0,
                       help='Weight of the generic data (in case of ensemble refinement '
                       'weighting with different experimental data).')
+    
+    # circular dichroism
+    parser.add_option('--cd_sim_path',
+                      dest='cd_sim_path',
+                      default=None,
+                      help='Path of files with simulated data CD data.')
+    parser.add_option('--cd_sim_prefix',
+                      dest='cd_sim_prefix',
+                      type='string',
+                      default='sim',
+                      help='Prefix of files with simulated CD data (e.g. sim (default).')
+    parser.add_option('--cd_sim_suffix',
+                      dest='cd_sim_suffix',
+                      type='string',
+                      default='cd',
+                      help='Suffix of files with simulated CD data (e.g. cd (default).')
+    parser.add_option('--cd_exp_path',
+                      dest='cd_exp_path',
+                      default=None,
+                      help='Path of files with experimental data for CD data input.')
+    parser.add_option('--cd_exp_prefix',
+                      dest='cd_exp_prefix',
+                      type='string',
+                      default='exp',
+                      help='Prefix of files with experimental data for CD data input. '
+                      ' (e.g. exp (default).')
+    parser.add_option('--cd_exp_suffix',
+                      dest='cd_exp_suffix',
+                      type='string',
+                      default='cd',
+                      help='Suffix of files with experimental data for CD data input. '
+                      '(e.g. cd (default).')
+    parser.add_option('--cd_noise',
+                      dest='cd_noise',
+                      type='string',
+                      default='0.01',
+                      help='Define noise level (sigma) of the DEER data. '
+                      'Define either single value for all data points (e.g. 0.01 (default)), '
+                      'the difference between experimental measurement and fit (\"exp_fit_dif\"), '
+                      'the standard deviation of the difference between experimental measurement , '
+                      'and fit (\"exp_fit_std\"), or a file with sigmas for each data point '
+                      '(e.g. <path_to_file>/err.dat).')
+    parser.add_option('--cd_data_input_pkl',
+                      dest='cd_in_pkl',
+                      type='string',
+                      default=None,
+                      help='Input pkl file with experimental and simulated CD data.')
+    parser.add_option('--cd_data_output_pkl',
+                      dest='cd_out_pkl',
+                      type='string',
+                      default=None,
+                      help='Output pkl file with experimental and simulated CD data.')
+    parser.add_option('--cd_data_weight',
+                      dest='cd_data_weight',
+                      type=float,
+                      default=1.0,
+                      help='Weight of the CD data (in case of ensemble refinement '
+                      'with different experimental data).')
 
     # deer
     parser.add_option('--deer_sim_path',
@@ -317,14 +380,26 @@ def main_function():
                       'Define either single value for all data points (e.g. 0.01 (default)), '
                       'provide the third column in the exp data file (\"exp-file\"), '
                       'or a file with error for each data point (e.g. <path_to_file>/err.dat).')
-    parser.add_option('--scattering_coefficient',
-                      dest='scattering_coeff',
+    parser.add_option('--scattering_scaling_factor',
+                      dest='scattering_scaling_factor',
                       type='string',
                       default='0.0002',
-                      help='Define initial value for the nuiscance parameter of the '
-                      'scattering data. Define either single value (e.g. 0.0002 (default)) '
+                      help='Define initial value for the scaling factor of the scattering data. '
+                      'Define either single value (e.g. 0.0002 (default)) '
                       'or let BioEn perform an initial optimization for the nuisance parameter '
                       '(\"initial-optimization\").')
+    parser.add_option('--scattering_additive_constant',
+                      dest='scattering_additive_constant',
+                      type=float,
+                      default='0.0002',
+                      help='If needed, define initial value for additive constant for the '
+                      'scattering data.')
+    parser.add_option('--scattering_solvent',
+                      dest='scattering_solvent',
+                      type=float,
+                      default='0.0002',
+                      help='If needed, define initial value for the solvent for the '
+                      'scattering data.')
     parser.add_option('--scattering_data_weight',
                       dest='scattering_data_weight',
                       type=float,
@@ -358,7 +433,7 @@ def main_function():
                       default=None,
                       help='Input hd5 with dictionary of simulated scattering data '
                       '(e.g. sim_tmp[nmodel][label].')
-
+    
     parser.add_option('--number_of_iterations',
                       dest='iterations',
                       type=int,
@@ -366,6 +441,7 @@ def main_function():
                       help='Define number of iterations for reweighting. It is useful if'
                       'nuisance parameter is relevant with the exerimental data'
                       '(e.g. DEER/PELDOR or SAXS).')
+
 
     # options for a simple check of the BioEn reweighting
     parser.add_option('--simple_plot',
@@ -401,10 +477,11 @@ def main_function():
         obs = observables.Observables(options)
 
         logging.basicConfig(level=logging.INFO)
-        logging.info('BioEn weight refinement starts with')
+        logging.info('BioEn weight refinement runs with')
         logging.info('    optimization method: {}'.format(options.opt_method))
         logging.info('    optimization algorithm: {}'.format(options.opt_algorithm))
         logging.info('    optimization minimizer: {}'.format(options.opt_minimizer))
+        logging.info('    optimization parameter modification: {}'.format(options.opt_parameter_mod))
         start_time = time.time()
         procedure.start_reweighting(options, obs)
         end_time = time.time()

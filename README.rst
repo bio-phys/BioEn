@@ -339,6 +339,60 @@ tested with scattering data, 10 iterations seems to be sufficient until
 the optimization converges. To do so, we recommend to set the option
 ``--number_of_iterations`` to **10** or higher.
 
+(4) Experimental data from Circular dichroism (CD) measurements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BioEn can be used with `CD
+data <https://github.com/bio-phys/BioEn/blob/master/examples/cd_data/cd_data_reweighting.ipynb>`__. To use CD data, the bioen options should contain ``--experiments cd``.  The standard file format
+for experimental data (e.g. ``exp-cd.dat``) is:
+
+.. code:: bash
+
+   #wavelength   cd_raw          cd_poly_fit
+   190           -5.808250e+03   -6.356057524681091309e+03
+   191           -8.324000e+03   -8.437500596046447754e+03
+   192           -1.228125e+04   -1.166270971298217773e+04
+   193           -1.553750e+04   -1.528861761093139648e+04
+   194           -1.938975e+04   -1.879757702350616455e+04 
+
+
+The simulated data file (e.g. ``conf1-cd.dat``) contains:
+
+.. code:: bash
+
+
+   #wavelength   cd
+   190           1.522400000000000000e+04
+   191           1.838200000000000000e+04
+   192           2.215800000000000000e+04
+   193           2.556100000000000000e+04
+   194           2.796400000000000000e+04
+
+
+The full list of options for scattering data is:
+
+.. code:: bash
+
+    --cd_sim_path
+    --cd_sim_prefix.
+    --cd_sim_suffix
+    --cd_exp_pPath
+    --cd_exp_prefix
+    --cd_exp_suffix
+    --cd_noise
+    --cd_data_weight
+    --cd_input_pkl
+    --cd_input_hd5
+    --cd_input_sim_pkl
+    --cd_input_sim_hd5
+    --cd_output_pkl
+
+Please take note of the options ``--cd_sim_prefix``,
+``--cd_sim_sufffix``, ``--cd_exp_prefix``, and
+``--cd_exp_suffix``. These options are useful to define the
+names of the files of experimental and simulated.
+
+
 Other options and settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -423,7 +477,7 @@ choose the file names or leave it with the default naming.
     file name is **bioen\_result.pkl**. This pkl file contains all
     relevant information from the weight optimization including
     experimental data, ensemble averaged data, (reference, initial, and
-    optimized) weights, consistency of experimental data with
+    optimized) weights, consistency of simulated data with
     experimental data (chi-squared), relative entropy, etc. For a
     complete analysis of your BioEn calculations, this file is
     essential.

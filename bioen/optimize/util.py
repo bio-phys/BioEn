@@ -92,7 +92,7 @@ def compute_relative_difference_for_arrays(a, b):
     return d, idx
 
 
-def load_template_config_yaml(file_name, minimizer):
+def load_template_config_yaml(file_name, minimizer, parameter_mod=""):
     """
     Loads the bioen configuration for a specified minimizer from a yaml file.
 
@@ -106,27 +106,32 @@ def load_template_config_yaml(file_name, minimizer):
     params: a map structure containing the configuration
 
     """
+    # TODO: Simplify the handling of the cfg data structure throughout the optimize module, this is currently highly obfuscated!
 
     minimizer = minimizer.lower()
 
     with open(file_name, "r") as fp:
         cfg = yaml.safe_load(fp)
 
+    # modify parameters, overriding the default
+    if parameter_mod:
+        token_list = parameter_mod.split(',')
+        for token in token_list:
+            keys, value = token.split('=')
+            value = ntype(value)
+            keys = keys.split(':')
+            nested_set(cfg, keys, value)
+
     packed_params = {}
 
-    # 3
     debug = cfg["general"]["debug"]
-    # 4
     verbose = cfg["general"]["verbose"]
 
-    # 6  #params per "minimizer"
     params = {}
     for modif in cfg[minimizer]:
         params[modif] = cfg[minimizer][modif]
 
-    # 7
     n_threads = cfg["c_functions"]["n_threads"]
-    # 8
     cache_ytilde_transposed = cfg["c_functions"]["cache_ytilde_transposed"]
 
     packed_params["minimizer"] = minimizer
@@ -152,6 +157,40 @@ def load_template_config_yaml(file_name, minimizer):
 
     packed_params["use_c_functions"] = use_c_functions
 
-    # print(packed_params)
-
     return packed_params
+
+
+def ntype(s):
+    """Convert a string 's' to its native Python datatype, if possible.
+    """
+    true_strings = ["true", "t", "yes", "y"]
+    false_strings = ["false", "f", "no", "n"]
+
+    def is_bool(s):
+        return s.lower() in true_strings + false_strings
+
+    def is_true(s):
+        return s.lower() in true_strings
+
+    try:
+        r = int(s)
+    except Exception:
+        try:
+            r = float(s)
+        except Exception:
+            if is_bool(s):
+                return is_true(s)
+            else:
+                return s
+        else:
+            return r
+    else:
+        return r
+
+
+def nested_set(dic, keys, value):
+    """Set value in a nested dictionary at the location given by the list of keys.
+    """
+    for key in keys[:-1]:
+        dic = dic.setdefault(key, {})
+    dic[keys[-1]] = value

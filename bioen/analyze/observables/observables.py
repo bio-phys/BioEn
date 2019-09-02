@@ -4,6 +4,7 @@ import numpy as np
 from scipy.optimize import leastsq
 
 from .generic import generic
+from .cd_data import cd_data
 from .deer import deer
 from .scattering import scattering
 from ... import optimize
@@ -26,6 +27,39 @@ class Observables:
         self.models_list = get_models_list(options.models_list_fn, options.nmodels)
 
         self.observables = dict()
+        
+        if 'generic' in self.experiments:
+            kwargs = dict()
+            kwargs['sim_path']    = options.generic_sim_path
+            kwargs['sim_prefix']  = options.generic_sim_prefix
+            kwargs['sim_suffix']  = options.generic_sim_suffix
+            kwargs['exp_path']    = options.generic_exp_path
+            kwargs['exp_prefix']  = options.generic_exp_prefix
+            kwargs['exp_suffix']  = options.generic_exp_suffix
+            kwargs['data_ids']    = options.generic_data_ids
+            kwargs['data_weight'] = options.generic_data_weight
+            kwargs['in_pkl']      = options.generic_in_pkl
+            kwargs['out_pkl']     = options.generic_out_pkl
+            kwargs['nmodels']     = options.nmodels
+            kwargs['models_list'] = self.models_list
+            self.observables['generic'] = generic.Generic(kwargs)
+    
+        if 'cd' in self.experiments:
+            kwargs = dict()
+            kwargs['sim_path']    = options.cd_sim_path
+            kwargs['sim_prefix']  = options.cd_sim_prefix
+            kwargs['sim_suffix']  = options.cd_sim_suffix
+            kwargs['exp_path']    = options.cd_exp_path
+            kwargs['exp_prefix']  = options.cd_exp_prefix
+            kwargs['exp_suffix']  = options.cd_exp_suffix
+            kwargs['noise']       = options.cd_noise
+            kwargs['in_pkl']      = options.cd_in_pkl
+            kwargs['out_pkl']     = options.cd_out_pkl
+            kwargs['data_weight'] = options.cd_data_weight
+            kwargs['nmodels']     = options.nmodels
+            kwargs['models_list'] = self.models_list
+            self.observables['cd'] = cd_data.CD(kwargs)
+        
         if 'deer' in self.experiments:
             kwargs = dict()
             kwargs['sim_path']    = options.deer_sim_path
@@ -55,8 +89,10 @@ class Observables:
             kwargs['exp_path']    = options.scattering_exp_path
             kwargs['exp_prefix']  = options.scattering_exp_prefix
             kwargs['exp_suffix']  = options.scattering_exp_suffix
-            kwargs['coeff']       = options.scattering_coeff
             kwargs['noise']       = options.scattering_noise
+            kwargs['scaling_factor']    = options.scattering_scaling_factor
+            kwargs['additive_constant'] = options.scattering_additive_constant
+            kwargs['solvent']     = options.scattering_solvent
             kwargs['data_weight'] = options.scattering_data_weight
             kwargs['in_pkl']      = options.scattering_in_pkl
             kwargs['in_hd5']      = options.scattering_in_hd5
@@ -66,22 +102,6 @@ class Observables:
             kwargs['nmodels']     = options.nmodels
             kwargs['models_list'] = self.models_list
             self.observables['scattering'] = scattering.Scattering(kwargs)
-
-        if 'generic' in self.experiments:
-            kwargs = dict()
-            kwargs['sim_path']    = options.generic_sim_path
-            kwargs['sim_prefix']  = options.generic_sim_prefix
-            kwargs['sim_suffix']  = options.generic_sim_suffix
-            kwargs['exp_path']    = options.generic_exp_path
-            kwargs['exp_prefix']  = options.generic_exp_prefix
-            kwargs['exp_suffix']  = options.generic_exp_suffix
-            kwargs['data_ids']    = options.generic_data_ids
-            kwargs['data_weight'] = options.generic_data_weight
-            kwargs['in_pkl']      = options.generic_in_pkl
-            kwargs['out_pkl']     = options.generic_out_pkl
-            kwargs['nmodels']     = options.nmodels
-            kwargs['models_list'] = self.models_list
-            self.observables['generic'] = generic.Generic(kwargs)
 
         self.nrestraints = get_nrestraints_all(self)
         self.exp = get_proc_exp(self)
@@ -113,9 +133,11 @@ class Observables:
                         sim_l.extend((1 - moddepth + moddepth * sim_tmp[nmodel][ln]) /
                                       exp_err_tmp[ln])
                 if experiment == 'scattering':
-                    c = self.observables['scattering'].coeff
+                    c = self.observables['scattering'].scaling_factor
                     sim_l.extend((c * sim_tmp[nmodel]) / exp_err_tmp)
                 if experiment == 'generic':
+                    sim_l.extend(sim_tmp[nmodel] / exp_err_tmp)
+                if experiment == 'cd':
                     sim_l.extend(sim_tmp[nmodel] / exp_err_tmp)
             sim[:,j] = np.array(sim_l)
         return np.matrix(sim), np.matrix(sim.copy())
@@ -188,9 +210,9 @@ class Observables:
                     self.observables['deer'].moddepth[ln] = m_opt
 
             if experiment == 'scattering':
-                c = self.observables['scattering'].coeff
+                c = self.observables['scattering'].scaling_factor
                 c_opt, idx = leastsq(self.coeff_fit, c, args=(wopt))
-                self.observables['scattering'].coeff = c_opt
+                self.observables['scattering'].scaling_factor = c_opt
         return self.get_proc_sim()
 
 
@@ -201,8 +223,8 @@ class Observables:
                 if self.observables['deer'].moddepth[ln] == "initial-optimization":
                     self.observables['deer'].moddepth[ln] = 0.15
         elif 'scattering' in self.experiments:
-            if self.observables['scattering'].coeff == "initial-optimization":
-                self.observables['scattering'].coeff = 0.0002
+            if self.observables['scattering'].scaling_factor == "initial-optimization":
+                self.observables['scattering'].scaling_factor = 0.0002
         return self.update_sim(wopt)
 
 
@@ -236,9 +258,9 @@ class Observables:
                 sim_wopt['deer'] = sim_deer
 
             if experiment == 'scattering':
-                c = self.observables['scattering'].coeff
+                c = self.observables['scattering'].scaling_factor
                 sim_tmp = np.zeros((len(self.observables['scattering'].exp_err_tmp),
-                                   len(self.models_list)))
+                                    len(self.models_list)))
                 for j, nmodel in enumerate(self.models_list):
                     s = self.observables['scattering'].sim_tmp[nmodel]
                     sim_tmp[:,j] = np.array(c * s)
@@ -250,6 +272,14 @@ class Observables:
                 for i, flex_id in enumerate(self.observables['generic'].exp_tmp_dict.keys()):
                     sim_tmp_1[flex_id] = sim_tmp_dict[flex_id]*np.matrix(wopt)
                 sim_wopt['generic'] = sim_tmp_1
+            
+            if experiment == 'cd':
+                sim_tmp = np.zeros((len(self.observables['cd'].exp_err_tmp),
+                                    len(self.models_list)))
+                for j, nmodel in enumerate(self.models_list):
+                    s = self.observables['cd'].sim_tmp[nmodel]
+                    sim_tmp[:,j] = np.array(s)
+                sim_wopt['cd'] = np.matrix(sim_tmp)*wopt
         return sim_wopt
 
 
@@ -259,7 +289,7 @@ def get_experiments(experiments):
     checks if the provided kind of data is implemented
     in BioEn.
     """
-    experiments_in_bioen = ['deer', 'scattering', 'generic']
+    experiments_in_bioen = ['deer', 'scattering', 'generic', 'cd']
     if all(experiment in experiments_in_bioen for experiment in experiments.split(',')):
         return experiments.split(',')
     else:
@@ -312,4 +342,6 @@ def get_proc_exp(self):
             exp.extend((np.array(exp_tmp[:,1], dtype=np.float64)) / exp_err_tmp)
         elif experiment == 'generic':
             exp.extend((np.array(exp_tmp, dtype=np.float64)) / exp_err_tmp)
+        elif experiment == 'cd':
+            exp.extend((np.array(exp_tmp[:,2], dtype=np.float64)) / exp_err_tmp)
     return np.matrix(np.array(exp).reshape(1, self.nrestraints))

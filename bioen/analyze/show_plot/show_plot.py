@@ -61,6 +61,8 @@ def start_plotting(self):
         figs_all.append(plot_scattering(self, theta_series))
     if 'generic' in experiments:
         figs_all.append(plot_generic(self, theta_series))
+    if 'cd' in experiments:
+        figs_all.append(plot_cd(self, theta_series))
     figs_all = [fig for sublist in figs_all for fig in sublist]
     for fig in figs_all:
         pp.savefig(fig)
@@ -167,3 +169,26 @@ def visualize_generic_data(bioen_data, exp_keys, theta_series):
     plt.grid()
     plt.tight_layout()
     return fig
+
+
+
+def plot_cd(self, theta_series):
+    fig = plt.figure(figsize=[9, 6])
+    ax = fig.add_subplot(111)
+
+    exp = self.bioen_data[np.max(theta_series)]['exp']['cd']
+    ax.plot(exp[:, 0], exp[:, 1], color='black', linewidth=2.5, label='Exp.', zorder=2)
+
+    a = np.linspace(0.1, 0.7, num=len(theta_series))
+    for i, theta in enumerate(theta_series):
+        sim = self.bioen_data[theta]['sim_wopt']['cd']
+        ax.plot(exp[:, 0], sim, color='red', alpha=a[i], linewidth=3.0,
+                label=r"BioEn ($\theta={}$)".format(theta), zorder=3)
+
+    ax.set_xlabel(r'Wavelength')
+    ax.set_ylabel(r'Molecular elipticity')
+    ax.legend(loc=1, ncol=2)
+    plt.grid()
+    plt.tight_layout()
+    return [fig]
+

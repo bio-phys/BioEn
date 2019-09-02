@@ -41,7 +41,7 @@ def show_params(packed_params):
 
 
 # default parameters from template for a given minimizer
-def Parameters(minimizer):
+def Parameters(minimizer, parameter_mod=""):
     """
     Provides the default parameters for a specific minimizer
 
@@ -59,8 +59,8 @@ def Parameters(minimizer):
     TEMPLATE = ROOT_DIR + BASE_FILE
 
     if not os.path.isfile(TEMPLATE):
-        print("Data file (", TEMPLATE, ") can not be found (check installation)")
+        print("Default parameter file (", TEMPLATE, ") cannot be found!")
 
-    packed_params = util.load_template_config_yaml(TEMPLATE, minimizer)
+    packed_params = util.load_template_config_yaml(TEMPLATE, minimizer, parameter_mod)
 
     return packed_params

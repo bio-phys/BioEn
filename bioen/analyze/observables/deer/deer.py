@@ -148,6 +148,10 @@ def get_sim_tmp(self):
         for i, label in enumerate(self.labels):
             ln = "{}-{}".format(label[0], label[1])
             sim_tmp_2[ln] = np.genfromtxt("{0}/{1}{2}-{3}-{4}-{5}.dat".format(self.sim_path,
-                                                                              self.sim_prefix, int(model), label[0], label[1], self.sim_suffix))[:, 1]
+                                                                              self.sim_prefix, 
+                                                                              int(model), 
+                                                                              label[0], 
+                                                                              label[1], 
+                                                                              self.sim_suffix))[:, 1]
         sim_tmp[model] = sim_tmp_2
     return sim_tmp
