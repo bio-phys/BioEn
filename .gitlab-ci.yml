@@ -77,7 +77,7 @@ test_py36_lnx_nehalem:
 
 # "testmac" CI runner on the Mac at MPCDF PC service
 # note: runner needs to be started manually inside a screen session
-test_py27_mac:
+test_py37_mac:
     tags:
         # - DISABLE
         - mac
@@ -89,8 +89,8 @@ test_py27_mac:
         # BIOEN_FAST_CFLAGS: 0
         # OMP_STACKSIZE: 64M
     before_script:
-        - source /opt/anaconda/anavars2.sh
-        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - source /opt/anaconda/anavars3.sh
+        - rm -f ~/.local/lib/python3.7/site-packages/bioen.egg-link
         - python setup.py develop --user
     script:
         # 'before_script' is executed, working directory is 'package'
@@ -111,9 +111,9 @@ test_py27_mac:
         - python setup.py sdist --formats=gztar
     after_script:
         # 'after_script' starts with a clean state
-        - source /opt/anaconda/anavars2.sh
+        - source /opt/anaconda/anavars3.sh
         - python setup.py develop --user --uninstall || true
-        - rm -f ~/.local/lib/python2.7/site-packages/bioen.egg-link
+        - rm -f ~/.local/lib/python3.7/site-packages/bioen.egg-link
         - python setup.py clean || true
 
 
