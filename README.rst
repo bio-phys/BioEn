@@ -477,7 +477,7 @@ choose the file names or leave it with the default naming.
     file name is **bioen\_result.pkl**. This pkl file contains all
     relevant information from the weight optimization including
     experimental data, ensemble averaged data, (reference, initial, and
-    optimized) weights, consistency of experimental data with
+    optimized) weights, consistency of simulated data with
     experimental data (chi-squared), relative entropy, etc. For a
     complete analysis of your BioEn calculations, this file is
     essential.
