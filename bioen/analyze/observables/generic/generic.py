@@ -104,6 +104,7 @@ def get_sim_tmp(self):
 
     sim_tmp = dict()
     for nmodel in range(0, self.nmodels):
-        sim_tmp[nmodel+1] = sim_tmp_1[:, nmodel]
+        #sim_tmp[nmodel+1] = sim_tmp_1[:, nmodel]
+        sim_tmp[nmodel] = sim_tmp_1[:, nmodel]
 
     return sim_tmp, sim_tmp_dict
