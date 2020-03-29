@@ -99,7 +99,7 @@ def main_function():
                       default='bioen_result.pkl',
                       help='Name of output pkl file (includes weighted simulated data, '
                       'weights, theta, relative entropy, chi2, and much more information).'
-                      'The default is bioen_restult.pkl.')
+                      'The default is bioen_result.pkl.')
     parser.add_option('--output_weights',
                       dest='output_weights_fn',
                       default='bioen_result_weights.dat',

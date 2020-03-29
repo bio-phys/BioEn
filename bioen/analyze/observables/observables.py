@@ -222,7 +222,7 @@ class Observables:
                 ln = "{}-{}".format(label[0], label[1])
                 if self.observables['deer'].moddepth[ln] == "initial-optimization":
                     self.observables['deer'].moddepth[ln] = 0.15
-        elif 'scattering' in self.experiments:
+        if 'scattering' in self.experiments:
             if self.observables['scattering'].scaling_factor == "initial-optimization":
                 self.observables['scattering'].scaling_factor = 0.0002
         return self.update_sim(wopt)
@@ -290,8 +290,8 @@ def get_experiments(experiments):
     in BioEn.
     """
     experiments_in_bioen = ['deer', 'scattering', 'generic', 'cd']
-    if all(experiment in experiments_in_bioen for experiment in experiments.split(',')):
-        return experiments.split(',')
+    if all(experiment.replace(" ", "") in experiments_in_bioen for experiment in experiments.split(',')):
+        return experiments.replace(" ", "").split(',')
     else:
         for experiment in experiments.split(','):
             if experiment not in experiments_in_bioen:
