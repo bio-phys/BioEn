@@ -15,7 +15,7 @@ for DIR in gsl-2.5 liblbfgs-1.10
 do
     cd ${DIR}
     ./configure --prefix=${PREFIX}
-    make
+    make -j4
     make install
     make clean
     cd -

@@ -110,7 +110,7 @@ def load_hdf5(file_name, hdf5_deep_mode=False, hdf5_keys=[]):
             result = {}
             for key, value in sorted(hdf5_obj.items()):
                 if isinstance(value, h5py.Dataset):
-                    result[key] = value.value
+                    result[key] = value[()]
                 elif isinstance(value, h5py.Group):
                     result[key] = load_rec_dict(value)
         else:
@@ -121,13 +121,13 @@ def load_hdf5(file_name, hdf5_deep_mode=False, hdf5_keys=[]):
                 for key in hdf5_keys:
                     value = hdf5_obj[key]
                     if isinstance(value, h5py.Dataset):
-                        result.append(value.value)
+                        result.append(value[()])
             else:
                 # return all the top-level datasets in a list
                 result = []
                 for key, value in sorted(hdf5_obj.items()):
                     if isinstance(value, h5py.Dataset):
-                        result.append(value.value)
+                        result.append(value[()])
     return result
 
 
@@ -192,7 +192,7 @@ def load_rec_dict(group):
 
     for key, value in sorted(group.items()):
         if (isinstance(value, h5py.Dataset)):
-            mydict = value.value
+            mydict = value[()]
         if (isinstance(value, h5py.Group)):
             mydict[key] = load_rec_dict(value)
     return mydict
