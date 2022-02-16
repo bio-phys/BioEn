@@ -11,7 +11,7 @@
 #include <lbfgs.h>
 #endif
 
-const char* bioen_gsl_error(int gsl_errno){
+const char * bioen_gsl_error(int gsl_errno){
 #ifdef ENABLE_GSL
     return gsl_strerror(gsl_errno);
 #else
@@ -19,7 +19,7 @@ const char* bioen_gsl_error(int gsl_errno){
 #endif
 }
 
-char* lbfgs_strerror(int error) {
+const char * lbfgs_strerror(int error) {
 #ifdef ENABLE_LBFGS
     switch (error) {
         case LBFGS_SUCCESS: // synonym is LBFGS_CONVERGENCE, value is 0
