@@ -1,11 +1,11 @@
-test_py3_linux:
+test_gcc10_py3_linux:
     image: gitlab-registry.mpcdf.mpg.de/mpcdf/module-image
     tags:
         - docker
+        - avx512
     variables:
         BIOEN_OPENMP: 1
         BIOEN_FAST_CFLAGS: 1
-        # OMP_STACKSIZE: 64M
     before_script:
         - module purge
         - module load git
@@ -15,11 +15,11 @@ test_py3_linux:
         - cd third-party
         - ./install_dependencies.sh
         - cd ..
-        - python setup.py develop --user
+        - python setup.py install --user
     script:
-        # run the included unit test cases
+        - export PATH=${HOME}/.local/bin:${PATH}
+        # run the test cases
         - cd test/optimize
-        # - for NT in 1 2 4 8 12 16 24 48; do OMP_NUM_THREADS=$NT py.test -sv; done
         - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
         - cd -
         - cd test/deer
@@ -33,6 +33,4 @@ test_py3_linux:
         - cd -
     only:
         - branches
-    except:
-        - master
 
