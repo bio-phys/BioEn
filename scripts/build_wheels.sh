@@ -19,10 +19,11 @@ function repair_wheel {
 mkdir -p wheelhouse
 
 # Install a system package required by our library
-yum install -y atlas-devel
+#yum install -y atlas-devel
 
 # Compile wheels
-for PYBIN in /opt/python/{$CPYTHONS}/bin; do
+for PY in $CPYTHONS; do
+    PYBIN=/opt/python/$PY/bin
     "${PYBIN}/pip" install --user -r requirements.txt
     "${PYBIN}/pip" install --user .
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
@@ -34,7 +35,8 @@ for whl in wheelhouse/*.whl; do
 done
 
 # Install packages and test
-for PYBIN in /opt/python/{$CPYTHONS}/bin/; do
+for PY in $CPYTHONS; do
+    PYBIN=/opt/python/$PY/bin
     "${PYBIN}/pip" install bioen --user --no-index -f ./wheelhouse
     #(cd "$HOME"; "${PYBIN}/nosetests" pymanylinuxdemo)
 done
