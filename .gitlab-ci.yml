@@ -85,6 +85,9 @@ build_wheel_linux:
         BIOEN_FAST_CFLAGS: 1
     script:
         - ls -l
+        - cd third-party
+        - ./install_dependencies.sh
+        - cd ..
     only:
         - develop
 
