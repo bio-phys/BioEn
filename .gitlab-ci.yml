@@ -81,8 +81,9 @@ build_wheel_linux:
     tags:
         - docker
     variables:
-        BIOEN_OPENMP: 1
-        BIOEN_FAST_CFLAGS: 1
+        BIOEN_OPENMP: 0
+        CFLAGS: -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe
+        BIOEN_CFLAGS: -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe
     script:
         - ls -l
         - cd third-party
