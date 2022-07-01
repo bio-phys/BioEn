@@ -85,10 +85,15 @@ build_wheel_linux:
         CFLAGS: -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe
         BIOEN_CFLAGS: -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe
     script:
-        - ls -l
+        # build GSL and liblbfgs
         - cd third-party
         - ./install_dependencies.sh
         - cd ..
+        # build bioen
+        - python setup.py install --user
+        - cd test/optimize
+        - py.test -sv
+        - cd -
     only:
         - develop
 
