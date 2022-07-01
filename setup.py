@@ -224,7 +224,6 @@ print("CFLAGS : " + str(CFLAGS))
 print("LDFLAGS : " + str(LDFLAGS))
 print("---")
 
-
 ext = []
 ext.append(
     Extension("bioen.optimize.ext.c_bioen",
@@ -235,6 +234,7 @@ ext.append(
               )
 )
 
+reqs = [l.strip() for l in open("requirements.txt").readlines()]
 
 class CleanCommand(Command):
     """Custom clean command to remove unnecessary files."""
@@ -276,7 +276,7 @@ setup(
     cmdclass={'clean': CleanCommand, 'build_ext': build_ext},
     ext_modules=ext,
     include_package_data=True,
-    install_requires=['numpy', 'scipy', 'cython', 'pyyaml', 'pandas', 'h5py', 'MDAnalysis', 'pytest'],
+    install_requires=reqs,
     entry_points={'console_scripts':
                   ['bioen = bioen.analyze.run_bioen:main']},
     zip_safe=False,

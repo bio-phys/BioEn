@@ -21,6 +21,7 @@ mkdir -p wheelhouse
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
+    "${PYBIN}/pip" install --user -r requirements.txt
     "${PYBIN}/pip" install --user .
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
 done

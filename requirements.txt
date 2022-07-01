@@ -1,0 +1,8 @@
+numpy
+scipy
+cython
+pyyaml
+pandas
+h5py
+MDAnalysis
+pytest
