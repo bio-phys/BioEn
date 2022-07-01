@@ -90,10 +90,7 @@ build_wheel_linux:
         - ./install_dependencies.sh
         - cd ..
         # build bioen
-        - pip install --user .
-        - cd test/optimize
-        - py.test -sv
-        - cd -
+        - scripts/build_wheels.sh
     only:
         - develop
 
