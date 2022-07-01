@@ -81,10 +81,13 @@ build_wheel_linux:
     tags:
         - docker
     variables:
+        PLAT: manylinux2014_x86_64
         BIOEN_OPENMP: 0
-        CFLAGS: -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe
-        BIOEN_CFLAGS: -march=nocona -mtune=haswell -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe
+        CFLAGS: '-march=nocona -mtune=haswell -Wno-unknown-pragmas -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -O2 -ffunction-sections -pipe'
+        BIOEN_CFLAGS: '"$CFLAGS"'
     script:
+        - ls -l /opt/python
+        - exit 0
         # build GSL and liblbfgs
         - cd third-party
         - ./install_dependencies.sh

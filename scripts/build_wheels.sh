@@ -10,14 +10,14 @@ function repair_wheel {
     if ! auditwheel show "$wheel"; then
         echo "Skipping non-platform wheel $wheel"
     else
-        auditwheel repair "$wheel" --plat "$PLAT" -w /io/wheelhouse/
+        auditwheel repair "$wheel" --plat "$PLAT" -w ./wheelhouse/
     fi
 }
 
 mkdir -p wheelhouse
 
 # Install a system package required by our library
-#yum install -y atlas-devel
+yum install -y atlas-devel
 
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
