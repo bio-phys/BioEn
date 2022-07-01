@@ -2,8 +2,7 @@
 
 # Adapted from
 # https://github.com/pypa/python-manylinux-demo
-# This script must have PLAT and CPYTHONS set!
-#
+# This script must have the variables PLAT and CPYTHONS set, cf. gitlab-ci.yml!
 
 set -e -u -x
 
@@ -24,8 +23,8 @@ mkdir -p wheelhouse
 # Compile wheels
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
-    "${PYBIN}/pip" install --user -r requirements.txt
-    "${PYBIN}/pip" install --user .
+    "${PYBIN}/pip" install -r requirements.txt
+    #"${PYBIN}/pip" install .
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
 done
 
@@ -37,7 +36,7 @@ done
 # Install packages and test
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
-    "${PYBIN}/pip" install bioen --user --no-index -f ./wheelhouse
+    "${PYBIN}/pip" install bioen --no-index -f ./wheelhouse
     #(cd "$HOME"; "${PYBIN}/nosetests" pymanylinuxdemo)
 done
 
