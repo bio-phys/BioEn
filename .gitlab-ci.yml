@@ -1,6 +1,7 @@
 test_gcc10_py3_linux:
     image: gitlab-registry.mpcdf.mpg.de/mpcdf/module-image
     tags:
+        - disable
         - docker
         - avx512
     variables:
@@ -39,6 +40,7 @@ test_gcc10_py3_linux:
 test_clang_py3_linux:
     image: gitlab-registry.mpcdf.mpg.de/mpcdf/module-image
     tags:
+        - disable
         - docker
         - avx512
     variables:
@@ -73,4 +75,16 @@ test_clang_py3_linux:
         - cd -
     only:
         - branches
+
+build_wheel_linux:
+    image: quay.io/pypa/manylinux2014_x86_64
+    tags:
+        - docker
+    variables:
+        BIOEN_OPENMP: 1
+        BIOEN_FAST_CFLAGS: 1
+    script:
+        - ls -l
+    only:
+        - develop
 
