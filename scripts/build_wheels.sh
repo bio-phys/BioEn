@@ -2,6 +2,8 @@
 
 # Adapted from
 # https://github.com/pypa/python-manylinux-demo
+# This script must have PLAT and CPYTHONS set!
+#
 
 set -e -u -x
 
@@ -20,7 +22,7 @@ mkdir -p wheelhouse
 yum install -y atlas-devel
 
 # Compile wheels
-for PYBIN in /opt/python/*/bin; do
+for PYBIN in /opt/python/{$CPYTHONS}/bin; do
     "${PYBIN}/pip" install --user -r requirements.txt
     "${PYBIN}/pip" install --user .
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
@@ -32,7 +34,7 @@ for whl in wheelhouse/*.whl; do
 done
 
 # Install packages and test
-for PYBIN in /opt/python/*/bin/; do
+for PYBIN in /opt/python/{$CPYTHONS}/bin/; do
     "${PYBIN}/pip" install bioen --user --no-index -f ./wheelhouse
     #(cd "$HOME"; "${PYBIN}/nosetests" pymanylinuxdemo)
 done
