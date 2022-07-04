@@ -92,7 +92,7 @@ build_wheel_linux:
         #- ls -l /opt/python && exit 0
         # build GSL and liblbfgs
         - pushd third-party
-        - PREFIX=/usr ./install_dependencies.sh
+        #- PREFIX=/usr ./install_dependencies.sh
         - popd
         # build bioen and wheels
         - scripts/build_wheels.sh
