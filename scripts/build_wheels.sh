@@ -18,7 +18,8 @@ function repair_wheel {
 mkdir -p wheelhouse
 
 # Install a system package required by our library
-#yum install -y atlas-devel
+yum install -y gsl-devel
+yum install -y liblbfgs-devel
 
 # Compile wheels
 for PY in $CPYTHONS; do
