@@ -25,7 +25,6 @@ yum install -y liblbfgs-devel
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
     "${PYBIN}/pip" install -r requirements.txt
-    #"${PYBIN}/pip" install .
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
 done
 
@@ -38,14 +37,14 @@ done
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
     "${PYBIN}/pip" install bioen --no-index -f ./wheelhouse
-    #(cd "$HOME"; "${PYBIN}/nosetests" pymanylinuxdemo)
     cd test/optimize
     "${PYBIN}/pytest" -sv
     cd -
 done
 
-# Upload packages to local registry
+# Upload packages to local GitLab registry
 ${PYBIN}/pip install twine
+#curl --request DELETE --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.example.com/api/v4/projects/:id/packages/:package_id"
 TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token \
   ${PYBIN}/python -m \
     twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi wheelhouse/*.whl
