@@ -81,7 +81,7 @@ build_wheel_linux:
     tags:
         - docker
     variables:
-        CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
+        CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
         #PYTHONS: "cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
         #CPYTHONS: cp38-cp38
         PLAT: manylinux2014_x86_64
