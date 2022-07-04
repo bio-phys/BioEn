@@ -100,6 +100,13 @@ except:
     BIOEN_USE_DEFAULT_GSL = True
 
 
+# influence setting the rpath
+try:
+    BIOEN_RPATH = bool(os.environ["BIOEN_RPATH"])
+except:
+    BIOEN_RPATH = True
+
+
 # compile the Cython and C extension
 SRC = []
 SRC.append("bioen/optimize/ext/c_bioen.pyx")
@@ -170,14 +177,16 @@ if 'LBFGS_HOME' in os.environ:
     CFLAGS.append("-DENABLE_LBFGS")
     INCLUDE_DIRS.append(os.path.join(LBFGS, "include"))
     LDFLAGS.append("-L" + os.path.join(LBFGS, "lib"))
-    LDFLAGS.append("-Wl,-rpath," + os.path.join(LBFGS, "lib"))
+    if BIOEN_RPATH:
+        LDFLAGS.append("-Wl,-rpath," + os.path.join(LBFGS, "lib"))
     LDFLAGS.append("-llbfgs")
 elif os.path.isfile(os.path.join(THIRD_PARTY_PREFIX, "include/lbfgs.h")):
     LBFGS = THIRD_PARTY_PREFIX
     CFLAGS.append("-DENABLE_LBFGS")
     INCLUDE_DIRS.append(os.path.join(LBFGS, "include"))
     LDFLAGS.append("-L" + os.path.join(LBFGS, "lib"))
-    LDFLAGS.append("-Wl,-rpath," + os.path.join(LBFGS, "lib"))
+    if BIOEN_RPATH:
+        LDFLAGS.append("-Wl,-rpath," + os.path.join(LBFGS, "lib"))
     LDFLAGS.append("-llbfgs")
 else:
     if BIOEN_USE_DEFAULT_LBFGS:
