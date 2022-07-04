@@ -17,7 +17,7 @@ function repair_wheel {
 
 mkdir -p wheelhouse
 
-# Install a system package required by our library
+# Install system packages required by our library
 yum install -y gsl-devel
 yum install -y liblbfgs-devel
 

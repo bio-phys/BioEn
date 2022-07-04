@@ -231,7 +231,9 @@ else:
     print("Note: user-defined CFLAGS")
 print("CFLAGS : " + str(CFLAGS))
 print("LDFLAGS : " + str(LDFLAGS))
+print("RPATH : " + str(BIOEN_RPATH))
 print("---")
+
 
 ext = []
 ext.append(
