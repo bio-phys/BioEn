@@ -45,7 +45,7 @@ for PY in $CPYTHONS; do
 done
 
 # Upload packages to local registry
-pip install twine
+${PYBIN}/pip install twine
 TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token \
   ${PYBIN}/python -m \
     twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi wheelhouse/*
