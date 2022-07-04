@@ -91,12 +91,9 @@ build_wheel_linux:
     script:
         #- ls -l /opt/python && exit 0
         # build GSL and liblbfgs
-        #- mkdir ~/third-party-libs
-        - cd third-party
-        #- ./install_dependencies.sh ${HOME}/third-party-libs
-        - ./install_dependencies.sh /usr
-        - cd ..
-        #- export LD_LIBRARY_PATH=${HOME}/third-party-libs/lib
+        - pushd third-party
+        - PREFIX=/usr ./install_dependencies.sh
+        - popd
         # build bioen and wheels
         - scripts/build_wheels.sh
     only:
