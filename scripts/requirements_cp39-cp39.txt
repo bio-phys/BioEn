@@ -1,0 +1,8 @@
+numpy==1.14
+scipy==1.5
+pandas
+h5py
+MDAnalysis
+cython
+pyyaml
+pytest
