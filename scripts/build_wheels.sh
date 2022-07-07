@@ -24,7 +24,8 @@ yum install -y liblbfgs-devel
 # Compile wheels
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
-    "${PYBIN}/pip" install -r scripts/requirements_${PY}.txt
+    export BIOEN_REQUIREMENTS_TXT="scripts/requirements_${PY}.txt"
+    "${PYBIN}/pip" install -r $BIOEN_REQUIREMENTS_TXT
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
 done
 

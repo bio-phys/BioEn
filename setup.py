@@ -245,7 +245,12 @@ ext.append(
               )
 )
 
-reqs = [l.strip() for l in open("requirements.txt").readlines()]
+# building the wheels may require older versions of the reqs
+try:
+    BIOEN_REQUIREMENTS_TXT = os.environ["BIOEN_REQUIREMENTS_TXT"]
+except:
+    BIOEN_REQUIREMENTS_TXT = "requirements.txt"
+reqs = [l.strip() for l in open(BIOEN_REQUIREMENTS_TXT).readlines()]
 
 class CleanCommand(Command):
     """Custom clean command to remove unnecessary files."""
