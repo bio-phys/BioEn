@@ -36,17 +36,23 @@ for whl in wheelhouse/*.whl; do
     repair_wheel "$whl"
 done
 
-if false
+
+# check if the bundled shared objects do work
+yum remove -y gsl-devel gsl
+yum remove -y liblbfgs-devel liblbfgs
+
+if true
 then
     # Install packages and test
     for PY in $CPYTHONS; do
         PYBIN=/opt/python/$PY/bin
         "${PYBIN}/pip" install bioen --no-index -f ./wheelhouse
         cd test/optimize
-        # "${PYBIN}/pytest" -sv
+        "${PYBIN}/pytest" -sv
         cd -
     done
 fi
+
 
 if false
 then
