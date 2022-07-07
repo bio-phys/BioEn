@@ -1,8 +1,0 @@
-numpy==1.16.5
-scipy==1.7
-cython
-#pandas
-#h5py
-#MDAnalysis
-#pyyaml
-#pytest
