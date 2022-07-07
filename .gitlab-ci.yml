@@ -81,9 +81,9 @@ build_wheel_linux:
     tags:
         - docker
     variables:
-        CPYTHONS: "cp37-cp37m cp38-cp38 cp39-cp39"
+        # CPYTHONS: "cp37-cp37m cp38-cp38 cp39-cp39"
         # CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
-        # CPYTHONS: "cp36-cp36m"
+        CPYTHONS: "cp36-cp36m"
         PLAT: manylinux2014_x86_64
         CFLAGS: "-O2 -march=nocona -mtune=haswell -Wno-unknown-pragmas -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -ffunction-sections -pipe"
         BIOEN_CFLAGS: "$CFLAGS"

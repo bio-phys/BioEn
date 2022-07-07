@@ -21,12 +21,13 @@ mkdir -p wheelhouse
 yum install -y gsl-devel
 yum install -y liblbfgs-devel
 
-export BIOEN_REQUIREMENTS_TXT=$(readlink -f scripts/requirements_minversion.txt)
 
 # Compile wheels
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
+    export BIOEN_REQUIREMENTS_TXT=$(readlink -f scripts/requirements_${PY}.txt)
     "${PYBIN}/pip" install -r $BIOEN_REQUIREMENTS_TXT
+    unset BIOEN_REQUIREMENTS_TXT
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
 done
 
