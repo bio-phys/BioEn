@@ -38,9 +38,12 @@ for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
     "${PYBIN}/pip" install bioen --no-index -f ./wheelhouse
     cd test/optimize
-    "${PYBIN}/pytest" -sv
+    # "${PYBIN}/pytest" -sv
     cd -
 done
+
+if false
+then
 
 # Upload packages to local GitLab registry
 ${PYBIN}/pip install twine
@@ -49,3 +52,4 @@ TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token \
   ${PYBIN}/python -m \
     twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi wheelhouse/*.whl
 
+fi
