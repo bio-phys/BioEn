@@ -31,18 +31,18 @@ for PY in $CPYTHONS; do
     "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
 done
 
+
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/*.whl; do
     repair_wheel "$whl"
 done
 
 
-# check if the bundled shared objects do work
-yum remove -y gsl-devel gsl
-yum remove -y liblbfgs-devel liblbfgs
-
 if true
 then
+    # check if the bundled shared objects do work
+    yum remove -y gsl-devel gsl
+    yum remove -y liblbfgs-devel liblbfgs
     # Install packages and test
     for PY in $CPYTHONS; do
         PYBIN=/opt/python/$PY/bin
@@ -54,9 +54,9 @@ then
 fi
 
 
-if false
+if true
 then
-    # Upload packages to local GitLab registry
+    # Upload packages to local GitLab registry (in case they exist already they need to be purged first)
     ${PYBIN}/pip install twine
     #curl --request DELETE --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.example.com/api/v4/projects/:id/packages/:package_id"
     TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token \
