@@ -59,6 +59,7 @@ fi
 if true
 then
     # Upload packages to local GitLab registry (in case they exist already they need to be purged first)
+    ${PYBIN}/pip install typing_extensions
     ${PYBIN}/pip install twine
     #curl --request DELETE --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.example.com/api/v4/projects/:id/packages/:package_id"
     TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token \
