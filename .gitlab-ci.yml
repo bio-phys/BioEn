@@ -88,14 +88,14 @@ build_wheels_manylinux2014_x86_64:
         BIOEN_CFLAGS: "$CFLAGS"
         BIOEN_OPENMP: "1"
         BIOEN_RPATH: "0"
-        BIOEN_USE_DEFAULT_GSL: "True"
-        BIOEN_USE_DEFAULT_LBFGS: "True"
+        #BIOEN_USE_DEFAULT_GSL: "True"
+        #BIOEN_USE_DEFAULT_LBFGS: "True"
     script:
         #- ls -l /opt/python && exit 0
         # build GSL and liblbfgs
-        #- pushd third-party
-        #- PREFIX=/usr ./install_dependencies.sh
-        #- popd
+        - pushd third-party
+        - ./install_dependencies.sh
+        - popd
         # build bioen and wheels
         - scripts/build_wheels.sh
     only:

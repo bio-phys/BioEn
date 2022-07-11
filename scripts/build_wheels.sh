@@ -18,9 +18,10 @@ function repair_wheel {
 mkdir -p wheelhouse
 
 # Install system packages required by our library
-yum install -y gsl-devel
-yum install -y liblbfgs-devel
+#yum install -y gsl-devel
+#yum install -y liblbfgs-devel
 
+export LD_LIBRARY_PATH="/root/.local/lib"
 
 # Compile wheels
 for PY in $CPYTHONS; do
@@ -37,12 +38,13 @@ for whl in wheelhouse/*.whl; do
     repair_wheel "$whl"
 done
 
+unset LD_LIBRARY_PATH
 
 if true
 then
     # Check if the bundled shared objects do work, remove the primary ones
-    yum remove -y gsl-devel gsl
-    yum remove -y liblbfgs-devel liblbfgs
+    #yum remove -y gsl-devel gsl
+    #yum remove -y liblbfgs-devel liblbfgs
     # Install packages and test
     for PY in $CPYTHONS; do
         PYBIN=/opt/python/$PY/bin
