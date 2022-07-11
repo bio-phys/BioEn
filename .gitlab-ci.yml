@@ -76,7 +76,7 @@
 #    only:
 #        - branches
 
-build_wheels_manylinux2014_x86_64:
+build_wheels_linux_x86_64:
     image: quay.io/pypa/manylinux2014_x86_64
     tags:
         - docker
