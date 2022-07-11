@@ -40,7 +40,7 @@ done
 
 if true
 then
-    # check if the bundled shared objects do work
+    # Check if the bundled shared objects do work, remove the primary ones
     yum remove -y gsl-devel gsl
     yum remove -y liblbfgs-devel liblbfgs
     # Install packages and test

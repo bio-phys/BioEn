@@ -76,7 +76,7 @@
 #    only:
 #        - branches
 
-build_wheel_linux:
+build_wheels_manylinux2014_x86_64:
     image: quay.io/pypa/manylinux2014_x86_64
     tags:
         - docker
@@ -88,6 +88,8 @@ build_wheel_linux:
         BIOEN_CFLAGS: "$CFLAGS"
         BIOEN_OPENMP: 1
         BIOEN_RPATH: 0
+        BIOEN_USE_DEFAULT_GSL: True
+        BIOEN_USE_DEFAULT_LBFGS: True
     script:
         #- ls -l /opt/python && exit 0
         # build GSL and liblbfgs
