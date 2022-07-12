@@ -91,7 +91,6 @@ build_wheels_manylinux2014_x86_64:
         #BIOEN_USE_DEFAULT_GSL: "True"
         #BIOEN_USE_DEFAULT_LBFGS: "True"
     script:
-        #- ls -l /opt/python && exit 0
         # build GSL and liblbfgs
         - pushd third-party
         - ./install_dependencies.sh
@@ -99,5 +98,6 @@ build_wheels_manylinux2014_x86_64:
         # build bioen and wheels
         - scripts/build_wheels.sh
     only:
+        - master
         - develop
 
