@@ -1,9 +1,0 @@
-# use package versions from Anaconda 2020.02
-numpy==1.21.5
-scipy==1.7.3
-cython==0.29.24
-pyyaml==6.0
-pandas==1.2.4
-h5py==2.10.0
-pytest==5.2.1
-MDAnalysis==0.19.2
