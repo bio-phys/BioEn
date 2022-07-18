@@ -1,4 +1,6 @@
 include LICENSE.txt
+incluse third-party/gsl-LICENSE.txt
+include third-party/liblbfgs-LICENSE.txt
 include bioen/optimize/config/bioen_optimize.yaml
 recursive-include doc *
 recursive-include img *
