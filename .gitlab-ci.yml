@@ -97,7 +97,13 @@ build_wheels_manylinux2014_x86_64:
         - popd
         # build bioen and wheels
         - scripts/build_wheels.sh
+        # prepare wheels as gitlab artifact
+        - tar -czf wheelhouse.tar.gz
     only:
         - master
         - develop
+    artifacts:
+        paths:
+            - wheelhouse.tar.gz
+        expire_in: 1 week
 

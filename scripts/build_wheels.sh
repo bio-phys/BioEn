@@ -15,7 +15,6 @@ function repair_wheel {
     fi
 }
 
-mkdir -p wheelhouse
 
 # Install system packages required by our library
 #yum install -y gsl-devel
@@ -24,6 +23,7 @@ mkdir -p wheelhouse
 export LD_LIBRARY_PATH="/root/.local/lib"
 
 # Compile wheels
+mkdir -p wheelhouse
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
     export BIOEN_REQUIREMENTS_TXT=$(readlink -f scripts/requirements_${PY}.txt)
@@ -38,31 +38,17 @@ for whl in wheelhouse/*.whl; do
     repair_wheel "$whl"
 done
 
+
+# Check if the bundled shared objects do work, remove the primary ones
+#yum remove -y gsl-devel gsl
+#yum remove -y liblbfgs-devel liblbfgs
+# Install packages and test
 unset LD_LIBRARY_PATH
+for PY in $CPYTHONS; do
+    PYBIN=/opt/python/$PY/bin
+    "${PYBIN}/pip" install bioen --no-index -f ./wheelhouse
+    cd test/optimize
+    "${PYBIN}/pytest" -sv
+    cd -
+done
 
-if true
-then
-    # Check if the bundled shared objects do work, remove the primary ones
-    #yum remove -y gsl-devel gsl
-    #yum remove -y liblbfgs-devel liblbfgs
-    # Install packages and test
-    for PY in $CPYTHONS; do
-        PYBIN=/opt/python/$PY/bin
-        "${PYBIN}/pip" install bioen --no-index -f ./wheelhouse
-        cd test/optimize
-        "${PYBIN}/pytest" -sv
-        cd -
-    done
-fi
-
-
-if true
-then
-    # Upload packages to local GitLab registry (in case they exist already they need to be purged first)
-    ${PYBIN}/pip install typing_extensions
-    ${PYBIN}/pip install twine
-    #curl --request DELETE --header "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.example.com/api/v4/projects/:id/packages/:package_id"
-    TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token \
-    ${PYBIN}/python -m \
-        twine upload --repository-url ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/pypi wheelhouse/*.whl
-fi
