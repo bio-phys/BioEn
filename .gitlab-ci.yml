@@ -98,7 +98,7 @@ build_wheels_manylinux2014_x86_64:
         # build bioen and wheels
         - scripts/build_wheels.sh
         # prepare wheels as gitlab artifact
-        - tar -czf wheelhouse.tar.gz
+        - tar -czvf wheelhouse.tar.gz wheelhouse
     only:
         - master
         - develop
