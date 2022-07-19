@@ -6,7 +6,7 @@ This module contains the version number at a single central location.
 """
 
 
-ver = (0, 1, 1)
+ver = (0, 1, 2)
 
 
 def get_package_name():
