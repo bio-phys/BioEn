@@ -91,11 +91,10 @@ build_wheels_manylinux2014_x86_64:
         - popd
         # build sdist and wheels, all ready to be uploaded to pypi
         - mkdir packages
-        - scripts/build_sdist.sh
+        - scripts/build_packages.sh
         - mv -v dist/* packages/
-        - rmdir dist
-        - scripts/build_wheels.sh
         - mv -v wheelhouse/* packages/
+        - rmdir dist
         - rmdir wheelhouse
     only:
         - master

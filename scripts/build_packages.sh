@@ -56,3 +56,7 @@ for PY in $CPYTHONS; do
     cd -
 done
 
+
+# simply use the lastly-set python to create the source tarball
+${PYBIN}/python3 setup.py sdist --formats=gztar
+
