@@ -33,14 +33,14 @@ for PY in $CPYTHONS; do
 done
 
 
-# we're only interested in keeping the manylinux builds
-rm -vf wheelhouse/*-linux_x86_64.whl
-
-
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/*.whl; do
     repair_wheel "$whl"
 done
+
+
+# We're only interested in keeping the manylinux builds
+rm -vf wheelhouse/*-linux_x86_64.whl
 
 
 # Check if the bundled shared objects do work, remove the primary ones
@@ -58,5 +58,5 @@ done
 
 
 # simply use the lastly-set python to create the source tarball
-${PYBIN}/python3 setup.py sdist --formats=gztar
+"${PYBIN}/python3" setup.py sdist --formats=gztar
 
