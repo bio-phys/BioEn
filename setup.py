@@ -263,13 +263,13 @@ class CleanCommand(Command):
         pass
 
     def run(self):
-        rm_args = ['build', 'dist', 'doc/html', 'doc/doctrees', 'bioen.egg-info',
-                   'bioen/githash.py', 'bioen/optimize/ext/c_bioen.c',
-                   'test/optimize/__pycache__']
+        rm_args = ['build', 'doc/html', 'doc/doctrees', 'bioen.egg-info',
+                   'bioen/githash.py', 'bioen/optimize/ext/c_bioen.c']
         os.system("rm -vrf " + " ".join(rm_args))
         os.system("find . -name '*.o' -delete -print")
         os.system("find . -name '*.so' -delete -print")
         os.system("find . -name '*.pyc' -delete -print")
+        os.system("find . -type d -name __pycache__ | while read DIR ; do rm -vrf ${DIR} ; done")
 
 
 setup(

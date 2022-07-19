@@ -27,9 +27,10 @@ mkdir -p wheelhouse
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
     export BIOEN_REQUIREMENTS_TXT=$(readlink -f scripts/requirements_${PY}.txt)
-    "${PYBIN}/pip" install -r $BIOEN_REQUIREMENTS_TXT
+    "${PYBIN}/pip3" install -r $BIOEN_REQUIREMENTS_TXT
     unset BIOEN_REQUIREMENTS_TXT
-    "${PYBIN}/pip" wheel . --no-deps -w wheelhouse
+    "${PYBIN}/pip3" wheel . --no-deps -w wheelhouse
+    "${PYBIN}/python3" setup.py clean
 done
 
 
@@ -50,13 +51,14 @@ rm -vf wheelhouse/*-linux_x86_64.whl
 unset LD_LIBRARY_PATH
 for PY in $CPYTHONS; do
     PYBIN=/opt/python/$PY/bin
-    "${PYBIN}/pip" install bioen --no-index -f ./wheelhouse
-    cd test/optimize
+    "${PYBIN}/pip3" install bioen --no-index -f ./wheelhouse
+    pushd test/optimize
     "${PYBIN}/pytest" -sv
-    cd -
+    popd
 done
 
 
 # simply use the lastly-set python to create the source tarball
+"${PYBIN}/python3" setup.py clean
 "${PYBIN}/python3" setup.py sdist --formats=gztar
 
