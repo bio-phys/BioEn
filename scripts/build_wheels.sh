@@ -33,6 +33,10 @@ for PY in $CPYTHONS; do
 done
 
 
+# we're only interested in keeping the manylinux builds
+rm -vf wheelhouse/*-linux_x86_64.whl
+
+
 # Bundle external shared libraries into the wheels
 for whl in wheelhouse/*.whl; do
     repair_wheel "$whl"

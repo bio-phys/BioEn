@@ -13,27 +13,25 @@ test_gcc10_py3_linux:
         - module list
         - export CC=`which gcc`
         - export CXX=`which g++`
-        - cd third-party
+        - pushd third-party
         - ./install_dependencies.sh
-        - cd ..
+        - popd
         - python setup.py install --user
     script:
         - export PATH=${HOME}/.local/bin:${PATH}
         # run the test cases
-        - cd test/optimize
+        - pushd test/optimize
         - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
-        - cd -
-        - cd test/deer
+        - popd
+        - pushd test/deer
         - ./run_bioen_deer.sh
-        - cd -
-        - cd test/generic
+        - popd
+        - pushd test/generic
         - ./run_bioen.sh
-        - cd -
-        - cd test/scattering
+        - popd
+        - pushd test/scattering
         - ./run_bioen_saxs.sh
-        - cd -
-    #only:
-        #- branches
+        - popd
 
 
 test_clang_py3_linux:
@@ -51,27 +49,25 @@ test_clang_py3_linux:
         - module list
         - export CC=`which clang`
         - export CXX=`which clang++`
-        - cd third-party
+        - pushd third-party
         - ./install_dependencies.sh
-        - cd ..
+        - popd
         - python setup.py install --user
     script:
         - export PATH=${HOME}/.local/bin:${PATH}
         # run the test cases
-        - cd test/optimize
+        - pushd test/optimize
         - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
-        - cd -
-        - cd test/deer
+        - popd
+        - pushd test/deer
         - ./run_bioen_deer.sh
-        - cd -
-        - cd test/generic
+        - popd
+        - pushd test/generic
         - ./run_bioen.sh
-        - cd -
-        - cd test/scattering
+        - popd
+        - pushd test/scattering
         - ./run_bioen_saxs.sh
-        - cd -
-    #only:
-        #- branches
+        - popd
 
 
 build_wheels_manylinux2014_x86_64:
@@ -93,13 +89,19 @@ build_wheels_manylinux2014_x86_64:
         - pushd third-party
         - ./install_dependencies.sh
         - popd
-        # build bioen and wheels
+        # build sdist and wheels, all ready to be uploaded to pypi
+        - mkdir packages
+        - scripts/build_sdist.sh
+        - mv -v dist/* packages/
+        - rmdir dist
         - scripts/build_wheels.sh
+        - mv -v wheelhouse/* packages/
+        - rmdir wheelhouse
     only:
         - master
         - develop
     artifacts:
         paths:
-            - wheelhouse
+            - packages/
         expire_in: 1 week
 
