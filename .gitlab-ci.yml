@@ -74,6 +74,12 @@ build_wheels_manylinux2014_x86_64:
     image: quay.io/pypa/manylinux2014_x86_64
     tags:
         - docker
+    # (gitlab runner cache) avoid downloading required packages again and again
+    cache:
+        # one would need to change the following key to discard the cache upon the next run
+        key: "$CI_COMMIT_REF_SLUG"
+        paths:
+            - .cache/pip
     variables:
         # CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
         CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
@@ -84,12 +90,16 @@ build_wheels_manylinux2014_x86_64:
         BIOEN_RPATH: "0"
         #BIOEN_USE_DEFAULT_GSL: "True"
         #BIOEN_USE_DEFAULT_LBFGS: "True"
+        # (gitlab runner cache) avoid downloading required packages again and again
+        PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    before_script:
+        - mkdir -p ${PIP_CACHE_DIR}
     script:
-        # build GSL and liblbfgs
+        # --- build GSL and liblbfgs
         - pushd third-party
         - ./install_dependencies.sh
         - popd
-        # build sdist and wheels, all ready to be uploaded to pypi
+        # --- build sdist and wheels, ready to be uploaded to pypi
         - mkdir packages
         - scripts/build_packages.sh
         - mv -v dist/* packages/
