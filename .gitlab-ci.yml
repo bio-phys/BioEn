@@ -112,5 +112,5 @@ build_wheels_manylinux2014_x86_64:
     artifacts:
         paths:
             - packages/
-        expire_in: 1 week
+        expire_in: 2 days
 
