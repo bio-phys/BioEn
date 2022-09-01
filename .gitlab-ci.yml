@@ -119,8 +119,9 @@ test_mac_arm64_homebrew:
     tags:
         - mac_arm64
     variables:
+        # TODO: fix openmp
         BIOEN_OPENMP: 0
-        BIOEN_FAST_CFLAGS: 0
+        BIOEN_FAST_CFLAGS: 1
     before_script:
         - export PATH="/opt/anaconda/2022.05/bin:$PATH"
         - export PATH="/opt/homebrew/bin:$PATH"
@@ -137,7 +138,8 @@ test_mac_arm64_homebrew:
     script:
         # run the test cases
         - pushd test/optimize
-        - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
+        # TODO: fix openmp
+        - for NT in 1; do OMP_NUM_THREADS=$NT py.test -sv; done
         - popd
         - pushd test/deer
         - ./run_bioen_deer.sh
