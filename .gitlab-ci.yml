@@ -126,12 +126,14 @@ test_mac_arm64_homebrew:
         - export PATH="/opt/homebrew/bin:$PATH"
         - export CC=`which gcc-12`
         - export CXX=`which g++-12`
-        - rm -vrf "${HOME}/.local"
+        # manually clean up potential remnants
+        - rm -vrf "${HOME}/.local" "${HOME}/Library/Caches/pip"
+        # build gsl and liblbfgs
         - pushd third-party
         - ./install_dependencies.sh
         - popd
         - export PATH=${HOME}/.local/bin:${PATH}
-        - python setup.py install --user
+        - pip install . --user
     script:
         # run the test cases
         - pushd test/optimize
