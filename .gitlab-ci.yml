@@ -16,9 +16,9 @@ test_gcc10_py3_linux:
         - pushd third-party
         - ./install_dependencies.sh
         - popd
-        - python setup.py install --user
-    script:
         - export PATH=${HOME}/.local/bin:${PATH}
+        - pip install . --user
+    script:
         # run the test cases
         - pushd test/optimize
         - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
@@ -52,9 +52,9 @@ test_clang_py3_linux:
         - pushd third-party
         - ./install_dependencies.sh
         - popd
-        - python setup.py install --user
-    script:
         - export PATH=${HOME}/.local/bin:${PATH}
+        - pip install . --user
+    script:
         # run the test cases
         - pushd test/optimize
         - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
