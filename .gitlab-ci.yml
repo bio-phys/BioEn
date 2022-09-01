@@ -114,3 +114,35 @@ build_wheels_manylinux2014_x86_64:
             - packages/
         expire_in: 2 days
 
+
+test_mac_arm64_homebrew:
+    tags:
+        - mac_arm64
+    variables:
+        BIOEN_OPENMP: 1
+        BIOEN_FAST_CFLAGS: 1
+    before_script:
+        - export PATH="/opt/anaconda/2022.05/bin:$PATH"
+        - export PATH="/opt/homebrew/bin:$PATH"
+        - export CC=`which gcc-12`
+        - export CXX=`which g++-12`
+        - rm -vrf "${HOME}/.local"
+        - pushd third-party
+        - ./install_dependencies.sh
+        - popd
+        - python setup.py install --user
+    script:
+        - export PATH=${HOME}/.local/bin:${PATH}
+        # run the test cases
+        - pushd test/optimize
+        - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
+        - popd
+        - pushd test/deer
+        - ./run_bioen_deer.sh
+        - popd
+        - pushd test/generic
+        - ./run_bioen.sh
+        - popd
+        - pushd test/scattering
+        - ./run_bioen_saxs.sh
+        - popd
