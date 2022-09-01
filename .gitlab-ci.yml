@@ -130,9 +130,9 @@ test_mac_arm64_homebrew:
         - pushd third-party
         - ./install_dependencies.sh
         - popd
+        - export PATH=${HOME}/.local/bin:${PATH}
         - python setup.py install --user
     script:
-        - export PATH=${HOME}/.local/bin:${PATH}
         # run the test cases
         - pushd test/optimize
         - for NT in 1 2 4; do OMP_NUM_THREADS=$NT py.test -sv; done
