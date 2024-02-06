@@ -1,5 +1,5 @@
-test_gcc10_py3_linux:
-    image: gitlab-registry.mpcdf.mpg.de/mpcdf/module-image
+test_gcc13_py3_linux:
+    image: gitlab-registry.mpcdf.mpg.de/mpcdf/ci-module-image/gcc_13:2024
     tags:
         - docker
     variables:
@@ -8,8 +8,8 @@ test_gcc10_py3_linux:
     before_script:
         - module purge
         - module load git
-        - module load gcc/10
-        - module load anaconda/3
+        - module load gcc
+        - module load anaconda
         - module list
         - export CC=`which gcc`
         - export CXX=`which g++`
@@ -35,7 +35,7 @@ test_gcc10_py3_linux:
 
 
 test_clang_py3_linux:
-    image: gitlab-registry.mpcdf.mpg.de/mpcdf/module-image
+    image: gitlab-registry.mpcdf.mpg.de/mpcdf/ci-module-image/gcc_13:2024
     tags:
         - docker
     variables:
@@ -45,7 +45,7 @@ test_clang_py3_linux:
         - module purge
         - module load git
         - module load clang
-        - module load anaconda/3
+        - module load anaconda
         - module list
         - export CC=`which clang`
         - export CXX=`which clang++`
@@ -74,6 +74,8 @@ build_wheels_manylinux2014_x86_64:
     image: quay.io/pypa/manylinux2014_x86_64
     tags:
         - docker
+    only:
+        - extended_tests
     # (gitlab runner cache) avoid downloading required packages again and again
     cache:
         # one would need to change the following key to discard the cache upon the next run
@@ -118,6 +120,8 @@ build_wheels_manylinux2014_x86_64:
 test_mac_arm64_homebrew:
     tags:
         - mac_arm64
+    only:
+        - extended_tests
     variables:
         # TODO: fix openmp
         BIOEN_OPENMP: 0
@@ -150,3 +154,4 @@ test_mac_arm64_homebrew:
         - pushd test/scattering
         - ./run_bioen_saxs.sh
         - popd
+
