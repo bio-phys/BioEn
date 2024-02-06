@@ -1,5 +1,5 @@
 # package versions from anaconda 2020.02
-numpy==1.18.1
+numpy==1.22.0
 scipy==1.4.1
 cython==0.29.15
 pandas==1.0.1
