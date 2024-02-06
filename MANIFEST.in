@@ -1,4 +1,10 @@
 include bioen/optimize/config/bioen_optimize.yaml
+include bioen/optimize/ext/c_bioen_kernels_forces.h
+include bioen/optimize/ext/ompmagic.h
+include bioen/optimize/ext/c_bioen_error.h
+include bioen/optimize/ext/c_bioen_common.h
+include bioen/optimize/ext/c_bioen_kernels_logw.h
+include bioen/optimize/ext/_clang-format
 recursive-include doc *
 recursive-include img *
 recursive-include scripts *
