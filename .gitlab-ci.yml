@@ -39,8 +39,8 @@ test_clang_py3_linux:
     tags:
         - docker
     variables:
-        BIOEN_OPENMP: 1
-        BIOEN_FAST_CFLAGS: 1
+        BIOEN_OPENMP: 0
+        BIOEN_FAST_CFLAGS: 0
     before_script:
         - module purge
         - module load git
