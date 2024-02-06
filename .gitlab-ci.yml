@@ -44,6 +44,7 @@ test_clang_py3_linux:
     before_script:
         - module purge
         - module load git
+        - module load gcc
         - module load clang
         - module load anaconda
         - module list
@@ -75,7 +76,8 @@ build_wheels_manylinux2014_x86_64:
     tags:
         - docker
     only:
-        - extended_tests
+        refs:
+            - extended_tests
     # (gitlab runner cache) avoid downloading required packages again and again
     cache:
         # one would need to change the following key to discard the cache upon the next run
@@ -121,7 +123,8 @@ test_mac_arm64_homebrew:
     tags:
         - mac_arm64
     only:
-        - extended_tests
+        refs:
+            - extended_tests
     variables:
         # TODO: fix openmp
         BIOEN_OPENMP: 0
