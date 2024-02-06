@@ -75,9 +75,8 @@ build_wheels_manylinux2014_x86_64:
     image: quay.io/pypa/manylinux2014_x86_64
     tags:
         - docker
-    only:
-        refs:
-            - extended_tests
+    #rules:
+    #    - if: '$CI_COMMIT_BRANCH == "extended_tests"'
     # (gitlab runner cache) avoid downloading required packages again and again
     cache:
         # one would need to change the following key to discard the cache upon the next run
@@ -85,8 +84,9 @@ build_wheels_manylinux2014_x86_64:
         paths:
             - .cache/pip
     variables:
-        # CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
-        CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
+        #CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310"
+        #CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39"
+        CPYTHONS: "cp36-cp36m cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312"
         PLAT: "manylinux2014_x86_64"
         CFLAGS: "-O3 -march=nehalem -mtune=haswell -Wno-unknown-pragmas -ftree-vectorize -fPIC -fstack-protector-strong -fno-plt -ffunction-sections -pipe"
         BIOEN_CFLAGS: "$CFLAGS"
@@ -122,9 +122,8 @@ build_wheels_manylinux2014_x86_64:
 test_mac_arm64_homebrew:
     tags:
         - mac_arm64
-    only:
-        refs:
-            - extended_tests
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "extended_tests"'
     variables:
         # TODO: fix openmp
         BIOEN_OPENMP: 0
