@@ -8,10 +8,12 @@ Use the script
 
 to conveniently install these libraries into your homedirectory.
 
+If necessary (e.g. in case the source distribution was downloaded from PyPI),
+use the script `download_dependencies.sh` to obtain the dependencies first.
 
 As a second step, install the bioen package, e.g., using
 
-python setup.py install --user
+python3 setup.py install --user
 
-which will detect and use the installation of GSL and LIBLBFGS.
+in the base directory which will detect and use the installation of GSL and LIBLBFGS.
 
